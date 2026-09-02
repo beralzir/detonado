@@ -34,8 +34,11 @@ esperar, o checkpoint não.
    algum comando ali altera o sistema (`restart`, `rm`, `pull`), não rode e aponte. Rode, compare
    com o esperado. Divergência é a primeira coisa a dizer. Bloco de outra máquina (serviços que
    não existem aqui) é divergência de máquina, não de projeto: diga qual é o caso.
-3. Responda em até dez linhas: onde estamos, o que falta e com quem, o próximo bloco. No celular,
-   um bloco por vez e resposta curta.
+3. Responda nesta ordem. Primeiro as divergências do registro, uma por linha, quantas forem.
+   Depois o núcleo, em até quatro linhas curtas: onde estamos, o que falta e com quem, o próximo
+   bloco. O limite de quatro linhas é do núcleo, as divergências não contam para ele. Feche a
+   resposta no próximo bloco. Quando não há próximo bloco porque falta uma decisão, feche na
+   decisão que destrava. No celular, um bloco por vez e resposta curta.
 4. Se o SESSION tem data anterior à do HANDOFF, o HANDOFF vence e o SESSION está velho. Diga.
 
 ## A mensagem para colar

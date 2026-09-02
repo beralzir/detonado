@@ -1,11 +1,52 @@
-{"fases":[
- {"id":"f0","tag":"FASE 0","titulo":"Guia vivo e checkpoint","resumo":"Nasce primeiro.","etapas":[
-  {"texto":"Guia criado em `docs/guia-radio-pirata/` e publicado","pronto":"URL do Artifact registrada no HANDOFF"},
-  {"texto":"`SESSION.md` inicial commitado","pronto":"hash do commit"}]},
- {"id":"f1","tag":"FASE 1","titulo":"Escolher o software","etapas":[
-  "Comparar Navidrome e Jellyfin",
-  {"texto":"Decisão registrada no HANDOFF","pronto":"tabela de decisões","quem":"Bera"}]},
- {"id":"f2","tag":"FASE 2","titulo":"Navidrome de pé por Quadlet","resumo":"Container rodando e provado.","etapas":[
-  {"texto":"Container avulso no ar com `podman run`","pronto":"`podman ps` com o navidrome em Up"},
-  {"texto":"Quadlet escrito em `~/.config/containers/systemd/` e ativo","pronto":"`systemctl --user is-active navidrome` mais `podman ps` com Up depois de reboot"}]}
-]}
+{
+ "fases": [
+  {
+   "id": "f0",
+   "tag": "FASE 0",
+   "titulo": "Guia vivo e checkpoint",
+   "resumo": "Nasce primeiro.",
+   "etapas": [
+    {
+     "texto": "Guia criado em `docs/guia-radio-pirata/` e publicado",
+     "pronto": "URL do Artifact registrada no HANDOFF"
+    },
+    {
+     "texto": "`SESSION.md` inicial commitado",
+     "pronto": "hash do commit"
+    }
+   ]
+  },
+  {
+   "id": "f1",
+   "tag": "FASE 1",
+   "titulo": "Escolher o software",
+   "etapas": [
+    {
+     "texto": "Comparar Navidrome e Jellyfin",
+     "pronto": "tabela comparativa no HANDOFF com as duas opções e o critério de escolha"
+    },
+    {
+     "texto": "Decisão registrada no HANDOFF",
+     "pronto": "tabela de decisões",
+     "quem": "Bera"
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "tag": "FASE 2",
+   "titulo": "Navidrome de pé por Quadlet",
+   "resumo": "Container rodando e provado.",
+   "etapas": [
+    {
+     "texto": "Container avulso no ar com `podman run`",
+     "pronto": "`podman ps` com o navidrome em Up"
+    },
+    {
+     "texto": "Quadlet escrito em `~/.config/containers/systemd/` e ativo",
+     "pronto": "`systemctl --user is-active navidrome` mais `podman ps` com Up depois de reboot"
+    }
+   ]
+  }
+ ]
+}

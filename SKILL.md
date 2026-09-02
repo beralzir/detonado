@@ -19,9 +19,10 @@ progresso mostra o que foi provado, não o que foi prometido. O método nasceu n
 ## Modos
 
 Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, ou o projeto não está nomeado, pergunte
-antes de tocar em arquivo. Projeto nomeado cujo diretório não existe nesta máquina: diga onde ele
-mora (ponteiro em `~/workspace/marvin/projetos/`) e não crie nada aqui. Pergunta redutível a até
-4 opções vai por `AskUserQuestion`.
+antes de tocar em arquivo. Em **retomar**, **guia** e **fechar**, projeto nomeado cujo diretório
+não existe nesta máquina não se cria: diga onde ele mora (ponteiro em
+`~/workspace/marvin/projetos/`) e pare aí. Em **abrir**, o diretório não existir é a premissa do
+modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 
 | Modo | Pedido típico | O que faz | Leia antes |
 |---|---|---|---|
@@ -106,8 +107,10 @@ Detalhe em `references/retomada.md`. O essencial: fechar é SESSION.md com tabel
 guia atualizado por script, HANDOFF só se o ponto de retomada mudou, lição se houve, commit só dos
 artefatos desta skill, adicionados por caminho, com mensagem que diz o que fechou. Retomar é ler
 CLAUDE.md, HANDOFF e SESSION, ler o bloco de sanidade antes de rodar (ele só imprime estado, e se
-algum comando altera o sistema, não rode e aponte), e responder em até dez linhas: onde estamos,
-o que falta, qual o próximo bloco.
+algum comando altera o sistema, não rode e aponte), e responder nesta ordem: as divergências do
+registro primeiro, uma por linha, e depois o núcleo em até quatro linhas curtas (onde estamos, o
+que falta e com quem, o próximo bloco). Fecha no próximo bloco, ou na decisão que destrava quando
+não há próximo bloco.
 
 ## Regras default
 

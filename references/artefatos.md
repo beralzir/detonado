@@ -23,7 +23,8 @@ outro projeto (aponte).
 
 Escrito para ser lido no celular por SSH. Seções numeradas, sempre as mesmas, para o dedo achar:
 
-0. Parágrafo de abertura com data e hora, dizendo em cinco linhas onde o projeto está e o que
+0. Parágrafo de abertura com a data, e a hora quando houver mais de uma sessão no mesmo dia,
+   dizendo em cinco linhas onde o projeto está e o que
    falta. Se o Bera perguntar "onde paramos", a resposta começa aqui.
 1. **Voltando.** Os comandos para entrar (tmux, cd, claude) e a mensagem para colar na primeira
    linha da sessão.

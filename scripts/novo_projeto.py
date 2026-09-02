@@ -73,7 +73,14 @@ def validar_fases(dados) -> list:
                 e = {"texto": e}
             if not isinstance(e, dict) or not e.get("texto"):
                 raise ValueError(f"fase {f['id']}, etapa {k}: precisa de 'texto'")
-            etapas.append({"n": k, "texto": e["texto"], "prova": e.get("pronto") or e.get("prova", ""), "quem": e.get("quem", "")})
+            prova = (e.get("pronto") or e.get("prova") or "").strip()
+            if not prova:
+                raise ValueError(
+                    f"fase {f['id']}, etapa {k} ({e['texto']!r}): precisa de 'pronto', "
+                    "o criterio observavel que fecha a etapa. Etapa sem 'pronto quando' volta "
+                    "como pergunta antes de gerar, ver references/metodo.md"
+                )
+            etapas.append({"n": k, "texto": e["texto"], "prova": prova, "quem": e.get("quem", "")})
         fases.append({"id": f["id"], "tag": f["tag"], "titulo": f["titulo"],
                       "resumo": f.get("resumo", ""), "etapas": etapas})
     return fases
