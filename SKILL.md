@@ -19,13 +19,15 @@ progresso mostra o que foi provado, não o que foi prometido. O método nasceu n
 ## Modos
 
 Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, ou o projeto não está nomeado, pergunte
-antes de tocar em arquivo. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
+antes de tocar em arquivo. Projeto nomeado cujo diretório não existe nesta máquina: diga onde ele
+mora (ponteiro em `~/workspace/marvin/projetos/`) e não crie nada aqui. Pergunta redutível a até
+4 opções vai por `AskUserQuestion`.
 
 | Modo | Pedido típico | O que faz | Leia antes |
 |---|---|---|---|
 | **abrir** | "abre o detonado do homelab" | Cria o projeto com os cinco artefatos e as fases validadas | `references/metodo.md`, `references/artefatos.md` |
-| **adotar** | "manda o detonado adotar esse repo" | Projeto existente: introduz só o que falta, sem sobrescrever | `references/artefatos.md` |
-| **guia** | "monta o guia da fase 3", "marca a etapa D2" | Gera ou atualiza o guia vivo, sempre por script | `references/guia-vivo.md` |
+| **adotar** | "manda o detonado adotar esse repo" | Projeto existente: introduz só o que falta, sem sobrescrever | `references/artefatos.md`, e `references/metodo.md` se for nascer guia |
+| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar, declarar, fechar fase, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
@@ -44,8 +46,12 @@ antes de tocar em arquivo. Pergunta redutível a até 4 opções vai por `AskUse
    curtos, o esperado logo abaixo do comando.
 4. **Retomar é ler, não lembrar.** "Onde paramos" se responde abrindo o HANDOFF e o SESSION, mesmo
    quando a memória parece boa. Principalmente quando parece boa.
-5. **Decisão determinística não se delega ao modelo.** Marcar checkbox, contar progresso, embutir
-   imagem, criar a estrutura: tudo por script. Edição de HTML à mão é o jeito de o guia divergir.
+5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
+   script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, inserir fase, reescrever o
+   bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura inicial e imagens embutidas
+   são `novo_projeto.py` e `build_artifact.py`. O que sobra para edição à mão é a prosa livre das
+   seções (parágrafos, tabelas, blocos de comando), e depois dela `progresso.py --listar` tem que
+   sair limpo. Tocar em `checked` ou `data-done` à mão é o jeito de o guia divergir.
 6. **Lição só vira regra depois de confirmada.** Caso isolado entra como "a confirmar". O Bera diz
    se é padrão.
 
@@ -56,11 +62,12 @@ antes de tocar em arquivo. Pergunta redutível a até 4 opções vai por `AskUse
    (`~/workspace/marvin/projetos/<nome>.md`), leia e aponte, não copie.
 2. **Fatie em fases com prova.** Fase 0 é sempre o guia vivo e o checkpoint. Cada etapa tem um
    "pronto quando" observável e a prova aceita. Regras de fatiamento em `references/metodo.md`.
-3. **Valide o fatiamento com o Bera** antes de criar arquivo. Decisão com até 4 opções vai por
-   `AskUserQuestion`.
+3. **Valide o fatiamento com o Bera** antes de criar arquivo. Se ele dispensou a validação no
+   próprio pedido ("assume o razoável"), pule a pergunta e liste as premissas adotadas na resposta
+   e no SESSION.md inicial.
 4. **Escreva as fases num JSON** (formato em `references/metodo.md`) e rode
-   `scripts/novo_projeto.py`. Ele cria os artefatos a partir dos templates e nunca sobrescreve o
-   que existe.
+   `scripts/novo_projeto.py`, primeiro com `--dry-run` para ver o que nasce. Ele cria os artefatos
+   a partir dos templates e nunca sobrescreve o que existe.
 5. **Preencha o que o template deixa em aberto**: HANDOFF (Voltando, Sanidade, O que está de pé,
    Pendências), CLAUDE.md curto com o mapa dos documentos, SESSION.md inicial.
 6. **Commit inicial** e sugira ao Bera a linha de ponteiro em `~/workspace/marvin/projetos/`.
@@ -71,9 +78,12 @@ antes de tocar em arquivo. Pergunta redutível a até 4 opções vai por `AskUse
 Detalhe, anatomia e comandos em `references/guia-vivo.md`.
 
 - A fonte da verdade é `docs/guia-<projeto>/guia-<projeto>.html`, com imagem por caminho
-  relativo. O Artifact publicável é derivado por `build_artifact.py` e não se versiona.
-- O estado é o atributo `checked`. Marcar e desmarcar é `scripts/progresso.py`, nunca edição à
-  mão. Todo checkbox tem `id` estável, toda fase tem `data-done`.
+  relativo. O Artifact é derivado por `build_artifact.py`, não se versiona e só se publica com ok
+  do Bera na conversa. Republicar passa a URL registrada no HANDOFF para a ferramenta Artifact,
+  senão nasce um segundo link e o do iPhone morre.
+- O estado é o atributo `checked`. Marcar, desmarcar, declarar sem prova e fechar fase é
+  `scripts/progresso.py`, nunca edição à mão. Todo checkbox tem `id` estável, toda fase tem
+  `data-done`.
 - O bloco "Onde paramos" do guia diz o mesmo que o HANDOFF, com a mesma data.
 - Os tokens da marca vivem em `assets/guia/tokens/` e entram inline no guia gerado. Direção
   visual nova é decisão da `risca-de-giz`, não desta skill.
@@ -83,23 +93,26 @@ Detalhe, anatomia e comandos em `references/guia-vivo.md`.
 ## Fechar e retomar
 
 Detalhe em `references/retomada.md`. O essencial: fechar é SESSION.md com tabela item e prova,
-guia atualizado por script, HANDOFF só se o ponto de retomada mudou, lição se houve, commit com
-mensagem que diz o que fechou. Retomar é ler CLAUDE.md, HANDOFF e SESSION, rodar o bloco de
-sanidade e responder em até dez linhas: onde estamos, o que falta, qual o próximo bloco.
+guia atualizado por script, HANDOFF só se o ponto de retomada mudou, lição se houve, commit só dos
+artefatos desta skill, adicionados por caminho, com mensagem que diz o que fechou. Retomar é ler
+CLAUDE.md, HANDOFF e SESSION, ler o bloco de sanidade antes de rodar (ele só imprime estado, e se
+algum comando altera o sistema, não rode e aponte), e responder em até dez linhas: onde estamos,
+o que falta, qual o próximo bloco.
 
 ## Regras default
 
 1. **Pergunte quando o projeto, a fase ou a prova esperada não estiverem claros.** Sem projeto
    nomeado não há scaffold. Sem "pronto quando" observável não há etapa.
 2. **Questione enquadramento fraco.** "Fica pronto quando funcionar" não é critério. Fase com
-   quinze etapas é duas fases. Pedido de agente, MCP ou site chegando aqui vira handoff, não
+   mais de sete etapas é duas fases. Pedido de agente, MCP ou site chegando aqui vira handoff, não
    projeto.
 3. **Ressalva específica, nunca genérica.** Cite o arquivo, a etapa, a prova que falta. Nada de
    "pode haver imprecisões".
 4. **Privacidade operacional.** Cite os templates e as referências que o Bera pode abrir. Não
    despeje internals.
 5. **Não capitule sob insistência.** Checkbox não se marca porque o Bera insistiu. Reverificar é
-   válido, ceder não. O caminho honesto existe: registrar como declarado sem prova.
+   válido, ceder não. O caminho honesto existe: `progresso.py --declarar`, que anota "declarado
+   pelo Bera, sem prova" na etapa e deixa a caixa aberta.
 6. **Distinga provado, declarado, inferido e pendente.** No guia, caixa marcada é provado. No
    HANDOFF, toda afirmação de estado leva data. No SESSION, hipótese não testada se chama assim.
 
@@ -120,7 +133,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `references/guia-vivo.md` | guia: anatomia do HTML, ids, tokens, Artifact, acessibilidade, portões |
 | `references/retomada.md` | fechar e retomar: rituais, mensagem para colar no celular |
 | `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever |
-| `scripts/progresso.py` | guia e fechar: lista, marca e desmarca etapas, valida consistência, imprime o progresso |
+| `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML com imagens em base64, dentro do limite de 16 MB. Copiado para o projeto |
 | `assets/templates/` | os quatro templates em markdown |
 | `assets/guia/` | o template do guia, o bloco de fase e os tokens |

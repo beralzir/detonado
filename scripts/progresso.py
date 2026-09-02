@@ -14,10 +14,14 @@ Uso:
     progresso.py GUIA.html --fechar f1           marca "Etapa concluída" da fase
     progresso.py GUIA.html --reabrir f1
     progresso.py GUIA.html --carimbar 02/09/2026 data em #status-atual[data-v] e #atualizado
+    progresso.py GUIA.html --declarar e-f1-2     anota "declarado pelo Bera, sem prova" na etapa
+    progresso.py GUIA.html --onde-paramos "texto com `crase` virando code"   reescreve #status-atual
+    progresso.py GUIA.html --inserir-fase fases.json   acrescenta fases novas (nav e seção)
 
 Convenção do template: etapa é `<input type="checkbox" id="e-<fase>-<n>">`, fase é
 `<input type="checkbox" data-done="<fase>">`. O percentual conta todos os checkboxes, igual ao
-script da página.
+script da página. Estado e estrutura do guia mudam só por aqui: o que sobra para edição à mão é
+a prosa livre das seções (parágrafos, tabelas, blocos de comando).
 
 Sai 0 em sucesso, 1 se há inconsistência (fase fechada com etapa aberta) e nada foi alterado,
 2 se um id não existe, o arquivo não é um guia do detonado, ou a entrada é inválida.
@@ -124,6 +128,57 @@ def resumo(itens) -> str:
     return f"{marc}/{total} caixas, {pct}%, {fechadas}/{len(ordem)} fases fechadas"
 
 
+def hoje() -> str:
+    import datetime as _dt
+    return _dt.date.today().strftime("%d/%m/%Y")
+
+
+def inline_code(texto: str) -> str:
+    import html as _html
+    partes = texto.split("`")
+    return "".join(f"<code>{_html.escape(p, quote=False)}</code>" if i % 2 else _html.escape(p, quote=False)
+                   for i, p in enumerate(partes))
+
+
+def declarar(html: str, it: dict, data: str):
+    """Anota a etapa como declarada sem prova. Recusa etapa marcada."""
+    if it["checked"]:
+        return html, "recusado: etapa marcada como provada, desmarque antes de declarar"
+    fim_label = html.index("</label>", it["span"][1])
+    trecho = html[it["span"][1]:fim_label]
+    if 'class="decl"' in trecho:
+        return html, f"{it['id']} já tinha declaração, mantida"
+    nota = f'<small class="decl">Declarado pelo Bera em {data}, sem prova</small>'
+    return html[:fim_label] + nota + html[fim_label:], f"declarou {it['id']} em {data}"
+
+
+def onde_paramos(html: str, texto: str):
+    m = re.search(r'(<p id="status-atual"[^>]*>).*?(</p>)', html, flags=re.S)
+    if not m:
+        return html, 0
+    return html[:m.start()] + m.group(1) + inline_code(texto) + m.group(2) + html[m.end():], 1
+
+
+def inserir_fase(html: str, caminho_json: Path, itens):
+    """Acrescenta fases novas antes da seção de referência, com link na nav."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from novo_projeto import validar_fases, render_fase, render_nav  # noqa: E402
+    tpl = Path(__file__).resolve().parent.parent / "assets" / "guia" / "fase.template.html"
+    fases = validar_fases(json.loads(caminho_json.read_text(encoding="utf-8")))
+    existentes = {it["fase"] for it in itens if it["fase"]}
+    repetidas = [f["id"] for f in fases if f["id"] in existentes]
+    if repetidas:
+        raise ValueError("fase já existe no guia: " + ", ".join(repetidas))
+    marca_nav = '   <div class="navsec">Referência</div>'
+    marca_sec = '<section id="comandos">'
+    if marca_nav not in html or marca_sec not in html:
+        raise ValueError("guia sem os marcadores do template (navsec Referência, section#comandos)")
+    tpl_fase = tpl.read_text(encoding="utf-8")
+    html = html.replace(marca_nav, render_nav(fases) + "\n" + marca_nav, 1)
+    html = html.replace(marca_sec, "\n\n".join(render_fase(tpl_fase, f) for f in fases) + "\n\n" + marca_sec, 1)
+    return html, [f["id"] for f in fases]
+
+
 def carimbar(html: str, data: str):
     n = 0
     novo, k = re.subn(r'(id="status-atual"[^>]*\bdata-v=")[^"]*(")', rf"\g<1>{data}\g<2>", html, count=1)
@@ -144,6 +199,9 @@ def main() -> int:
     ap.add_argument("--fechar", nargs="+", metavar="FASE", default=[])
     ap.add_argument("--reabrir", nargs="+", metavar="FASE", default=[])
     ap.add_argument("--carimbar", metavar="DD/MM/AAAA")
+    ap.add_argument("--declarar", nargs="+", metavar="ID", default=[])
+    ap.add_argument("--onde-paramos", metavar="TEXTO")
+    ap.add_argument("--inserir-fase", metavar="FASES.json", type=Path)
     a = ap.parse_args()
 
     html = ler(a.guia)
@@ -157,6 +215,14 @@ def main() -> int:
         return 2
 
     mudancas = []
+    if a.inserir_fase:
+        try:
+            html, novas = inserir_fase(html, a.inserir_fase, itens)
+        except (OSError, ValueError, json.JSONDecodeError) as e:
+            print(f"ERRO: --inserir-fase: {e}", file=sys.stderr)
+            return 2
+        mudancas.append("inseriu fase(s) " + ", ".join(novas))
+        itens = inventario(html)
     alvo = {}
     for i in a.marcar:
         alvo[("etapa", i)] = True
@@ -188,6 +254,27 @@ def main() -> int:
                 html = set_checked(html, it["span"], valor)
                 mudancas.append(f"{'marcou' if valor else 'desmarcou'} {chave[0]} {chave[1]}")
         itens = inventario(html)
+
+    if a.declarar:
+        indice = {it["id"]: it for it in itens if it["tipo"] == "etapa"}
+        faltando = [i for i in a.declarar if i not in indice]
+        if faltando:
+            print("ERRO: id inexistente no guia: " + ", ".join(faltando), file=sys.stderr)
+            return 2
+        data = a.carimbar or hoje()
+        for i in sorted(a.declarar, key=lambda i: -indice[i]["span"][0]):
+            html, msg = declarar(html, indice[i], data)
+            mudancas.append(msg)
+        itens = inventario(html)
+
+    if a.onde_paramos:
+        html, n = onde_paramos(html, a.onde_paramos)
+        if n == 0:
+            print("ERRO: não achei <p id=\"status-atual\"> para reescrever", file=sys.stderr)
+            return 2
+        mudancas.append("reescreveu o bloco Onde paramos")
+        if not a.carimbar:
+            a.carimbar = hoje()
 
     if a.carimbar:
         html, n = carimbar(html, a.carimbar)

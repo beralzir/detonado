@@ -49,20 +49,28 @@ O template consome só estas variáveis, e é isso que torna a marca trocável:
 ## Atualizar
 
 ```bash
-python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-x/guia-x.html --listar
-python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-x/guia-x.html --marcar e-f1-2 e-f1-3
-python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-x/guia-x.html --fechar f1
-python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-x/guia-x.html --desmarcar e-f1-3
-python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-x/guia-x.html --carimbar 02/09/2026
+P=~/.claude/skills/detonado/scripts/progresso.py
+python3 $P docs/guia-x/guia-x.html --listar                       # estado, avisos de consistência
+python3 $P docs/guia-x/guia-x.html --resumo                       # uma linha, para o bloco de sanidade
+python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 e-f1-3         # só com prova citada na conversa
+python3 $P docs/guia-x/guia-x.html --declarar e-f1-4              # "declarado pelo Bera, sem prova", caixa fica aberta
+python3 $P docs/guia-x/guia-x.html --fechar f1                    # caixa "Fase concluída"
+python3 $P docs/guia-x/guia-x.html --reabrir f1 --desmarcar e-f1-3   # prova falsa: reabre a fase antes de desmarcar
+python3 $P docs/guia-x/guia-x.html --inserir-fase fases.json      # fase nova, nav e seção, do mesmo JSON de metodo.md
+python3 $P docs/guia-x/guia-x.html --onde-paramos "**02/09**: \`podman ps\` com Up, porta 4533 em aberto"
+python3 $P docs/guia-x/guia-x.html --carimbar 02/09/2026          # data em #status-atual e no rodapé
 ```
 
-O script recusa id inexistente (sai 2), avisa fase fechada com etapa aberta (sai 1 quando nada
-foi alterado), e imprime o progresso depois de cada operação. Marque só com a prova citada na
-conversa. Declaração sem prova não marca: acrescente no texto da etapa "declarado pelo Bera em
-<data>, sem prova".
+O script recusa id inexistente e fase repetida (sai 2), avisa fase fechada com etapa aberta (sai 1
+quando nada foi alterado), recusa declarar etapa já marcada, e imprime o progresso depois de cada
+operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar` não vier junto. Marque só
+com a prova citada na conversa. Declaração sem prova é `--declarar`, nunca `--marcar`.
 
-Depois de marcar, atualize o bloco "Onde paramos" (`#status-atual`) e carimbe a data. O guia e o
-HANDOFF dizem a mesma coisa, com a mesma data.
+O que sobra para edição à mão é a prosa livre das seções: parágrafos, tabelas, blocos de comando,
+cartões da seção Contexto. Depois de editar, `--listar` tem que sair limpo. `checked` e `data-done`
+nunca se tocam à mão.
+
+O guia e o HANDOFF dizem a mesma coisa, com a mesma data.
 
 ## Publicar
 
@@ -72,9 +80,13 @@ python3 docs/guia-x/build_artifact.py
 
 Gera `guia-x.artifact.html` com as imagens em base64, e recusa acima de 16 MB. O CSP dos
 Artifacts bloqueia host externo e caminho relativo, e libera fontes só do Google Fonts. A display
-Cabinet Grotesk (Fontshare) cai para Inter, que já é o fallback do token. Publique o derivado com
-a ferramenta Artifact, título curto e estável, favicon fixo (o mesmo em toda republicação),
-descrição de uma frase. Registre a URL no HANDOFF e no SESSION.
+Cabinet Grotesk (Fontshare) cai para Inter, que já é o fallback do token.
+
+Publicar é ação externa: só com ok do Bera na conversa. Primeira publicação: ferramenta Artifact
+com título curto e estável, favicon fixo, descrição de uma frase, e a URL vai para o HANDOFF e o
+SESSION. Republicação: a mesma ferramenta com a `url` registrada no HANDOFF, senão nasce um
+segundo link e o que o Bera tem no iPhone para de refletir o progresso. Sem favicon novo na
+republicação.
 
 ## Tokens e marca
 

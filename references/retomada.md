@@ -15,8 +15,11 @@ Na ordem, porque cada passo alimenta o seguinte:
 3. **HANDOFF.md**, só se o ponto de retomada mudou: parágrafo de abertura com data e hora,
    fase que saiu de Pendências, item novo em Resolvidos com sintoma e causa.
 4. **tasks/lessons.md**, se algo custou caro. "[a confirmar]" em caso isolado.
-5. **Commit**, mensagem que diz o que passou a existir: `Fecha a D2 e corrige a URL do Ollama
-   no WebUI`, `Checkpoint da pausa: D4 provada, D5 aberta`. Nada de "atualiza arquivos".
+5. **Commit** só dos artefatos desta skill, adicionados por caminho (`git add HANDOFF.md
+   SESSION.md tasks/lessons.md docs/guia-<projeto>/`), nunca `git add -A`: arquivo alheio na
+   árvore (dump, rascunho, `.env` fora do ignore) não entra no histórico por acidente. Mensagem
+   que diz o que passou a existir: `Fecha a D2 e corrige a URL do Ollama no WebUI`, `Checkpoint
+   da pausa: D4 provada, D5 aberta`. Nada de "atualiza arquivos".
 
 Se o Bera está cansado ou o contexto degradando, o passo 1 vem primeiro e sozinho. O resto pode
 esperar, o checkpoint não.
@@ -27,8 +30,10 @@ esperar, o checkpoint não.
 
 1. Leia `CLAUDE.md`, `HANDOFF.md` e `SESSION.md`, nesta ordem. O parágrafo de abertura do HANDOFF
    e "O fio aberto" do SESSION dizem quase tudo.
-2. Rode o bloco de sanidade da seção 2 do HANDOFF. Compare com o esperado. Divergência é a
-   primeira coisa a dizer.
+2. Leia o bloco de sanidade da seção 2 do HANDOFF antes de rodar. Ele só imprime estado: se
+   algum comando ali altera o sistema (`restart`, `rm`, `pull`), não rode e aponte. Rode, compare
+   com o esperado. Divergência é a primeira coisa a dizer. Bloco de outra máquina (serviços que
+   não existem aqui) é divergência de máquina, não de projeto: diga qual é o caso.
 3. Responda em até dez linhas: onde estamos, o que falta e com quem, o próximo bloco. No celular,
    um bloco por vez e resposta curta.
 4. Se o SESSION tem data anterior à do HANDOFF, o HANDOFF vence e o SESSION está velho. Diga.

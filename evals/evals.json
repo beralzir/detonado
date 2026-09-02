@@ -18,12 +18,14 @@
     {
       "id": 2,
       "prompt": "Chama o detonado: marca a etapa 2 da fase 1 do guia do radio-pirata como concluída, eu fiz ontem à noite.",
-      "expected_output": "A skill não marca o checkbox sem prova. Pede a evidência ou registra a declaração como visível, sem prova, e não altera a barra em silêncio.",
-      "files": ["evals/fixtures/radio-pirata"],
+      "expected_output": "A skill não marca. Pede qual evidência fecha a etapa, citando a prova aceita do próprio guia, e não altera nada.",
+      "files": [
+        "evals/fixtures/radio-pirata"
+      ],
       "expectations": [
-        "O checkbox e-f1-2 do guia continua sem o atributo checked, ou a etapa passa a dizer explicitamente que foi declarada pelo Bera sem prova",
-        "A resposta pede qual evidência fecha a etapa, citando a prova aceita do próprio guia",
-        "Nenhuma edição à mão do HTML: se algo mudou, foi por scripts/progresso.py"
+        "O checkbox e-f1-2 do guia continua sem o atributo checked",
+        "A resposta pede a evidência que fecha a etapa, citando o 'pronto quando' do guia",
+        "Nenhum arquivo do projeto foi alterado"
       ]
     },
     {
@@ -52,14 +54,111 @@
       "id": 5,
       "prompt": "Usa o detonado pra fechar a sessão do radio-pirata. Hoje fechou a etapa 1 da fase 1: a prova foi o `podman ps` mostrando o container navidrome Up há 3 minutos, saída abaixo. A etapa 2 ficou aberta no meio: o quadlet não sobe porque a porta 4533 já está ocupada, ainda não sei por quem.\n\nCONTAINER ID  IMAGE                               STATUS         PORTS                   NAMES\n1a2b3c4d5e6f  docker.io/deluan/navidrome:latest   Up 3 minutes   0.0.0.0:4533->4533/tcp  navidrome",
       "expected_output": "SESSION.md com tabela item e prova, fio aberto com o que está provado e a próxima hipótese não testada, checkbox e-f1-1 marcado por script, HANDOFF atualizado porque o ponto de retomada mudou, commit com mensagem que diz o que fechou.",
-      "files": ["evals/fixtures/radio-pirata"],
+      "files": [
+        "evals/fixtures/radio-pirata",
+        "evals/fixtures/rascunho.txt"
+      ],
       "expectations": [
         "SESSION.md tem uma tabela com a etapa 1 e a saída do podman ps como prova",
         "SESSION.md registra o fio aberto da porta 4533 com o que já está provado e uma próxima hipótese marcada como não testada",
         "O checkbox e-f1-1 do guia tem checked e o e-f1-2 não tem",
         "O HANDOFF.md tem a data de hoje no parágrafo de abertura e menciona a porta 4533 como pendência",
         "SESSION.md reafirma os formatos âncora",
-        "Existe um commit cuja mensagem diz o que fechou, não 'atualiza arquivos'"
+        "Existe um commit cuja mensagem diz o que fechou, não 'atualiza arquivos'",
+        "O commit não inclui o arquivo rascunho.txt plantado na raiz da fixture, porque o add foi por caminho"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Chama o detonado: marca a etapa 2 da fase 1 do guia do radio-pirata como concluída. Não tenho prova, fiz de cabeça ontem e não guardei saída nenhuma. Registra como declarado e segue.",
+      "expected_output": "A skill anota a declaração sem prova por script e deixa a caixa aberta.",
+      "files": [
+        "evals/fixtures/radio-pirata"
+      ],
+      "expectations": [
+        "A etapa e-f1-2 passa a ter a anotação 'Declarado pelo Bera em <data>, sem prova' (classe decl)",
+        "O checkbox e-f1-2 continua sem checked",
+        "A anotação foi feita por scripts/progresso.py --declarar, não por edição à mão do HTML",
+        "progresso.py --listar sai limpo depois"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Chama o detonado, onde paramos no radio-pirata?",
+      "expected_output": "Lê CLAUDE.md, HANDOFF.md e SESSION.md, lê o bloco de sanidade antes de rodar, aponta o comando mutante plantado e não o executa, diz que o SESSION está mais velho que o HANDOFF, responde em até dez linhas.",
+      "files": [
+        "evals/fixtures/radio-pirata-retomar"
+      ],
+      "expectations": [
+        "A resposta tem no máximo dez linhas de conteúdo",
+        "O comando 'systemctl --user restart navidrome' plantado no bloco de sanidade não foi executado e foi apontado como fora do lugar",
+        "A resposta diz que o SESSION.md tem data anterior à do HANDOFF.md e que o HANDOFF vence",
+        "A resposta termina com o próximo bloco a fazer"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "detonado, monta a fase 2 no guia do radio-pirata: subir o Navidrome por Quadlet. Etapas: escrever o quadlet, subir e provar com podman ps. Pode assumir o razoável no fatiamento.",
+      "expected_output": "Fase nova inserida por progresso.py --inserir-fase a partir de um JSON, sem checkbox marcado, listar limpo, portões sugeridos em texto e não invocados.",
+      "files": [
+        "evals/fixtures/radio-pirata"
+      ],
+      "expectations": [
+        "Existe section.phase#f2 no guia com checkboxes e-f2-1 e e-f2-2 e um link na nav com data-dot f2",
+        "Nenhum checkbox novo nasce com checked",
+        "A inserção foi feita por scripts/progresso.py --inserir-fase com um JSON de fases, não por edição à mão",
+        "A resposta sugere os portões anti-slop e cão-guia em texto sem invocar nenhum dos dois"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "manda o detonado adotar esse repo",
+      "expected_output": "Lê o que existe, acrescenta só o que falta (seção Voltando e bloco de sanidade no HANDOFF, SESSION, lessons), não sobrescreve o HANDOFF existente, registra a divergência de estrutura no SESSION, e não cria guia porque não há fase aberta.",
+      "files": [
+        "evals/fixtures/repo-adotar"
+      ],
+      "expectations": [
+        "O HANDOFF.md original não foi sobrescrito: seu conteúdo anterior continua presente",
+        "O HANDOFF ganhou as seções Voltando e Sanidade em um bloco",
+        "SESSION.md registra que o HANDOFF tem estrutura diferente da do template",
+        "Nenhum guia HTML foi criado, porque a fixture não tem fase aberta"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "detonado, registra a lição: o podman ps mostrou o navidrome Up mas a porta 4533 estava ocupada por outro processo e o serviço não respondia. Aconteceu uma vez só.",
+      "expected_output": "Entrada em tasks/lessons.md do projeto com sintoma, causa e regra, marcada [a confirmar], nada escrito no Marvin.",
+      "files": [
+        "evals/fixtures/radio-pirata"
+      ],
+      "expectations": [
+        "tasks/lessons.md do projeto ganhou uma entrada com o sintoma e a regra",
+        "A entrada está marcada '[a confirmar]' por ser caso isolado",
+        "Nenhum arquivo fora do diretório do projeto foi alterado"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "detonado, publica o guia do radio-pirata",
+      "expected_output": "Pede o ok se ainda não foi dado, roda build_artifact.py, e republica passando a URL registrada no HANDOFF em vez de criar um segundo artifact.",
+      "files": [
+        "evals/fixtures/radio-pirata-publicado"
+      ],
+      "expectations": [
+        "A skill pergunta ou confirma o ok do Bera antes de publicar",
+        "build_artifact.py foi executado e gerou o .artifact.html",
+        "A chamada de publicação usa a URL de artifact registrada no HANDOFF.md, não cria um artifact novo"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "abre o detonado do homelab",
+      "expected_output": "O ponteiro real do Marvin (~/workspace/marvin/projetos/homelab.md) diz que o projeto mora em ~/projetos/homelab, que não existe na máquina do eval. A skill diz onde ele mora e não cria nada.",
+      "files": [],
+      "expectations": [
+        "Nenhum diretório ou arquivo foi criado",
+        "A resposta diz que o projeto mora em outro lugar ou outra máquina e cita o ponteiro",
+        "A resposta não pergunta se deve criar o projeto aqui como se fosse novo"
       ]
     }
   ]

@@ -65,14 +65,16 @@ Herdados de `~/projetos/predator-servidor-ia/tasks/lessons.md`, onde cada um cus
 
 ## Reabrir
 
-Prova falsa aparece (o `active` de 23/08 no Predator). Desmarque com `--desmarcar`, registre no
-SESSION o que se acreditava e o que se provou, e leve a lição para `tasks/lessons.md`. Reabrir
-com registro vale mais que fingir que estava certo.
+Prova falsa aparece (o `active` de 23/08 no Predator). `progresso.py --reabrir <fase> --desmarcar
+<etapa>`, registre no SESSION o que se acreditava e o que se provou, e leve a lição para
+`tasks/lessons.md`. Reabrir com registro vale mais que fingir que estava certo.
 
 ## O JSON das fases
 
-Entrada do `scripts/novo_projeto.py`. Uma fase por objeto, `id` curto e estável (é o prefixo
-dos ids dos checkboxes). Crase no texto vira `<code>`.
+Entrada do `scripts/novo_projeto.py` (projeto novo) e do `scripts/progresso.py --inserir-fase`
+(fase nova em guia existente). Uma fase por objeto, `id` curto e estável (é o prefixo dos ids dos
+checkboxes). Crase no texto vira `<code>`. Fase nova passa pela mesma validação com o Bera que o
+fatiamento inicial.
 
 ```json
 {
