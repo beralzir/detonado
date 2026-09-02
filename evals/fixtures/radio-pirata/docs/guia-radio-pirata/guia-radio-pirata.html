@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rádio pirata no Predator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Tokens (trocáveis: assets/guia/tokens/ do detonado) */
+/* Tokens da marca bera para o guia vivo do detonado.
+   Fonte: ~/workspace/design-schemas/bera.md (v2.1.1, Atelier Técnico) e
+   ~/projetos/predator-servidor-ia/design/bera-ds/tokens/colors.css. Tema escuro.
+   Contrato: o template consome só estas variáveis. Trocar de marca é trocar este arquivo.
+   Texto pequeno usa no mínimo --t5, que mede 5,8:1 sobre --bg (AA). O --muted-2 #6B6B68 do
+   design system dá 3,7:1 e ficou fora por isso. */
+:root{
+ --bg:#0A0A0A; --panel:#121212; --hov:#1A1A1A; --l1:#1F1F1F; --l2:#2A2A2A; --pre:#060606;
+ --fg:#FAFAFA; --t1:#C7C7C2; --t2:#B4B4AF; --t3:#A3A39E; --t4:#9C9C97; --t5:#8B8B85;
+ --accent:#E5B748; --accent-tint:rgba(229,183,72,.06); --accent-line:rgba(229,183,72,.28); --accent-sel:rgba(229,183,72,.28);
+ --support:#D97757; --support-text:#E8977C; --support-tint:rgba(217,119,87,.07); --support-line:rgba(217,119,87,.3);
+ --good:#34D399; --good-tint:rgba(52,211,153,.06); --good-line:rgba(52,211,153,.3);
+ --bad:#F87171; --bad-tint:rgba(248,113,113,.07); --bad-line:rgba(248,113,113,.4);
+ --grid-svg:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><path d='M64 0H0V64' fill='none' stroke='%23D97757' stroke-opacity='0.05'/></svg>");
+ --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+ --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+ --display:'Cabinet Grotesk','Inter',system-ui,sans-serif;
+ --radius:0px;
+}
+
+/* Esqueleto: direção "sequência operável", herdada do Guia Predator v3.2 e do guia-servidor-v2 (ago/2026) */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.65;
+ background-image:var(--grid-svg);background-size:64px 64px}
+::selection{background:var(--accent-sel)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--l2)}
+::-webkit-scrollbar-track{background:transparent}
+img,svg{max-width:100%}
+a{color:var(--accent);text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--panel);color:var(--accent);padding:8px 12px;border:1px solid var(--accent);z-index:10}
+.skip:focus{left:8px}
+
+.wrap{max-width:1400px;margin:0 auto;padding:0 22px 120px}
+.cols{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+nav{flex:1 1 250px;position:sticky;top:18px;align-self:flex-start;padding-top:18px}
+main{flex:999 1 640px;min-width:0;padding-top:18px}
+.navbox{border:1px solid var(--l1);background:var(--panel);padding:18px 16px}
+.navhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.mono{font-family:var(--mono)}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--t5)}
+.pct{font-family:var(--mono);font-size:13px;color:var(--accent)}
+.bar{height:4px;background:var(--l1);overflow:hidden;margin-bottom:18px}
+.bar>i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:var(--accent);transition:transform .25s ease}
+.navlist{display:flex;flex-direction:column;gap:1px;max-height:min(64vh,620px);overflow-y:auto}
+.navlist a{display:flex;align-items:center;gap:10px;padding:7px 8px;color:var(--t2);font-size:13px}
+.navlist a:hover{background:var(--hov);color:var(--fg)}
+.dot{width:7px;height:7px;flex:0 0 auto;border:1px solid var(--l2);background:transparent}
+.dot.on{background:var(--good);border-color:var(--good)}
+.dot.ref{border:none;background:var(--l2);width:6px;height:6px}
+.nnum{font-family:var(--mono);font-size:11px;color:var(--t5);width:26px}
+.navsec{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--t5);padding:16px 8px 6px}
+
+header{padding:8px 0 56px}
+.hero{position:relative;overflow:hidden;border:1px solid var(--l1);background:var(--bg)}
+.hero svg{display:block;width:100%;height:clamp(220px,34vw,400px)}
+.hero .g-bg{fill:var(--bg)}.hero .g-grid{stroke:var(--l1)}.hero .g-off{stroke:var(--t5)}.hero .g-on{fill:var(--accent)}.hero .g-on-line{stroke:var(--accent)}
+.hero .veil{position:absolute;inset:0;background:rgba(10,10,10,.65)}
+.hero .txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(22px,4vw,52px);max-width:800px}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.6vw,56px);line-height:1.04;letter-spacing:-.025em;margin-bottom:16px;text-wrap:balance}
+.hero p{font-size:clamp(16px,1.5vw,19px);line-height:1.6;color:var(--t2);max-width:560px}
+
+.call{display:flex;gap:14px;padding:16px 18px;margin:20px 0}
+.call span.lb{font-family:var(--mono);font-size:11px;letter-spacing:.12em;flex:0 0 auto;padding-top:2px}
+.call p{margin:0;font-size:16px;line-height:1.65;color:var(--t1)}
+.call.regra{background:var(--accent-tint);border:1px solid var(--accent-line)}
+.call.regra .lb{color:var(--accent)}
+.call.aviso{background:var(--support-tint);border:1px solid var(--support-line)}
+.call.aviso .lb{color:var(--support-text)}
+.call.perigo{background:var(--bad-tint);border:1px solid var(--bad-line)}
+.call.perigo .lb{color:var(--bad)}
+.call.ok{background:var(--good-tint);border:1px solid var(--good-line)}
+.call.ok .lb{color:var(--good)}
+
+section{scroll-margin-top:20px;padding:44px 0;border-top:1px solid var(--l1)}
+section.phase{padding:52px 0}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;margin:0 0 16px;line-height:1.1}
+.phead{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;margin-bottom:30px}
+.phead .mid{flex:1 1 300px;min-width:0}
+.phead .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent);margin-bottom:8px}
+.phead h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.025em;margin:0 0 10px}
+.phead p{margin:0;font-size:16px;line-height:1.65;color:var(--t4);max-width:560px}
+.pdone{display:flex;align-items:center;gap:9px;border:1px solid var(--l1);background:var(--panel);
+ padding:10px 14px;cursor:pointer;font-size:13px;color:var(--t4);flex:0 0 auto}
+h3{font-size:19px;font-weight:500;margin:32px 0 14px;color:var(--fg)}
+h3 .hint{font-size:13px;color:var(--t5);font-weight:400}
+p{font-size:16px;line-height:1.7;color:var(--t3);margin:0 0 14px}
+ol,ul{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:16px;line-height:1.7;color:var(--t3)}
+strong{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:13px;color:var(--accent)}
+
+.cb{position:relative;margin:0 0 18px}
+.cb pre{background:var(--pre);border:1px solid var(--l1);padding:16px 18px;padding-right:88px;overflow-x:auto;
+ font-family:var(--mono);font-size:13px;line-height:1.75;color:var(--fg);white-space:pre}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+ text-transform:uppercase;background:var(--hov);color:var(--t5);border:1px solid var(--l2);padding:6px 11px;cursor:pointer;transition:.15s}
+.copy:hover{color:var(--accent);border-color:var(--accent)}
+.copy.done{color:var(--good);border-color:var(--good)}
+.copy.fail{color:var(--bad);border-color:var(--bad)}
+
+.grid{display:grid;gap:12px}
+.g260{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{border:1px solid var(--l1);background:var(--panel);padding:16px 18px}
+.card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--t5);margin-bottom:8px}
+.card .val{font-size:19px;font-weight:600;margin-bottom:6px}
+.card .why{font-size:13px;line-height:1.6;color:var(--t4)}
+.card.agora{border-color:var(--accent);background:var(--accent-tint)}
+.card.agora .lbl{color:var(--accent)}
+.card.feito{border-color:var(--good-line);background:var(--good-tint)}
+.card.feito .lbl{color:var(--good)}
+
+.checks{display:flex;flex-direction:column;gap:2px;border:1px solid var(--l1);background:var(--panel);padding:8px;margin-bottom:20px}
+/* bloco, não flex: com flex cada trecho de texto e cada <code> vira item e o gap rasga a frase. A caixa vai para a calha da esquerda. */
+.checks label{display:block;position:relative;padding:11px 12px 11px 41px;cursor:pointer;font-size:16px;line-height:1.5;color:var(--t2)}
+.checks label:hover{background:var(--hov)}
+.checks small{display:block;font-size:13px;line-height:1.5;color:var(--t4);margin-top:3px}
+.checks small.pq{font-family:var(--mono);font-size:13px;letter-spacing:.02em}
+.checks small.quem{color:var(--support-text)}
+input[type=checkbox]{accent-color:var(--good);width:17px;height:17px;cursor:pointer;flex:0 0 auto;margin:0}
+.checks input{position:absolute;left:12px;top:13px;margin:0}
+
+.tw{overflow-x:auto;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:0;font-size:13px}
+th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+ color:var(--t5);padding:9px 12px;border-bottom:1px solid var(--l2);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--l1);color:var(--t2);vertical-align:top}
+td code{white-space:nowrap}
+
+footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var(--t5);font-size:13px;line-height:1.7}
+@media(max-width:900px){nav{position:static;flex:1 1 100%}main{flex:1 1 100%}.cols{gap:24px}}
+@media(max-width:600px){.call{flex-direction:column;gap:6px}.phead{gap:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i{transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+<div class="wrap"><div class="cols">
+
+<nav aria-label="Progresso e fases">
+ <div class="navbox">
+  <div class="navhead"><span class="kick">Progresso</span><span class="pct" id="pct">0%</span></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="navlist">
+   <a href="#retomada"><span class="dot ref"></span>Onde paramos</a>
+   <div class="navsec">Fases</div>
+   <a href="#f0"><span class="dot" data-dot="f0"></span><span class="nnum">F0</span>Guia vivo e checkpoint</a>
+   <a href="#f1"><span class="dot" data-dot="f1"></span><span class="nnum">F1</span>Escolher o software</a>
+   <div class="navsec">Referência</div>
+   <a href="#comandos"><span class="dot ref"></span>Comandos úteis</a>
+  </div>
+ </div>
+</nav>
+
+<main id="conteudo">
+<header>
+ <div class="hero">
+  <svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ilustração em line art: um percurso de fases ligadas por linhas retas, a primeira acesa e as seguintes apagadas">
+   <rect class="g-bg" width="1200" height="400"/>
+   <g class="g-grid" stroke-width="1">
+    <path d="M0 80H1200M0 160H1200M0 240H1200M0 320H1200M160 0V400M320 0V400M480 0V400M640 0V400M800 0V400M960 0V400M1120 0V400"/>
+   </g>
+   <g class="g-off" fill="none" stroke-width="1.5" stroke-dasharray="5 7">
+    <path d="M200 280H360V200H520V280H680V120H840V200H1000"/>
+   </g>
+   <g class="g-off" fill="none" stroke-width="1.5">
+    <path d="M360 200l14-14 14 14-14 14z"/>
+    <path d="M520 280l14-14 14 14-14 14z"/>
+    <path d="M680 120l14-14 14 14-14 14z"/>
+    <path d="M840 200l14-14 14 14-14 14z"/>
+    <path d="M1000 200l14-14 14 14-14 14z"/>
+   </g>
+   <g class="g-on">
+    <path d="M200 280l16-16 16 16-16 16z"/>
+   </g>
+   <g class="g-on-line" fill="none" stroke-width="1.5">
+    <path d="M200 280m-28 0l12 0M200 280m28 0l-12 0M200 280m0 -28l0 12M200 280m0 28l0 -12"/>
+   </g>
+  </svg>
+  <div class="veil"></div>
+  <div class="txt">
+   <div class="eyebrow">guia vivo &nbsp;·&nbsp; 09/2026</div>
+   <h1>Rádio pirata no Predator</h1>
+   <p>Streaming de música local por Podman Quadlet, só no tailnet, provado do iPhone.</p>
+  </div>
+ </div>
+ <div class="call ok">
+  <span class="lb">ONDE PARAMOS</span>
+  <p id="status-atual" data-v="02/09/2026"><strong>02/09/2026: projeto aberto.</strong> Fase 0 em andamento. As fases abaixo foram validadas com o Bera e nenhuma etapa tem prova ainda.</p>
+ </div>
+ <div class="call regra">
+  <span class="lb">COMO FUNCIONA</span>
+  <p>Este guia é <strong>vivo</strong>: o Claude atualiza o arquivo e a barra de progresso conforme a conversa avança. Depois de cada etapa, recarregue a página (<code>F5</code>) para ver o estado novo. Caixa marcada é trabalho provado, com evidência na conversa. Declaração sem prova fica escrita como tal.</p>
+ </div>
+</header>
+
+<section id="retomada">
+ <div class="kick" style="letter-spacing:.2em;font-size:11px;margin-bottom:12px">Contexto</div>
+ <h2>Onde paramos</h2>
+ <p style="margin-bottom:24px;color:var(--t4);max-width:660px">O detalhe do estado mora no <code>HANDOFF.md</code> do projeto. Este bloco resume, não substitui.</p>
+
+ <div class="grid g260">
+  <div class="card feito">
+   <div class="lbl">Concluído antes</div>
+   <div class="val">Nada ainda</div>
+   <div class="why">O projeto acabou de abrir.</div>
+  </div>
+  <div class="card agora">
+   <div class="lbl">Agora</div>
+   <div class="val">Fase 0</div>
+   <div class="why">Guia vivo publicado e checkpoint commitado.</div>
+  </div>
+  <div class="card">
+   <div class="lbl">Vigilância</div>
+   <div class="val">Nada ainda</div>
+   <div class="why">O que conferir no próximo boot ou na próxima atualização entra aqui.</div>
+  </div>
+ </div>
+
+ <h3>Decisões travadas</h3>
+ <div class="tw" tabindex="0" role="group" aria-label="Tabela de decisões travadas">
+ <table>
+  <tr><th>Decisão</th><th>Valor</th></tr>
+  <tr><td>Método</td><td>detonado: fases com prova, HANDOFF e SESSION, guia vivo, lessons</td></tr>
+ </table>
+ </div>
+</section>
+
+<section class="phase" id="f0">
+ <div class="phead">
+  <div class="mid">
+   <div class="tag">FASE 0</div>
+   <h2>Guia vivo e checkpoint</h2>
+   <p>Nasce primeiro.</p>
+  </div>
+  <label class="pdone"><input type="checkbox" data-done="f0">Fase concluída</label>
+ </div>
+ <div class="checks">
+  <label><input type="checkbox" id="e-f0-1">Guia criado em <code>docs/guia-x/</code> e publicado<small class="pq">Pronto quando: URL do Artifact</small></label>
+  <label><input type="checkbox" id="e-f0-2"><code>SESSION.md</code> inicial commitado<small class="pq">Pronto quando: hash do commit</small></label>
+ </div>
+</section>
+
+
+<section class="phase" id="f1">
+ <div class="phead">
+  <div class="mid">
+   <div class="tag">FASE 1</div>
+   <h2>Escolher o software</h2>
+   <p></p>
+  </div>
+  <label class="pdone"><input type="checkbox" data-done="f1">Fase concluída</label>
+ </div>
+ <div class="checks">
+  <label><input type="checkbox" id="e-f1-1">Comparar Navidrome e Jellyfin</label>
+  <label><input type="checkbox" id="e-f1-2">Decisão registrada no HANDOFF<small class="pq">Pronto quando: tabela de decisões</small><small class="quem">com Bera</small></label>
+ </div>
+</section>
+
+
+<section id="comandos">
+ <div class="kick" style="letter-spacing:.2em;font-size:11px;margin-bottom:12px">Referência</div>
+ <h2>Comandos úteis</h2>
+ <div class="tw" tabindex="0" role="group" aria-label="Tabela de comandos úteis">
+ <table>
+  <tr><th>Para</th><th>Comando</th></tr>
+  <tr><td>Sanidade do projeto</td><td>bloco da seção 2 do <code>HANDOFF.md</code></td></tr>
+  <tr><td>Estado do guia</td><td><code>python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-radio-pirata/guia-radio-pirata.html --listar</code></td></tr>
+  <tr><td>Marcar etapa provada</td><td><code>python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-radio-pirata/guia-radio-pirata.html --marcar e-f0-1</code></td></tr>
+  <tr><td>Publicar como Artifact</td><td><code>python3 docs/guia-radio-pirata/build_artifact.py</code></td></tr>
+ </table>
+ </div>
+ <div class="cb">
+  <button class="copy" type="button" aria-live="polite" onclick="cp(this)">copiar</button>
+  <pre tabindex="0">tmux new -A -s radio-pirata
+cd ~/projetos/radio-pirata
+claude</pre>
+ </div>
+</section>
+
+<footer>
+ Guia vivo · Rádio pirata no Predator · atualizado pelo Claude a cada etapa provada, última vez em <span id="atualizado">02/09/2026</span>.<br>
+ Fonte: <code>docs/guia-radio-pirata/guia-radio-pirata.html</code>. Estado por <code>progresso.py</code> do detonado. Esqueleto herdado do Guia Predator (ago/2026).
+</footer>
+</main>
+</div></div>
+<script>
+function cp(btn){
+ var pre=btn.parentElement.querySelector('pre'), text=pre.innerText;
+ function ok(){btn.textContent='copiado';btn.className='copy done';setTimeout(function(){btn.textContent='copiar';btn.className='copy';},1600);}
+ function bad(){btn.textContent='falhou';btn.className='copy fail';setTimeout(function(){btn.textContent='copiar';btn.className='copy';},1600);}
+ function legacy(){
+  try{var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+   document.body.appendChild(ta);ta.select();var d=document.execCommand('copy');document.body.removeChild(ta);d?ok():bad();
+  }catch(e){bad();}
+ }
+ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(ok).catch(legacy);}else{legacy();}
+}
+var all=document.querySelectorAll('input[type=checkbox]');
+function upd(){
+ var n=0;all.forEach(function(b){if(b.checked)n++;});
+ var p=all.length?Math.round(n*100/all.length):0;
+ document.getElementById('pct').textContent=p+'%';
+ document.getElementById('fill').style.transform='scaleX('+(p/100)+')';
+ document.querySelectorAll('.pdone input').forEach(function(b){
+  var d=document.querySelector('[data-dot="'+b.dataset.done+'"]');
+  if(d){d.className=b.checked?'dot on':'dot';}
+ });
+}
+all.forEach(function(b){b.addEventListener('change',upd);});
+upd();
+</script>
+</body>
+</html>
