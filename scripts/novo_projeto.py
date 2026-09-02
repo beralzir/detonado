@@ -11,7 +11,8 @@ Uso:
         --objetivo "Servidor de jogos antigos no Predator, por Podman Quadlet, só no tailnet." \
         --fases fases.json [--dir ~/projetos/homelab] [--tokens bera|neutro] [--dry-run]
 
-O JSON das fases está descrito em references/metodo.md. Crase no texto da etapa vira <code>.
+O JSON das fases está descrito em references/metodo.md. Crase no texto vira <code>, **asterisco duplo** vira <strong>.
+--sem-guia serve ao modo adotar quando não há fase aberta para o guia mostrar.
 Sai 0 se criou ou pulou sem erro, 2 se faltou entrada ou o JSON é inválido.
 """
 
@@ -38,12 +39,15 @@ def erro(msg: str) -> int:
 
 
 def inline_code(texto: str) -> str:
-    """Escapa HTML e converte `crase` em <code>."""
+    """Escapa HTML e converte `crase` em <code> e **duplo asterisco** em <strong>."""
     partes = texto.split("`")
     out = []
     for i, p in enumerate(partes):
         p = html.escape(p, quote=False)
-        out.append(f"<code>{p}</code>" if i % 2 == 1 else p)
+        if i % 2 == 1:
+            out.append(f"<code>{p}</code>")
+        else:
+            out.append(re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", p))
     return "".join(out)
 
 
@@ -69,7 +73,7 @@ def validar_fases(dados) -> list:
                 e = {"texto": e}
             if not isinstance(e, dict) or not e.get("texto"):
                 raise ValueError(f"fase {f['id']}, etapa {k}: precisa de 'texto'")
-            etapas.append({"n": k, "texto": e["texto"], "prova": e.get("prova", ""), "quem": e.get("quem", "")})
+            etapas.append({"n": k, "texto": e["texto"], "prova": e.get("pronto") or e.get("prova", ""), "quem": e.get("quem", "")})
         fases.append({"id": f["id"], "tag": f["tag"], "titulo": f["titulo"],
                       "resumo": f.get("resumo", ""), "etapas": etapas})
     return fases
@@ -107,6 +111,7 @@ def main() -> int:
     ap.add_argument("--fases", required=True, type=Path, help="JSON das fases")
     ap.add_argument("--dir", type=Path, help="padrão ~/projetos/<nome>")
     ap.add_argument("--tokens", choices=["bera", "neutro"], default="bera")
+    ap.add_argument("--sem-guia", action="store_true", help="adotar sem fase aberta: não cria docs/guia-<nome>/")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -159,9 +164,13 @@ def main() -> int:
                     .replace("{{TITULO}}", html.escape(a.titulo))
                     .replace("{{RESUMO}}", inline_code(a.objetivo))
                     .replace("{{NOME}}", a.nome)
+                    .replace("{{DIRETORIO}}", dir_legivel)
                     .replace("{{DATA}}", data))
-    arquivos[guia_dir / f"guia-{a.nome}.html"] = guia
-    arquivos[guia_dir / "build_artifact.py"] = (SKILL / "scripts" / "build_artifact.py").read_text(encoding="utf-8")
+    if a.sem_guia:
+        arquivos.pop(guia_dir / "img" / ".gitkeep")
+    else:
+        arquivos[guia_dir / f"guia-{a.nome}.html"] = guia
+        arquivos[guia_dir / "build_artifact.py"] = (SKILL / "scripts" / "build_artifact.py").read_text(encoding="utf-8")
 
     sobra = sorted(set(re.findall(r"\{\{[A-Z_]+\}\}", guia)))
     if sobra:

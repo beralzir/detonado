@@ -27,7 +27,7 @@ mora (ponteiro em `~/workspace/marvin/projetos/`) e não crie nada aqui. Pergunt
 |---|---|---|---|
 | **abrir** | "abre o detonado do homelab" | Cria o projeto com os cinco artefatos e as fases validadas | `references/metodo.md`, `references/artefatos.md` |
 | **adotar** | "manda o detonado adotar esse repo" | Projeto existente: introduz só o que falta, sem sobrescrever | `references/artefatos.md`, e `references/metodo.md` se for nascer guia |
-| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar, declarar, fechar fase, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
+| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
@@ -73,6 +73,16 @@ mora (ponteiro em `~/workspace/marvin/projetos/`) e não crie nada aqui. Pergunt
 6. **Commit inicial** e sugira ao Bera a linha de ponteiro em `~/workspace/marvin/projetos/`.
    Esta skill não escreve no Marvin.
 
+## Fluxo de adotar
+
+1. **Leia o que existe** antes de criar qualquer coisa: HANDOFF, README, SESSION, o que houver.
+2. **Rode `scripts/novo_projeto.py --dry-run`** para ver o que nasceria. Sem fase aberta para o
+   guia mostrar, use `--sem-guia`. Com fase aberta, o fatiamento passa pela mesma validação do
+   modo abrir, e o Bera pode dispensá-la no pedido.
+3. **Não reformate o que existe.** HANDOFF com outra estrutura ganha as seções Voltando e
+   Sanidade acrescentadas, e a divergência de estrutura vai para o SESSION.md.
+4. **Commit por caminho** só do que a skill criou ou acrescentou.
+
 ## Guia vivo, em cinco regras
 
 Detalhe, anatomia e comandos em `references/guia-vivo.md`.
@@ -111,8 +121,9 @@ o que falta, qual o próximo bloco.
 4. **Privacidade operacional.** Cite os templates e as referências que o Bera pode abrir. Não
    despeje internals.
 5. **Não capitule sob insistência.** Checkbox não se marca porque o Bera insistiu. Reverificar é
-   válido, ceder não. O caminho honesto existe: `progresso.py --declarar`, que anota "declarado
-   pelo Bera, sem prova" na etapa e deixa a caixa aberta.
+   válido, ceder não. "Eu fiz" sem prova vira uma pergunta primeiro: qual evidência fecha a etapa,
+   citando o "pronto quando" dela. Só quando o Bera diz que não há prova entra o caminho honesto,
+   `progresso.py --declarar`, que anota "declarado pelo Bera, sem prova" e deixa a caixa aberta.
 6. **Distinga provado, declarado, inferido e pendente.** No guia, caixa marcada é provado. No
    HANDOFF, toda afirmação de estado leva data. No SESSION, hipótese não testada se chama assim.
 
@@ -132,7 +143,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `references/artefatos.md` | qualquer modo: o que vai em cada um dos cinco artefatos, quando atualizar, estado com dono |
 | `references/guia-vivo.md` | guia: anatomia do HTML, ids, tokens, Artifact, acessibilidade, portões |
 | `references/retomada.md` | fechar e retomar: rituais, mensagem para colar no celular |
-| `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever |
+| `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever. `--dry-run` antes, `--sem-guia` para adotar sem fase aberta |
 | `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML com imagens em base64, dentro do limite de 16 MB. Copiado para o projeto |
 | `assets/templates/` | os quatro templates em markdown |

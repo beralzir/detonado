@@ -25,15 +25,15 @@ qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
 ## 2. Sanidade em um bloco
 
 ```bash
-{
-echo "commit: $(git log --oneline -1)"
-echo "guia:   $(python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-{{NOME}}/guia-{{NOME}}.html --resumo)"
+git log --oneline -1
+python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-{{NOME}}/guia-{{NOME}}.html --resumo
 git status -sb | head -1
-}
 ```
 
 Esperado: o último commit conhecido, o progresso igual ao do guia, árvore limpa. Acrescente aqui
-os serviços do projeto conforme existirem, sempre com o esperado logo abaixo.
+os serviços do projeto conforme existirem, sempre com o esperado logo abaixo. Linhas soltas, sem
+chaves em volta: bloco com chaves quebra ao colar no celular. Só comandos que imprimem estado,
+nada que reinicie, apague ou instale.
 
 ## 3. O que já está de pé
 

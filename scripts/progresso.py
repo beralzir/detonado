@@ -134,10 +134,10 @@ def hoje() -> str:
 
 
 def inline_code(texto: str) -> str:
-    import html as _html
-    partes = texto.split("`")
-    return "".join(f"<code>{_html.escape(p, quote=False)}</code>" if i % 2 else _html.escape(p, quote=False)
-                   for i, p in enumerate(partes))
+    """Mesma conversão do novo_projeto.py: crase vira <code>, asterisco duplo vira <strong>."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from novo_projeto import inline_code as _ic  # noqa: E402
+    return _ic(texto)
 
 
 def declarar(html: str, it: dict, data: str):

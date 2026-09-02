@@ -130,6 +130,7 @@ code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 .checks small{display:block;font-size:13px;line-height:1.5;color:var(--t4);margin-top:3px}
 .checks small.pq{font-family:var(--mono);font-size:13px;letter-spacing:.02em}
 .checks small.quem{color:var(--support-text)}
+.checks small.decl{color:var(--support-text);font-family:var(--mono)}
 input[type=checkbox]{accent-color:var(--good);width:17px;height:17px;cursor:pointer;flex:0 0 auto;margin:0}
 .checks input{position:absolute;left:12px;top:13px;margin:0}
 
@@ -159,6 +160,7 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
    <div class="navsec">Fases</div>
    <a href="#f0"><span class="dot" data-dot="f0"></span><span class="nnum">F0</span>Guia vivo e checkpoint</a>
    <a href="#f1"><span class="dot" data-dot="f1"></span><span class="nnum">F1</span>Escolher o software</a>
+   <a href="#f2"><span class="dot" data-dot="f2"></span><span class="nnum">F2</span>Navidrome de pé por Quadlet</a>
    <div class="navsec">Referência</div>
    <a href="#comandos"><span class="dot ref"></span>Comandos úteis</a>
   </div>
@@ -249,7 +251,7 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
   <label class="pdone"><input type="checkbox" data-done="f0">Fase concluída</label>
  </div>
  <div class="checks">
-  <label><input type="checkbox" id="e-f0-1">Guia criado em <code>docs/guia-x/</code> e publicado<small class="pq">Pronto quando: URL do Artifact</small></label>
+  <label><input type="checkbox" id="e-f0-1">Guia criado em <code>docs/guia-radio-pirata/</code> e publicado<small class="pq">Pronto quando: URL do Artifact registrada no HANDOFF</small></label>
   <label><input type="checkbox" id="e-f0-2"><code>SESSION.md</code> inicial commitado<small class="pq">Pronto quando: hash do commit</small></label>
  </div>
 </section>
@@ -271,6 +273,22 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
 </section>
 
 
+<section class="phase" id="f2">
+ <div class="phead">
+  <div class="mid">
+   <div class="tag">FASE 2</div>
+   <h2>Navidrome de pé por Quadlet</h2>
+   <p>Container rodando e provado.</p>
+  </div>
+  <label class="pdone"><input type="checkbox" data-done="f2">Fase concluída</label>
+ </div>
+ <div class="checks">
+  <label><input type="checkbox" id="e-f2-1">Container avulso no ar com <code>podman run</code><small class="pq">Pronto quando: <code>podman ps</code> com o navidrome em Up</small></label>
+  <label><input type="checkbox" id="e-f2-2">Quadlet escrito em <code>~/.config/containers/systemd/</code> e ativo<small class="pq">Pronto quando: <code>systemctl --user is-active navidrome</code> mais <code>podman ps</code> com Up depois de reboot</small></label>
+ </div>
+</section>
+
+
 <section id="comandos">
  <div class="kick" style="letter-spacing:.2em;font-size:11px;margin-bottom:12px">Referência</div>
  <h2>Comandos úteis</h2>
@@ -286,7 +304,7 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
  <div class="cb">
   <button class="copy" type="button" aria-live="polite" onclick="cp(this)">copiar</button>
   <pre tabindex="0">tmux new -A -s radio-pirata
-cd ~/projetos/radio-pirata
+cd ~/workspace/detonado/evals/fixtures/radio-pirata
 claude</pre>
  </div>
 </section>

@@ -85,16 +85,18 @@ fatiamento inicial.
       "titulo": "Guia vivo e checkpoint",
       "resumo": "Nasce primeiro para a queda de contexto não perder o fio.",
       "etapas": [
-        {"texto": "Guia criado em `docs/guia-<projeto>/` e publicado como Artifact", "prova": "URL do Artifact, screenshot conferido"},
-        {"texto": "`SESSION.md` inicial commitado", "prova": "hash do commit"}
+        {"texto": "Guia criado em `docs/guia-<projeto>/` e publicado como Artifact", "pronto": "URL do Artifact registrada no HANDOFF"},
+        {"texto": "`SESSION.md` inicial commitado", "pronto": "hash do commit"}
       ]
     }
   ]
 }
 ```
 
-`prova` é opcional no JSON, mas cada etapa sem prova aceita explícita volta como pergunta antes
-de gerar. Etapa que depende do Bera leva `"quem": "Bera"`.
+`pronto` é o "pronto quando" da etapa, que já nomeia a prova aceita, e o guia o renderiza como
+"Pronto quando: ...". `prova` é aceito como sinônimo. Etapa sem `pronto` volta como pergunta antes
+de gerar. Etapa que depende do Bera leva `"quem": "Bera"`. Crase vira `code`, asterisco duplo
+vira negrito.
 
 ## Com as outras skills
 

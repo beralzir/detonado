@@ -2,7 +2,7 @@
 
 Atualizado em 03/09/2026, 09:10. Escrito para ser lido no celular via SSH.
 
-**Fase 0 fechada em 03/09, Fase 1 aberta: Navidrome escolhido, container sobe mas a porta 4533 está ocupada por outro processo.** Streaming de música local por Podman Quadlet, só no tailnet, provado do iPhone. Se o Bera perguntar "onde paramos?", a
+**Fase 0 fechada em 03/09, Fase 2 aberta: container avulso de pé, quadlet barrado na porta 4533.** Streaming de música local por Podman Quadlet, só no tailnet, provado do iPhone. Se o Bera perguntar "onde paramos?", a
 resposta começa por este parágrafo e pelo `SESSION.md`.
 
 ---
@@ -25,17 +25,17 @@ qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
 ## 2. Sanidade em um bloco
 
 ```bash
-{
-echo "commit: $(git log --oneline -1)"
-echo "guia:   $(python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-radio-pirata/guia-radio-pirata.html --resumo)"
+git log --oneline -1
+python3 ~/.claude/skills/detonado/scripts/progresso.py docs/guia-radio-pirata/guia-radio-pirata.html --resumo
 git status -sb | head -1
 systemctl --user restart navidrome
-echo "navidrome: $(systemctl --user is-active navidrome)"
-}
+systemctl --user is-active navidrome
 ```
 
 Esperado: o último commit conhecido, o progresso igual ao do guia, árvore limpa. Acrescente aqui
-os serviços do projeto conforme existirem, sempre com o esperado logo abaixo.
+os serviços do projeto conforme existirem, sempre com o esperado logo abaixo. Linhas soltas, sem
+chaves em volta: bloco com chaves quebra ao colar no celular. Só comandos que imprimem estado,
+nada que reinicie, apague ou instale.
 
 ## 3. O que já está de pé
 
