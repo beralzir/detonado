@@ -22,6 +22,8 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.
 img,svg{max-width:100%}
 a{color:var(--accent);text-decoration:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--panel);color:var(--accent);padding:8px 12px;border:1px solid var(--accent);z-index:10}
+.skip:focus{left:8px}
 
 .wrap{max-width:1400px;margin:0 auto;padding:0 22px 120px}
 .cols{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
@@ -47,7 +49,7 @@ header{padding:8px 0 56px}
 .hero{position:relative;overflow:hidden;border:1px solid var(--l1);background:var(--bg)}
 .hero svg{display:block;width:100%;height:clamp(220px,34vw,400px)}
 .hero .g-bg{fill:var(--bg)}.hero .g-grid{stroke:var(--l1)}.hero .g-off{stroke:var(--t5)}.hero .g-on{fill:var(--accent)}.hero .g-on-line{stroke:var(--accent)}
-.hero .veil{position:absolute;inset:0;background:rgba(10,10,10,.55)}
+.hero .veil{position:absolute;inset:0;background:rgba(10,10,10,.65)}
 .hero .txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(22px,4vw,52px);max-width:800px}
 .hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.6vw,56px);line-height:1.04;letter-spacing:-.025em;margin-bottom:16px;text-wrap:balance}
@@ -112,7 +114,8 @@ code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 input[type=checkbox]{accent-color:var(--good);width:17px;height:17px;cursor:pointer;flex:0 0 auto;margin:0}
 .checks input{position:absolute;left:12px;top:13px;margin:0}
 
-table{width:100%;border-collapse:collapse;margin:0 0 18px;font-size:13px;display:block;overflow-x:auto}
+.tw{overflow-x:auto;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:0;font-size:13px}
 th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
  color:var(--t5);padding:9px 12px;border-bottom:1px solid var(--l2);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid var(--l1);color:var(--t2);vertical-align:top}
@@ -120,10 +123,12 @@ td code{white-space:nowrap}
 
 footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var(--t5);font-size:13px;line-height:1.7}
 @media(max-width:900px){nav{position:static;flex:1 1 100%}main{flex:1 1 100%}.cols{gap:24px}}
+@media(max-width:600px){.call{flex-direction:column;gap:6px}.phead{gap:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i{transition:none}}
 </style>
 </head>
 <body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
 <div class="wrap"><div class="cols">
 
 <nav aria-label="Progresso e fases">
@@ -140,7 +145,7 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
  </div>
 </nav>
 
-<main>
+<main id="conteudo">
 <header>
  <div class="hero">
   <svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ilustração em line art: um percurso de fases ligadas por linhas retas, a primeira acesa e as seguintes apagadas">
@@ -206,10 +211,12 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
  </div>
 
  <h3>Decisões travadas</h3>
+ <div class="tw" tabindex="0" role="group" aria-label="Tabela de decisões travadas">
  <table>
   <tr><th>Decisão</th><th>Valor</th></tr>
   <tr><td>Método</td><td>detonado: fases com prova, HANDOFF e SESSION, guia vivo, lessons</td></tr>
  </table>
+ </div>
 </section>
 
 {{SECOES_FASES}}
@@ -217,6 +224,7 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
 <section id="comandos">
  <div class="kick" style="letter-spacing:.2em;font-size:11px;margin-bottom:12px">Referência</div>
  <h2>Comandos úteis</h2>
+ <div class="tw" tabindex="0" role="group" aria-label="Tabela de comandos úteis">
  <table>
   <tr><th>Para</th><th>Comando</th></tr>
   <tr><td>Sanidade do projeto</td><td>bloco da seção 2 do <code>HANDOFF.md</code></td></tr>
@@ -224,9 +232,10 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
   <tr><td>Marcar etapa provada</td><td><code>python3 ~/.claude/skills/detonado/scripts/progresso.py {{ARQUIVO}} --marcar e-f0-1</code></td></tr>
   <tr><td>Publicar como Artifact</td><td><code>python3 docs/guia-{{NOME}}/build_artifact.py</code></td></tr>
  </table>
+ </div>
  <div class="cb">
-  <button class="copy" type="button" aria-label="Copiar o bloco de comandos" onclick="cp(this)">copiar</button>
-  <pre>tmux new -A -s {{NOME}}
+  <button class="copy" type="button" aria-live="polite" onclick="cp(this)">copiar</button>
+  <pre tabindex="0">tmux new -A -s {{NOME}}
 cd ~/projetos/{{NOME}}
 claude</pre>
  </div>

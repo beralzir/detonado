@@ -18,8 +18,11 @@ O `novo_projeto.py` monta o guia a partir dos dois e do JSON das fases.
 - `section.phase#<fase>`: cabeçalho com tag, título, resumo e a caixa "Etapa concluída"
   (`.pdone`, `data-done="<fase>"`), depois `.checks` com uma `label` por etapa, cada uma com
   `<input type="checkbox" id="e-<fase>-<n>">` e o "pronto quando" em `<small>`.
-- Blocos de comando `.cb` com `<pre>` e botão copiar. Caixas `.call` (gold, org, red, grn) para
-  regra, aviso, perigo e resultado.
+- Blocos de comando `.cb` com `<pre tabindex="0">` e botão copiar. Caixas `.call` (`regra`, `aviso`,
+  `perigo`, `ok`), cada uma com o rótulo em texto (`.lb`), porque a cor nunca é o único canal.
+- Tabela sempre dentro de `<div class="tw" tabindex="0" role="group" aria-label="Tabela de ...">`:
+  é o contêiner que rola no estreito, e precisa ser alcançável por teclado (axe
+  `scrollable-region-focusable`).
 - `footer` com data da última atualização (`#atualizado`) e o caminho do arquivo.
 - `script` no fim: copiar, contar checkboxes, atualizar `#pct`, `#fill` e os pontos.
 
