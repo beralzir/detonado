@@ -49,7 +49,13 @@ header{padding:8px 0 56px}
 .hero{position:relative;overflow:hidden;border:1px solid var(--l1);background:var(--bg)}
 .hero svg{display:block;width:100%;height:clamp(220px,34vw,400px)}
 .hero .g-bg{fill:var(--bg)}.hero .g-grid{stroke:var(--l1)}.hero .g-off{stroke:var(--t5)}.hero .g-on{fill:var(--accent)}.hero .g-on-line{stroke:var(--accent)}
-.hero .veil{position:absolute;inset:0;background:rgba(10,10,10,.65)}
+/* Véu do hero. A opacidade não é enfeite: é o que garante contraste AA do texto do
+   cabeçalho sobre a parte mais clara da arte. Medido em 02/09/2026 com o cor.py do
+   cão-guia, sobre o losango de --accent, que é o pior caso dos dois conjuntos de tokens:
+     .65 -> bera reprova o parágrafo (4,33:1) e neutro reprova o eyebrow (4,38:1)
+     .78 -> bera 6,24:1 e neutro 7,17:1 no parágrafo, os dois passam em AA
+   Não baixar sem refazer a conta nos dois conjuntos. */
+.hero .veil{position:absolute;inset:0;background:rgba(10,10,10,.78)}
 .hero .txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(22px,4vw,52px);max-width:800px}
 .hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.6vw,56px);line-height:1.04;letter-spacing:-.025em;margin-bottom:16px;text-wrap:balance}
@@ -126,6 +132,16 @@ footer{border-top:1px solid var(--l1);margin-top:56px;padding-top:24px;color:var
 @media(max-width:900px){nav{position:static;flex:1 1 100%}main{flex:1 1 100%}.cols{gap:24px}}
 @media(max-width:600px){.call{flex-direction:column;gap:6px}.phead{gap:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i{transition:none}}
+/* Alto contraste do sistema: o SO descarta cor de fundo, e a barra de progresso e os pontos
+   de fase são justamente elementos cuja única informação é o preenchimento. O número em #pct
+   segura o dado, mas o indicador visual sumia sem aviso. */
+@media(forced-colors:active){
+ .bar{border:1px solid CanvasText}
+ .bar>i{background:Highlight;forced-color-adjust:none}
+ .dot{border:1px solid CanvasText}
+ .dot.on{background:CanvasText;forced-color-adjust:none}
+ .hero .veil{background:Canvas}
+}
 </style>
 </head>
 <body>
