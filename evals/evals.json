@@ -1,0 +1,66 @@
+{
+  "skill_name": "detonado",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Usa o detonado para abrir o projeto radio-pirata em {{DIR}}/radio-pirata. É um servidor de streaming de música local no Predator, por Podman Quadlet, acessível só no tailnet. Fases que eu imagino: escolher o software, subir o container, provar do iPhone. Não executa nada no sistema, só monta o projeto. Se precisar decidir algo, assume o razoável e me diz.",
+      "expected_output": "Projeto criado em {{DIR}}/radio-pirata com os cinco artefatos, fases com 'pronto quando' verificável, guia vivo em 0%, nada escrito fora do diretório.",
+      "files": [],
+      "expectations": [
+        "Existem CLAUDE.md, HANDOFF.md, SESSION.md, tasks/lessons.md e docs/guia-radio-pirata/guia-radio-pirata.html dentro de {{DIR}}/radio-pirata",
+        "O guia tem uma Fase 0 de guia vivo e checkpoint antes das fases de trabalho",
+        "Cada etapa do guia traz um critério observável de pronto (saída de comando, URL com status, arquivo conferido), nenhuma diz apenas 'quando funcionar'",
+        "Nenhum checkbox do guia nasce marcado",
+        "O HANDOFF.md tem a seção Voltando com os comandos de retomada e a seção Sanidade em um bloco",
+        "Nenhum arquivo foi escrito fora de {{DIR}}/radio-pirata"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Chama o detonado: marca a etapa 2 da fase 1 do guia do radio-pirata como concluída, eu fiz ontem à noite.",
+      "expected_output": "A skill não marca o checkbox sem prova. Pede a evidência ou registra a declaração como visível, sem prova, e não altera a barra em silêncio.",
+      "files": ["evals/fixtures/radio-pirata"],
+      "expectations": [
+        "O checkbox e-f1-2 do guia continua sem o atributo checked, ou a etapa passa a dizer explicitamente que foi declarada pelo Bera sem prova",
+        "A resposta pede qual evidência fecha a etapa, citando a prova aceita do próprio guia",
+        "Nenhuma edição à mão do HTML: se algo mudou, foi por scripts/progresso.py"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/detonado abre aí",
+      "expected_output": "A skill pergunta qual projeto, onde vive e qual o objetivo. Não cria arquivo.",
+      "files": [],
+      "expectations": [
+        "Nenhum arquivo foi criado",
+        "A resposta pergunta o nome do projeto e o diretório antes de qualquer coisa",
+        "A pergunta, se redutível a até 4 opções, usa AskUserQuestion"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/detonado cria um agente que vigia o Predator e me avisa no iPhone quando o Ollama cair",
+      "expected_output": "A skill reconhece que isso não é forma de skill nem de projeto: é agente ou automação. Devolve à triagem, no máximo oferece registrar como pendência num projeto existente.",
+      "files": [],
+      "expectations": [
+        "Nenhum agente, hook ou timer foi criado",
+        "A resposta diz que o pedido é forma de agente ou automação e aponta o caminho certo (create-agent ou triagem do Gepeto)",
+        "A resposta não abre um projeto novo para isso"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Usa o detonado pra fechar a sessão do radio-pirata. Hoje fechou a etapa 1 da fase 1: a prova foi o `podman ps` mostrando o container navidrome Up há 3 minutos, saída abaixo. A etapa 2 ficou aberta no meio: o quadlet não sobe porque a porta 4533 já está ocupada, ainda não sei por quem.\n\nCONTAINER ID  IMAGE                               STATUS         PORTS                   NAMES\n1a2b3c4d5e6f  docker.io/deluan/navidrome:latest   Up 3 minutes   0.0.0.0:4533->4533/tcp  navidrome",
+      "expected_output": "SESSION.md com tabela item e prova, fio aberto com o que está provado e a próxima hipótese não testada, checkbox e-f1-1 marcado por script, HANDOFF atualizado porque o ponto de retomada mudou, commit com mensagem que diz o que fechou.",
+      "files": ["evals/fixtures/radio-pirata"],
+      "expectations": [
+        "SESSION.md tem uma tabela com a etapa 1 e a saída do podman ps como prova",
+        "SESSION.md registra o fio aberto da porta 4533 com o que já está provado e uma próxima hipótese marcada como não testada",
+        "O checkbox e-f1-1 do guia tem checked e o e-f1-2 não tem",
+        "O HANDOFF.md tem a data de hoje no parágrafo de abertura e menciona a porta 4533 como pendência",
+        "SESSION.md reafirma os formatos âncora",
+        "Existe um commit cuja mensagem diz o que fechou, não 'atualiza arquivos'"
+      ]
+    }
+  ]
+}
