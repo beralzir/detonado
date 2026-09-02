@@ -26,6 +26,23 @@ O `novo_projeto.py` monta o guia a partir dos dois e do JSON das fases.
 Estado é o atributo `checked`. Sem localStorage: o que está no arquivo é o que vale, e o arquivo
 está no git.
 
+A fonte é um documento completo (`<html lang="pt-BR">`, `head`, `body`), que é o que o navegador
+local e o `cão-guia` esperam. O Artifact embrulha o conteúdo no esqueleto dele, então o
+`build_artifact.py` tira as tags de embrulho do derivado e mantém o resto inteiro.
+
+## Contrato dos tokens
+
+O template consome só estas variáveis, e é isso que torna a marca trocável:
+
+| Grupo | Variáveis |
+|---|---|
+| Superfícies | `--bg`, `--panel`, `--hov`, `--l1`, `--l2`, `--pre` |
+| Texto | `--fg`, `--t1` a `--t5` (o `--t5` é o mínimo para texto pequeno, tem que medir 4,5:1 sobre `--bg`) |
+| Acento e apoio | `--accent`, `--accent-tint`, `--accent-line`, `--accent-sel`, `--support`, `--support-text`, `--support-tint`, `--support-line` |
+| Semântico | `--good`, `--good-tint`, `--good-line`, `--bad`, `--bad-tint`, `--bad-line` |
+| Fundo | `--grid-svg`, a grade em SVG inline. Gradiente não entra, nem para desenhar linha |
+| Tipo e forma | `--sans`, `--mono`, `--display`, `--radius` |
+
 ## Atualizar
 
 ```bash

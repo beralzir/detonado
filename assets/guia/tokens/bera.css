@@ -1,0 +1,19 @@
+/* Tokens da marca bera para o guia vivo do detonado.
+   Fonte: ~/workspace/design-schemas/bera.md (v2.1.1, Atelier Técnico) e
+   ~/projetos/predator-servidor-ia/design/bera-ds/tokens/colors.css. Tema escuro.
+   Contrato: o template consome só estas variáveis. Trocar de marca é trocar este arquivo.
+   Texto pequeno usa no mínimo --t5, que mede 5,8:1 sobre --bg (AA). O --muted-2 #6B6B68 do
+   design system dá 3,7:1 e ficou fora por isso. */
+:root{
+ --bg:#0A0A0A; --panel:#121212; --hov:#1A1A1A; --l1:#1F1F1F; --l2:#2A2A2A; --pre:#060606;
+ --fg:#FAFAFA; --t1:#C7C7C2; --t2:#B4B4AF; --t3:#A3A39E; --t4:#9C9C97; --t5:#8B8B85;
+ --accent:#E5B748; --accent-tint:rgba(229,183,72,.06); --accent-line:rgba(229,183,72,.28); --accent-sel:rgba(229,183,72,.28);
+ --support:#D97757; --support-text:#E8977C; --support-tint:rgba(217,119,87,.07); --support-line:rgba(217,119,87,.3);
+ --good:#34D399; --good-tint:rgba(52,211,153,.06); --good-line:rgba(52,211,153,.3);
+ --bad:#F87171; --bad-tint:rgba(248,113,113,.07); --bad-line:rgba(248,113,113,.4);
+ --grid-svg:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><path d='M64 0H0V64' fill='none' stroke='%23D97757' stroke-opacity='0.05'/></svg>");
+ --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+ --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+ --display:'Cabinet Grotesk','Inter',system-ui,sans-serif;
+ --radius:0px;
+}

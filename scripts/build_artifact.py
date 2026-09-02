@@ -24,6 +24,10 @@ import sys
 
 LIMITE_MB = 16
 SRC = re.compile(r'(<img\b[^>]*\bsrc=")([^"]+)(")', re.IGNORECASE)
+# A fonte é um documento completo (html lang, head, body), que é o que o navegador local e o
+# cão-guia esperam. O Artifact embrulha o conteúdo no esqueleto dele, então o derivado sai sem
+# doctype, html, head e body. Só as tags de embrulho caem, o conteúdo fica inteiro.
+EMBRULHO = re.compile(r"<!doctype[^>]*>|</?html[^>]*>|</?head>|</?body[^>]*>", re.IGNORECASE)
 
 
 def escolher_fonte(aqui: pathlib.Path) -> pathlib.Path | None:
@@ -62,7 +66,7 @@ def main() -> int:
         embutidas += 1
         return f"{m.group(1)}data:{mime};base64,{dado}{m.group(3)}"
 
-    saida_html = SRC.sub(troca, html)
+    saida_html = EMBRULHO.sub("", SRC.sub(troca, html)).strip() + "\n"
     saida = fonte.with_name(fonte.stem + ".artifact.html")
     tamanho_mb = len(saida_html.encode("utf-8")) / (1024 * 1024)
     if tamanho_mb > LIMITE_MB:

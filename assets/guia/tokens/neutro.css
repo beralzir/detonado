@@ -1,0 +1,15 @@
+/* Tokens neutros, sem marca, para o guia vivo do detonado. Fontes do sistema, sem import.
+   Mesmo contrato do bera.css. Texto pequeno em --t5 mede 5,9:1 sobre --bg (AA). */
+:root{
+ --bg:#111315; --panel:#191c1f; --hov:#20242a; --l1:#262a30; --l2:#31363d; --pre:#0b0d0f;
+ --fg:#F2F4F6; --t1:#C9CED4; --t2:#B6BCC3; --t3:#A3AAB2; --t4:#959CA5; --t5:#8A919A;
+ --accent:#6FB1E3; --accent-tint:rgba(111,177,227,.07); --accent-line:rgba(111,177,227,.3); --accent-sel:rgba(111,177,227,.3);
+ --support:#D7A35B; --support-text:#E3B879; --support-tint:rgba(215,163,91,.07); --support-line:rgba(215,163,91,.3);
+ --good:#4CC38A; --good-tint:rgba(76,195,138,.06); --good-line:rgba(76,195,138,.3);
+ --bad:#F0706E; --bad-tint:rgba(240,112,110,.07); --bad-line:rgba(240,112,110,.4);
+ --grid-svg:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><path d='M64 0H0V64' fill='none' stroke='%23FFFFFF' stroke-opacity='0.03'/></svg>");
+ --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --display:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --radius:0px;
+}
