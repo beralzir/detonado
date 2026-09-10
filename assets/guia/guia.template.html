@@ -121,6 +121,42 @@ code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 input[type=checkbox]{accent-color:var(--good);width:17px;height:17px;cursor:pointer;flex:0 0 auto;margin:0}
 .checks input{position:absolute;left:12px;top:13px;margin:0}
 
+/* Anotação por fase. Transporte, não estado: o progresso continua nos checkboxes deste
+   arquivo, em git, mexidos só pelo progresso.py. Isto guarda o que o Bera digita até o
+   Claude ler com read_db e commitar no markdown. Sem a capability db declarada, ou aberto
+   como arquivo local, o campo desabilita e diz por que. */
+.nota{border:1px solid var(--l1);background:var(--panel);padding:12px 14px;margin:0 0 20px}
+.nota label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--t5);margin-bottom:8px}
+.nota textarea{width:100%;background:var(--pre);color:var(--fg);border:1px solid var(--l2);
+ font-family:var(--sans);font-size:14px;line-height:1.6;padding:10px 12px;resize:vertical}
+.nota textarea:disabled{color:var(--t5);cursor:not-allowed}
+.notast{display:block;margin-top:7px;font-family:var(--mono);font-size:11px;color:var(--t5)}
+.notast.ok{color:var(--good)}
+.notast.bad{color:var(--bad)}
+.notast.off{color:var(--support-text)}
+
+/* Documento do repo embutido pelo build_artifact.py. No navegador local o mesmo markup
+   continua sendo um link relativo que funciona; no Artifact vira este painel, porque o CSP
+   de la nao serve caminho relativo. Uma fonte, dois comportamentos. O marcador nativo do
+   <summary> fica: trocar por glifo proprio custa acessibilidade e nao ganha nada. */
+a.doc{border-bottom:1px solid var(--accent-line)}
+details.doc{border:1px solid var(--l1);background:var(--panel);margin:0 0 18px}
+details.doc>summary{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;
+ padding:12px 16px;cursor:pointer;font-size:14px;color:var(--t2)}
+details.doc>summary:hover{background:var(--hov)}
+details.doc .docname{font-family:var(--mono);color:var(--accent)}
+details.doc .docmeta{font-family:var(--mono);font-size:11px;color:var(--t5)}
+.docbody{border-top:1px solid var(--l1);padding:8px 18px 18px;max-height:62vh;overflow-y:auto}
+.docbody>h3:first-child{margin-top:12px}
+.docbody h3,.docbody h4,.docbody h5,.docbody h6{font-size:16px;font-weight:600;margin:22px 0 8px}
+.docbody p,.docbody li{font-size:14px;line-height:1.65}
+.docbody table{font-size:12px}
+.docbody pre{font-size:12px}
+.docbody blockquote{border-left:2px solid var(--accent-line);padding-left:14px;
+ margin:0 0 14px;color:var(--t4);font-size:14px}
+.docbody hr{border:none;border-top:1px solid var(--l1);margin:20px 0}
+
 .tw{overflow-x:auto;margin:0 0 18px}
 table{width:100%;border-collapse:collapse;margin:0;font-size:13px}
 th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
@@ -289,6 +325,44 @@ function upd(){
 }
 all.forEach(function(b){b.addEventListener('change',upd);});
 upd();
+
+// Anotacoes por fase, gravadas na capability db do Artifact. Transporte, nao estado: o
+// progresso continua nos checkboxes deste arquivo, em git. Isto guarda so o que o Bera
+// digita, ate o Claude ler com read_db e commitar no markdown do repo.
+// Degrada de proposito: arquivo local nao tem window.claude, e um Artifact publicado sem
+// capabilities:{db:{}} recebe null de use('db'). Nos dois casos o campo desabilita e diz
+// por que, em vez de fingir que salvou.
+(function(){
+ var campos=[].slice.call(document.querySelectorAll('.nota'));
+ if(!campos.length){return;}
+ function marca(c,txt,cls){var s=c.querySelector('.notast');if(!s){return;}s.textContent=txt;s.className='notast'+(cls?' '+cls:'');}
+ function trava(txt){campos.forEach(function(c){c.querySelector('textarea').disabled=true;marca(c,txt,'off');});}
+ campos.forEach(function(c){c.querySelector('textarea').disabled=true;marca(c,'conectando...');});
+ if(!(window.claude&&typeof window.claude.use==='function')){
+  trava('sem salvamento: abra pelo Artifact');return;
+ }
+ window.claude.use('db').then(function(db){
+  if(!db){trava('salvamento indisponivel nesta visualizacao');return;}
+  campos.forEach(function(c){
+   var id=c.dataset.nota,ta=c.querySelector('textarea'),t=null;
+   function pronto(){ta.disabled=false;marca(c,'salva sozinho enquanto voce escreve','ok');}
+   db.doc('notas/'+id).get().then(function(snap){
+    var d=snap&&snap.exists?snap.data():null;
+    if(d&&typeof d.texto==='string'&&!ta.value){ta.value=d.texto;}
+    pronto();
+   }).catch(function(){pronto();});
+   ta.addEventListener('input',function(){
+    marca(c,'digitando...');
+    clearTimeout(t);
+    t=setTimeout(function(){
+     db.doc('notas/'+id).set({texto:ta.value,atualizado:new Date().toISOString()})
+      .then(function(){marca(c,'salvo '+new Date().toLocaleTimeString('pt-BR'),'ok');})
+      .catch(function(e){marca(c,'nao salvou: '+((e&&e.code)||'erro'),'bad');});
+    },900);
+   });
+  });
+ }).catch(function(){trava('salvamento indisponivel nesta visualizacao');});
+})();
 </script>
 </body>
 </html>

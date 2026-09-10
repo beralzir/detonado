@@ -10,4 +10,9 @@
  <div class="checks">
 {{ETAPAS}}
  </div>
+ <div class="nota" data-nota="{{ID}}">
+  <label for="nota-{{ID}}">Anotações desta fase</label>
+  <textarea id="nota-{{ID}}" rows="3" placeholder="Escreva aqui. O Claude lê e leva para o markdown do repo."></textarea>
+  <span class="notast" role="status" aria-live="polite"></span>
+ </div>
 </section>

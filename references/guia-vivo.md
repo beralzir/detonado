@@ -27,7 +27,8 @@ O `novo_projeto.py` monta o guia a partir dos dois e do JSON das fases.
 - `script` no fim: copiar, contar checkboxes, atualizar `#pct`, `#fill` e os pontos.
 
 Estado é o atributo `checked`. Sem localStorage: o que está no arquivo é o que vale, e o arquivo
-está no git.
+está no git. O campo de anotação por `db` não é exceção a isso: ele é transporte do que o Bera
+escreve até virar commit, nunca um segundo lugar de progresso. Ver a seção do `db` abaixo.
 
 A fonte é um documento completo (`<html lang="pt-BR">`, `head`, `body`), que é o que o navegador
 local e o `cão-guia` esperam. O Artifact embrulha o conteúdo no esqueleto dele, então o
@@ -45,6 +46,52 @@ O template consome só estas variáveis, e é isso que torna a marca trocável:
 | Semântico | `--good`, `--good-tint`, `--good-line`, `--bad`, `--bad-tint`, `--bad-line` |
 | Fundo | `--grid-svg`, a grade em SVG inline. Gradiente não entra, nem para desenhar linha |
 | Tipo e forma | `--sans`, `--mono`, `--display`, `--radius` |
+
+## Documento do repo embutido no guia
+
+O guia referencia arquivos o tempo todo (`HANDOFF.md`, `discovery.md`, um `lessons.md`), e
+sair da página para lê-los quebra o fluxo. Um link marcado com `class="doc"` resolve:
+
+```html
+<a class="doc" href="../../HANDOFF.md">HANDOFF.md</a>
+```
+
+No navegador local continua sendo link relativo que funciona. No derivado, o
+`build_artifact.py` lê o arquivo e troca por um `<details>` com o conteúdo dentro, markdown
+já renderizado. Uma fonte, dois comportamentos, que é a mesma ideia das imagens em base64.
+
+O renderizador de markdown mora dentro do `build_artifact.py`, e não num módulo ao lado,
+porque o `novo_projeto.py` copia aquele arquivo sozinho para cada projeto. Ele é da
+biblioteca padrão: puxar lib de CDN quebraria o guia offline e instalar pacote daria
+dependência a uma skill que hoje não tem nenhuma. Cobre título, negrito, itálico, código,
+cerca, tabela, lista, citação, link e regra. O que não reconhece vira parágrafo, nunca erro.
+
+Extensão fora da lista, ou arquivo que não existe, fica como link e o script avisa e sai 1,
+igual a imagem faltando. Documento grande pesa: o `HANDOFF.md` do Predator são 46 KB de
+markdown que viram 59 KB de HTML. O limite de 16 MB do Artifact é longe, mas embutir tudo
+sem critério faz a página abrir devagar. Embuta o que a fase pede para ler.
+
+## Anotação do Bera dentro do guia, com `db`
+
+Cada fase tem um campo de anotação que grava na capability `db` do Artifact. Serve para o
+Bera responder e anotar sem sair da página, e para o Claude ler depois com `read_db` e levar
+para o markdown do repo.
+
+**O `db` é transporte, não estado, e essa distinção é a regra.** O progresso continua sendo o
+atributo `checked` deste arquivo, em git, mexido só pelo `progresso.py`. O `db` guarda o que
+o Bera digitou até virar commit no markdown, e aí o dono volta a ser o arquivo. Sem isso
+viram dois lugares dizendo a mesma coisa, que é exatamente o que este método existe para
+evitar.
+
+Para ligar, publique com `capabilities: {db: {}}`. Sem essa declaração, ou abrindo o HTML
+local, `claude.use('db')` devolve `null`, o campo desabilita e diz por quê, em vez de fingir
+que salvou. Nada de segredo ali: o armazenamento é compartilhado por quem abre o artifact.
+
+Para trazer de volta:
+
+```
+Artifact action:"read_db" url:<a do guia> db_op:"list" collection:"notas"
+```
 
 ## Atualizar
 
