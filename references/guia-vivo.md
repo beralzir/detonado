@@ -172,3 +172,41 @@ Depois de gerar ou mudar a estrutura do guia, dois portões, nesta ordem, os doi
 
 Nomeie os dois em texto e espere o Bera chamar. Portão dispensado se registra na entrega, não se
 omite. Atualização de checkbox e texto de status não reabre os portões.
+
+## Fase cancelada
+
+Nasceu em 11/09/2026, no `predator-servidor-ia`. A Fase T avaliava trocar de distro em cinco
+fases. A F1, o discovery, respondeu a pergunta inteira antes das outras: nenhum incômodo do
+Bera exigia outra distro. Com isso a **F3**, live USB das candidatas, e a **F4**, partição de
+teste, perderam o motivo de existir, porque não havia mais candidata. Dez caixas que nunca
+seriam marcadas.
+
+O guia não tinha como dizer isso. Fechar as duas mentiria, e o próprio `progresso.py` recusa:
+sai com 1 e avisa `fase f3 fechada com etapa aberta`. Deixar abertas fazia a barra marcar 29%,
+como se o projeto estivesse no começo, quando na verdade ele tinha acabado.
+
+```bash
+progresso.py GUIA.html --cancelar f3 f4 --motivo "a F1 respondeu antes, e mais barato"
+```
+
+O que acontece:
+
+- Os checkboxes da fase **somem**, e as etapas viram lista estática com o "pronto quando" de
+  cada uma, que é justamente o registro do que se perdeu ao cancelar.
+- A fase ganha `data-cancelada="DD/MM/AAAA"` e um bloco de aviso com o motivo.
+- A caixa "Fase concluída" vira o texto "Fase cancelada".
+- A linha da navegação lateral fica riscada, com a etiqueta CANCELADA.
+
+**Por que tirar as caixas em vez de marcar um atributo.** Quem conta o percentual são dois
+lados: este script e o `<script>` dentro da própria página, que faz
+`querySelectorAll('input[type=checkbox]')`. Um atributo novo só o script entenderia, e a barra
+da página passaria a discordar do `--resumo`. Tirando as caixas, os dois contam igual sem
+ninguém mexer no JS, e isso vale também para **guia já publicado**, que não conhece classe de
+CSS nova. Pelo mesmo motivo o estilo é inline: injetar CSS em arquivo publicado é mais
+invasivo que a mudança em si.
+
+**É destrutivo, e não tem `--descancelar`.** Desfazer é `git checkout` no guia. Cancelar uma
+fase é decisão, não conserto, e decisão volta pelo histórico.
+
+**`--motivo` é obrigatório.** Fase que morre sem motivo escrito vira, em um mês, exatamente a
+caixa órfã que este comando existe para evitar.

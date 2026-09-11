@@ -28,7 +28,7 @@ modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUse
 |---|---|---|---|
 | **abrir** | "abre o detonado do homelab" | Cria o projeto com os cinco artefatos e as fases validadas | `references/metodo.md`, `references/artefatos.md` |
 | **adotar** | "manda o detonado adotar esse repo" | Projeto existente: introduz só o que falta, sem sobrescrever | `references/artefatos.md`, e `references/metodo.md` se for nascer guia |
-| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
+| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, **cancelar fase que morreu**, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
@@ -48,13 +48,18 @@ modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUse
 4. **Retomar é ler, não lembrar.** "Onde paramos" se responde abrindo o HANDOFF e o SESSION, mesmo
    quando a memória parece boa. Principalmente quando parece boa.
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
-   script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, inserir fase, reescrever o
-   bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura inicial e imagens embutidas
+   script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
+   fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura inicial e imagens embutidas
    são `novo_projeto.py` e `build_artifact.py`. O que sobra para edição à mão é a prosa livre das
    seções (parágrafos, tabelas, blocos de comando), e depois dela `progresso.py --listar` tem que
    sair limpo. Tocar em `checked` ou `data-done` à mão é o jeito de o guia divergir.
 6. **Lição só vira regra depois de confirmada.** Caso isolado entra como "a confirmar". O Bera diz
    se é padrão.
+7. **Escopo que morre não é fase fechada nem fase aberta.** Fechar mentiria, porque nada foi
+   provado. Deixar aberta faz a barra prometer trabalho que não vai acontecer, e caixa órfã é
+   como o registro apodrece. `progresso.py --cancelar <fase> --motivo "..."` tira as caixas da
+   fase e escreve por que ela morreu, com a data. O que sai do numerador sai também do
+   denominador, então a barra passa a medir só o que ainda pode acontecer.
 
 ## Fluxo de abrir
 

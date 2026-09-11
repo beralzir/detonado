@@ -17,6 +17,14 @@ Uso:
     progresso.py GUIA.html --declarar e-f1-2     anota "declarado pelo Bera, sem prova" na etapa
     progresso.py GUIA.html --onde-paramos "texto com `crase` virando code"   reescreve #status-atual
     progresso.py GUIA.html --inserir-fase fases.json   acrescenta fases novas (nav e seção)
+    progresso.py GUIA.html --cancelar f3 --motivo "a F1 respondeu antes, e mais barato"
+
+Fase cancelada é escopo que morreu no meio, e não é nem aberta nem fechada. `--cancelar`
+troca os checkboxes da fase por uma lista estática com o motivo e a data: as caixas somem,
+então tanto este script quanto o JS da própria página param de contá-las, e a barra passa a
+medir só o que ainda pode acontecer. Por isso funciona também nos guias já publicados, que
+não conhecem classe de CSS nova. É destrutivo de propósito e não tem `--descancelar`:
+desfazer é `git checkout` no guia.
 
 Convenção do template: etapa é `<input type="checkbox" id="e-<fase>-<n>">`, fase é
 `<input type="checkbox" data-done="<fase>">`. O percentual conta todos os checkboxes, igual ao
@@ -188,6 +196,71 @@ def carimbar(html: str, data: str):
     return novo, n
 
 
+def cancelar(html: str, fase: str, motivo: str, data: str):
+    """Troca os checkboxes de uma fase por uma lista estatica com o motivo.
+
+    Escopo que morreu no meio nao e aberto nem fechado, e o guia nao tinha como dizer isso.
+    Marcar como fechada mentiria, e deixar aberta faz a barra prometer trabalho que nao
+    existe. A saida e tirar as caixas: o que sai do numerador sai tambem do denominador,
+    nos dois contadores, o deste script e o do <script> da propria pagina, sem precisar
+    tocar no JS de guia nenhum. E por isso que funciona nos guias ja publicados.
+
+    Estilo inline, e nao classe: guia gerado antes desta versao nao tem a regra no <style>,
+    e injetar CSS num arquivo ja publicado e mais invasivo que a propria mudanca.
+    """
+    sec = re.compile(
+        r'(<section class="phase" id="' + re.escape(fase) + r'")(.*?)(</section>)',
+        re.DOTALL | re.IGNORECASE)
+    m = sec.search(html)
+    if not m:
+        return None, f"fase {fase} nao encontrada no guia"
+    abertura, corpo, fim = m.group(1), m.group(2), m.group(3)
+    if 'data-cancelada=' in abertura or 'data-cancelada=' in corpo[:200]:
+        return None, f"fase {fase} ja esta cancelada"
+
+    bloco = re.search(r'<div class="checks">(.*?)</div>', corpo, re.DOTALL | re.IGNORECASE)
+    if not bloco:
+        return None, f"fase {fase} nao tem bloco de etapas para cancelar"
+
+    # Cada etapa vira item de lista, sem o input. O "pronto quando" fica: ele explica o que
+    # a fase teria provado, e e justamente o que se perde ao cancelar.
+    itens = []
+    for lab in re.finditer(r'<label>(.*?)</label>', bloco.group(1), re.DOTALL | re.IGNORECASE):
+        texto = re.sub(r'<input\b[^>]*>', '', lab.group(1), flags=re.IGNORECASE).strip()
+        itens.append(f'   <li style="margin-bottom:8px">{texto}</li>')
+    lista = "\n".join(itens) if itens else '   <li>sem etapas</li>'
+
+    aviso = (
+        f'<div class="call aviso" data-cancelada="{data}">\n'
+        f'  <span class="lb">CANCELADA</span>\n'
+        f'  <p><strong>Cancelada em {data}.</strong> {motivo}</p>\n'
+        f' </div>\n'
+        f' <ul style="opacity:.6;margin:0 0 20px;padding-left:20px">\n{lista}\n </ul>'
+    )
+    corpo_novo = corpo.replace(bloco.group(0), aviso)
+    # A fase deixa de ter caixa de "Fase concluida": nao foi concluida nem esta pendente.
+    corpo_novo = re.sub(
+        r'<label class="pdone">.*?</label>',
+        '<span class="pdone" style="opacity:.6">Fase cancelada</span>',
+        corpo_novo, count=1, flags=re.DOTALL | re.IGNORECASE)
+    abertura_nova = abertura + f' data-cancelada="{data}"'
+    novo_html = html[:m.start()] + abertura_nova + corpo_novo + fim + html[m.end():]
+
+    # A navegacao lateral tambem mente se nao for tocada: o ponto da fase fica apagado
+    # (o JS procura .pdone input, que acabou de sumir) e a linha continua parecendo
+    # pendente. Estilo inline pelo mesmo motivo do resto: guia ja publicado nao tem classe.
+    nav = re.compile(
+        r'(<a href="#' + re.escape(fase) + r'")((?:(?!</a>).)*</a>)',
+        re.DOTALL | re.IGNORECASE)
+    def marca_nav(mm):
+        corpo_nav = mm.group(2)
+        if 'cancelada' in corpo_nav.lower():
+            return mm.group(0)
+        corpo_nav = corpo_nav.replace('</a>', ' <span style="font-size:10px;letter-spacing:.1em">CANCELADA</span></a>', 1)
+        return mm.group(1) + ' style="opacity:.45;text-decoration:line-through"' + corpo_nav
+    return nav.sub(marca_nav, novo_html, count=1), None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Estado do guia vivo do detonado")
     ap.add_argument("guia", type=Path)
@@ -202,6 +275,10 @@ def main() -> int:
     ap.add_argument("--declarar", nargs="+", metavar="ID", default=[])
     ap.add_argument("--onde-paramos", metavar="TEXTO")
     ap.add_argument("--inserir-fase", metavar="FASES.json", type=Path)
+    ap.add_argument("--cancelar", nargs="+", metavar="FASE", default=[],
+                    help="escopo que morreu: tira as caixas da fase e escreve o motivo")
+    ap.add_argument("--motivo", metavar="TEXTO",
+                    help="obrigatorio com --cancelar: por que a fase morreu")
     a = ap.parse_args()
 
     html = ler(a.guia)
@@ -214,6 +291,14 @@ def main() -> int:
         print("ERRO: --carimbar espera DD/MM/AAAA", file=sys.stderr)
         return 2
 
+    if a.cancelar and not a.motivo:
+        print("ERRO: --cancelar exige --motivo. Fase que morre sem motivo escrito vira\n       caixa orfa daqui a um mes, que e o problema que este comando existe para evitar.",
+              file=sys.stderr)
+        return 2
+    if a.motivo and not a.cancelar:
+        print("ERRO: --motivo so faz sentido com --cancelar", file=sys.stderr)
+        return 2
+
     mudancas = []
     if a.inserir_fase:
         try:
@@ -222,6 +307,16 @@ def main() -> int:
             print(f"ERRO: --inserir-fase: {e}", file=sys.stderr)
             return 2
         mudancas.append("inseriu fase(s) " + ", ".join(novas))
+        itens = inventario(html)
+
+    for f in a.cancelar:
+        html_novo, erro = cancelar(html, f, a.motivo, hoje())
+        if erro:
+            print(f"ERRO: --cancelar: {erro}", file=sys.stderr)
+            return 2
+        html = html_novo
+        mudancas.append(f"cancelou a fase {f}")
+    if a.cancelar:
         itens = inventario(html)
     alvo = {}
     for i in a.marcar:
