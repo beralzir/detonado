@@ -366,7 +366,7 @@ def main():
              .replace("{{TOKENS_CSS}}", tokens)
              .replace("{{ESTILO_BASE}}", estilo_base())
              .replace("{{TITULO}}", f"Mapa do {nome}")
-             .replace("{{EYEBROW}}", "detonado &#9670; MAPA &middot; só lê, não marca")
+             .replace("{{EYEBROW}}", "detonado <span aria-hidden='true'>&#9670;</span> MAPA &middot; só lê, não marca")
              .replace("{{SUBTITULO}}", f"Foto de {hoje_br()}. O estado vivo está nos guias, e por isso este mapa não tem caixa para marcar.")
              .replace("{{TILES}}", bloco_tiles(guias))
              .replace("{{ONDE_PARAMOS}}", onde)

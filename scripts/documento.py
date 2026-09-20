@@ -102,7 +102,8 @@ def bloco_passos(itens):
             f'<div class="passo">\n'
             f'<h3><span class="num">{i:02d}</span>{inline(p.get("texto",""))}</h3>\n'
             f'{cmd}{esp}\n'
-            f'<label class="marca"><input type="checkbox" id="p{i}"> feito, nesta leitura</label>\n'
+            f'<label class="marca"><input type="checkbox" id="p{i}" '
+            f'aria-label="Passo {i:02d}, feito nesta leitura"> feito, nesta leitura</label>\n'
             f'</div>')
     return "\n".join(out)
 
@@ -149,14 +150,14 @@ def main():
         "{{RODAPE}}": f"{hoje} · {destino.name}",
     }
     if a.tipo == "consultivo":
-        comum["{{EYEBROW}}"] = "detonado &#9670; CONSULTIVO &middot; decide, não acompanha"
+        comum["{{EYEBROW}}"] = "detonado <span aria-hidden='true'>&#9670;</span> CONSULTIVO &middot; decide, não acompanha"
         comum["{{PROBLEMA}}"] = paras(d.get("problema", ""))
         comum["{{EVIDENCIA}}"] = bloco_evidencia(d.get("evidencia", []))
         comum["{{OPCOES}}"] = bloco_opcoes(d.get("opcoes", []))
         comum["{{RECOMENDACAO}}"] = paras(d.get("recomendacao", ""))
         comum["{{VIRARIA}}"] = lista(d.get("viraria", []))
     else:
-        comum["{{EYEBROW}}"] = "detonado &#9670; PASSO A PASSO &middot; marca sua, não progresso"
+        comum["{{EYEBROW}}"] = "detonado <span aria-hidden='true'>&#9670;</span> PASSO A PASSO &middot; marca sua, não progresso"
         comum["{{ANTES}}"] = lista(d.get("antes", []))
         comum["{{PASSOS}}"] = bloco_passos(d.get("passos", []))
         comum["{{ERRADO}}"] = bloco_errado(d.get("errado", []))
