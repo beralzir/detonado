@@ -166,7 +166,7 @@ def main() -> int:
     guia = (tpl_guia.replace("{{TOKENS_CSS}}", tokens)
                     .replace("{{NAV_FASES}}", render_nav(fases))
                     .replace("{{SECOES_FASES}}", "\n\n".join(render_fase(tpl_fase, f) for f in fases))
-                    .replace("{{EYEBROW}}", f"guia vivo &nbsp;·&nbsp; {mes}")
+                    .replace("{{EYEBROW}}", "detonado &#9670; GUIA VIVO &middot; caixa marcada é prova")
                     .replace("{{ARQUIVO}}", f"docs/guia-{a.nome}/guia-{a.nome}.html")
                     .replace("{{TITULO}}", html.escape(a.titulo))
                     .replace("{{RESUMO}}", inline_code(a.objetivo))

@@ -149,14 +149,14 @@ def main():
         "{{RODAPE}}": f"{hoje} · {destino.name}",
     }
     if a.tipo == "consultivo":
-        comum["{{EYEBROW}}"] = f"Consultivo · {hoje}"
+        comum["{{EYEBROW}}"] = "detonado &#9670; CONSULTIVO &middot; decide, não acompanha"
         comum["{{PROBLEMA}}"] = paras(d.get("problema", ""))
         comum["{{EVIDENCIA}}"] = bloco_evidencia(d.get("evidencia", []))
         comum["{{OPCOES}}"] = bloco_opcoes(d.get("opcoes", []))
         comum["{{RECOMENDACAO}}"] = paras(d.get("recomendacao", ""))
         comum["{{VIRARIA}}"] = lista(d.get("viraria", []))
     else:
-        comum["{{EYEBROW}}"] = f"Passo a passo · {hoje}"
+        comum["{{EYEBROW}}"] = "detonado &#9670; PASSO A PASSO &middot; marca sua, não progresso"
         comum["{{ANTES}}"] = lista(d.get("antes", []))
         comum["{{PASSOS}}"] = bloco_passos(d.get("passos", []))
         comum["{{ERRADO}}"] = bloco_errado(d.get("errado", []))
