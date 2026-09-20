@@ -9,6 +9,7 @@ O que vai em cada um, quando atualizar, o que nunca entra. Templates em `assets/
 | `SESSION.md` | Checkpoint da sessão, fora da janela de contexto | a cada ~5 passos, antes de compactar, ao fechar | sim, quando a fase fecha |
 | `tasks/lessons.md` | O que custou caro | quando algo custou caro | não |
 | `docs/guia-<projeto>/` | Guia vivo, imagens, script de build | a cada etapa provada | não |
+| `docs/mapa-<projeto>/` | Mapa, a foto datada de todos os guias. Opcional | quando quiser a foto | sim, é foto |
 
 ## CLAUDE.md
 

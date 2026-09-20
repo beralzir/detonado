@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO}}</title>
+<style>
+{{TOKENS_CSS}}
+{{ESTILO_BASE}}
+/* Especifico do mapa. O resto vem do guia, injetado acima, para os dois nao divergirem. */
+.tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:22px 0}
+.tile{background:var(--panel);border:1px solid var(--l1);padding:14px 16px}
+.tile h3{font:600 13px/1.3 var(--sans);margin:0 0 10px;color:var(--t2)}
+.tile .n{font:700 26px/1 var(--display);color:var(--accent)}
+.tile .n small{font:400 13px/1 var(--sans);color:var(--t4);margin-left:6px}
+.tile .st{font:400 12px/1.5 var(--sans);color:var(--t4);margin-top:8px}
+.tile.cancelada .n{color:var(--t4)}
+figure{margin:18px 0;padding:0}
+figure svg{display:block;max-width:100%;height:auto}
+figcaption{font:400 12px/1.6 var(--sans);color:var(--t4);margin-top:10px}
+.legenda{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 0;font:400 12px/1.5 var(--sans);color:var(--t4)}
+.legenda span{display:inline-flex;align-items:center;gap:6px}
+.legenda i{width:12px;height:12px;display:inline-block;border:1px solid var(--l2)}
+.dono{font:600 11px/1 var(--sans);padding:3px 7px;border:1px solid var(--l2);color:var(--t3);margin-left:8px}
+.dono.bera{border-color:var(--support-line);color:var(--support-text)}
+.rolagem{overflow-x:auto}
+@media (max-width:560px){.tiles{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+<p class="kick">{{EYEBROW}}</p>
+<h1>{{TITULO}}</h1>
+<p class="nota">{{SUBTITULO}}</p>
+</header>
+
+<section class="tiles" aria-label="Progresso por guia vivo">
+{{TILES}}
+</section>
+
+<div class="call regra">
+<span class="lb">Onde paramos</span>
+{{ONDE_PARAMOS}}
+</div>
+
+<section>
+<h2>O que trava o quê</h2>
+{{FLUXOGRAMA}}
+</section>
+
+<section>
+<h2>Linha do tempo por fase</h2>
+{{TIMELINE}}
+</section>
+
+<section>
+<h2>Pra onde vamos</h2>
+{{PRA_ONDE}}
+</section>
+
+<section>
+<h2>O que já está de pé</h2>
+{{DE_PE}}
+</section>
+
+<section>
+<h2>Fontes e guias vivos</h2>
+{{FONTES}}
+</section>
+
+</main>
+<footer>{{RODAPE}}</footer>
+</body>
+</html>

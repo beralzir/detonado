@@ -58,6 +58,9 @@ cd ~/projetos/<projeto>
 claude
 ```
 
+Quando o Bera pede "onde paramos" e quer **ver**, não ler, o modo é `mapa`, não `retomar`: o
+`retomar` tem contrato de quatro linhas para o celular, e o mapa é o oposto disso.
+
 ## Sinais de que o registro apodreceu
 
 - HANDOFF sem data no parágrafo de abertura.

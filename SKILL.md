@@ -1,6 +1,6 @@
 ---
 name: detonado
-description: "Dá forma a um projeto de execução do Bera com o método do predator-servidor-ia: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md e um guia vivo em HTML com checkboxes e barra de progresso, atualizado a cada etapa provada. Abre ou adota projeto, monta e atualiza o guia, fecha a sessão, registra lição e responde 'onde paramos' lendo o registro. MANUAL-ONLY, não automática. Acionar EXCLUSIVAMENTE quando o Bera pedir de forma explícita e nominal, via /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão'. Pedidos genéricos de guia, passo a passo, checklist, handoff, checkpoint, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO são gatilho válido; nesses casos responder normalmente e, no máximo, sugerir em texto que o Bera pode chamá-la. Não ativar quando 'detonado' aparecer fora de contexto de projeto (ex.: 'tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
+description: "Dá forma a um projeto de execução do Bera com o método do predator-servidor-ia: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md e um guia vivo em HTML com checkboxes e barra de progresso, atualizado a cada etapa provada. Abre ou adota projeto, monta e atualiza o guia, fecha a sessão, registra lição e responde 'onde paramos' lendo o registro. MANUAL-ONLY, não automática. Acionar EXCLUSIVAMENTE quando o Bera pedir de forma explícita e nominal, via /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, mapa do projeto'. Pedidos genéricos de guia, passo a passo, checklist, handoff, checkpoint, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO são gatilho válido; nesses casos responder normalmente e, no máximo, sugerir em texto que o Bera pode chamá-la. Não ativar quando 'detonado' aparecer fora de contexto de projeto (ex.: 'tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
 ---
 
 # detonado
@@ -43,6 +43,7 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 | **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, **cancelar fase que morreu**, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
+| **mapa** | "detonado, desenha o mapa" | Foto datada de todos os guias de uma vez: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada | `references/mapa.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
 
 ## Princípios
@@ -174,6 +175,9 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `references/guia-vivo.md` | guia: anatomia do HTML, ids, tokens, Artifact, acessibilidade, portões |
 | `references/retomada.md` | fechar e retomar: rituais, mensagem para colar no celular |
 | `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever. `--dry-run` antes, `--sem-guia` para adotar sem fase aberta |
+| `references/mapa.md` | mapa: anatomia das seções, o que é foto e o que é vivo, honestidade das datas |
+| `scripts/mapa.py` | mapa: lê os guias por `progresso.py` e desenha. `--dry-run` antes, `--dir` para outro projeto |
+| `assets/guia/mapa.template.html` | mapa: template, que injeta o CSS do `guia.template.html` para os dois não divergirem |
 | `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML com imagens em base64, dentro do limite de 16 MB. Copiado para o projeto |
 | `assets/templates/` | os quatro templates em markdown |
