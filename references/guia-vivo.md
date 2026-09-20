@@ -108,11 +108,12 @@ python3 $P docs/guia-x/guia-x.html --onde-paramos "**02/09**: \`podman ps\` com 
 python3 $P docs/guia-x/guia-x.html --carimbar 02/09/2026          # data em #status-atual e no rodapé
 ```
 
-O script recusa id inexistente e fase repetida (sai 2), avisa fase fechada com etapa aberta (sai 1
-quando nada foi alterado), recusa declarar etapa já marcada, e imprime o progresso depois de cada
-operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar` não vier junto. **`--marcar`
-sem `--prova` sai com 2**: a evidência entra no guia junto com a caixa, numa nota datada
-simétrica à da declaração. Sem evidência, o caminho é `--declarar`, que deixa a caixa aberta.
+O script recusa id inexistente e fase repetida (sai 2), avisa fase fechada com etapa aberta (sai
+1 quando nada foi alterado), recusa declarar etapa já marcada, e imprime o progresso depois de
+cada operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar` não vier junto.
+**`--marcar` sem `--prova` sai com 2**: a evidência entra no guia junto com a caixa, numa nota
+datada simétrica à da declaração. Sem evidência, o caminho é `--declarar`, que deixa a caixa
+aberta.
 
 O que sobra para edição à mão é a prosa livre das seções: parágrafos, tabelas, blocos de comando,
 cartões da seção Contexto. Depois de editar, `--listar` tem que sair limpo. `checked` e `data-done`
@@ -168,7 +169,8 @@ de CDN, travessão como pontuação. São os guardrails da marca, e cada um já 
 
 Depois de gerar ou mudar a estrutura do guia, dois portões, nesta ordem, os dois manual-only:
 
-1. Anti-slop: `npx impeccable detect <guia.html>`, determinístico, roda local.
+1. Anti-slop: `npx impeccable@4.1.0 detect <guia.html>`. A versão vai fixa porque `npx` sem
+   versão resolve da rede a cada chamada, e aí o portão deixa de ser reprodutível.
 2. `cão-guia`: acessibilidade, contraste, `alt`.
 
 Nomeie os dois em texto e espere o Bera chamar. Portão dispensado se registra na entrega, não se

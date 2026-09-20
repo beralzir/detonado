@@ -30,9 +30,11 @@ ler um caminho que não existe. Projeto, guia e registro não dependem da bancad
 
 Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, ou o projeto não está nomeado, pergunte
 antes de tocar em arquivo. Em **retomar**, **guia** e **fechar**, projeto nomeado cujo diretório
-não existe nesta máquina não se cria: diga onde ele mora (ponteiro em
-`<bancada>/marvin/projetos/`) e pare aí. Em **abrir**, o diretório não existir é a premissa do
-modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
+não existe nesta máquina não se cria: leia `<bancada>/marvin/projetos/<nome>.md`, diga em que
+máquina ele mora e pare aí. Ler o Marvin é permitido, escrever nele não; sem bancada, diga que o
+ponteiro não está nesta máquina. Em **abrir**, o diretório não existir é a premissa do modo, não
+um impedimento, e o diretório já existir com conteúdo é adotar: diga isso e siga o fluxo de
+adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 
 | Modo | Pedido típico | O que faz | Leia antes |
 |---|---|---|---|
@@ -62,9 +64,10 @@ modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUse
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
    script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
    fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura
-   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`. O que sobra para edição à mão é a prosa livre das
-   seções (parágrafos, tabelas, blocos de comando), e depois dela `progresso.py --listar` tem que
-   sair limpo. Tocar em `checked` ou `data-done` à mão é o jeito de o guia divergir.
+   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`. O que sobra para
+   edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
+   dela `progresso.py --listar` tem que sair limpo. Tocar em `checked` ou `data-done` à mão é o
+   jeito de o guia divergir.
 6. **Lição só vira regra depois de confirmada.** Caso isolado entra como "a confirmar". O Bera diz
    se é padrão.
 7. **Escopo que morre não é fase fechada nem fase aberta.** Fechar mentiria, porque nada foi
@@ -147,12 +150,16 @@ não há próximo bloco.
    válido, ceder não. "Eu fiz" sem prova vira uma pergunta primeiro: qual evidência fecha a etapa,
    citando o "pronto quando" dela. Só quando o Bera diz que não há prova entra o caminho honesto,
    `progresso.py --declarar`, que anota "declarado pelo Bera, sem prova" e deixa a caixa aberta.
-6. **Distinga provado, declarado, inferido e pendente.** No guia, caixa marcada é provado. No
-   HANDOFF, toda afirmação de estado leva data. No SESSION, hipótese não testada se chama assim.
+6. **Distinga provado, declarado, inferido e pendente, e cada um tem endereço.** Provado: caixa
+   marcada, com a nota `prova`. Declarado: nota `decl` na etapa, e a caixa segue aberta. Inferido
+   ou não testado: só no SESSION, e chamado assim. Pendente: caixa aberta, sem nota. Nada
+   inferido entra no HANDOFF, onde toda afirmação de estado leva data.
 
 ## Fora de escopo
 
-Planejar e auditar (`daquele-jeito`). Governar execução autônoma (`portas-em-automatico`).
+Plano de execução e auditoria de quatro eixos (`daquele-jeito`). O fatiamento em fases com
+prova é desta skill: é a forma do registro, não um segundo plano. Governar execução autônoma
+(`portas-em-automatico`).
 Decidir direção visual ou paleta (`risca-de-giz`), produzir protótipo (`huashu-design`), auditar
 acessibilidade (`cão-guia`). Construir agente, MCP ou site (handoff à triagem do Gepeto). Escrever
 fora do diretório do projeto. Executar as etapas do projeto por conta própria: a skill dá a forma,
