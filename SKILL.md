@@ -1,6 +1,6 @@
 ---
 name: detonado
-description: "Dá forma a um projeto de execução do Bera com o método do predator-servidor-ia: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md e um guia vivo em HTML com checkboxes e barra de progresso, atualizado a cada etapa provada. Abre ou adota projeto, monta e atualiza o guia, fecha a sessão, registra lição e responde 'onde paramos' lendo o registro. MANUAL-ONLY, não automática. Acionar EXCLUSIVAMENTE quando o Bera pedir de forma explícita e nominal, via /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, mapa do projeto'. Pedidos genéricos de guia, passo a passo, checklist, handoff, checkpoint, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO são gatilho válido; nesses casos responder normalmente e, no máximo, sugerir em texto que o Bera pode chamá-la. Não ativar quando 'detonado' aparecer fora de contexto de projeto (ex.: 'tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
+description: "Dá forma a um projeto de execução do Bera com o método do predator-servidor-ia: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md e um guia vivo em HTML com checkboxes e barra de progresso, atualizado a cada etapa provada. Abre ou adota projeto, monta e atualiza o guia, fecha a sessão, registra lição e responde 'onde paramos' lendo o registro. MANUAL-ONLY, não automática. Acionar EXCLUSIVAMENTE quando o Bera pedir de forma explícita e nominal, via /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, mapa do projeto', 'detonado, faz um consultivo sobre X', 'detonado, escreve o passo a passo de X'. Pedidos genéricos de guia, passo a passo, checklist, handoff, checkpoint, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO são gatilho válido; nesses casos responder normalmente e, no máximo, sugerir em texto que o Bera pode chamá-la. Não ativar quando 'detonado' aparecer fora de contexto de projeto (ex.: 'tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
 ---
 
 # detonado
@@ -43,7 +43,10 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 | **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, **cancelar fase que morreu**, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
-| **mapa** | "detonado, desenha o mapa" | Foto datada de todos os guias de uma vez: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada | `references/mapa.md` |
+| **mapa** | "detonado, desenha o mapa" | Foto datada de todos os guias de uma vez: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada | `references/documentos.md` | documento: a regra que separa as famílias, e o que consultivo e passo a passo têm e não têm |
+| `scripts/documento.py` | documento: monta consultivo ou passo a passo a partir de um JSON de conteúdo |
+| `references/mapa.md` |
+| **documento** | "detonado, faz um consultivo sobre X" | Guia consultivo (decide, sem estado) ou passo a passo (receita, marca efêmera). Nenhum dos dois tem progresso de projeto | `references/documentos.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
 
 ## Princípios
@@ -65,7 +68,8 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
    script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
    fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura
-   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`. O que sobra para
+   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`, e documento sem
+   estado é `documento.py`. O que sobra para
    edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
    dela `progresso.py --listar` tem que sair limpo. Tocar em `checked` ou `data-done` à mão é o
    jeito de o guia divergir.
@@ -171,7 +175,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | Arquivo | Quando |
 |---|---|
 | `references/metodo.md` | abrir ou adotar: fatiar em fases, "pronto quando", provas que valem e as que mentem, JSON das fases |
-| `references/artefatos.md` | qualquer modo: o que vai em cada um dos cinco artefatos, quando atualizar, estado com dono |
+| `references/artefatos.md` | qualquer modo: o que vai em cada artefato, os cinco do projeto e os três opcionais, quando atualizar, estado com dono |
 | `references/guia-vivo.md` | guia: anatomia do HTML, ids, tokens, Artifact, acessibilidade, portões |
 | `references/retomada.md` | fechar e retomar: rituais, mensagem para colar no celular |
 | `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever. `--dry-run` antes, `--sem-guia` para adotar sem fase aberta |

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO}}</title>
+<style>
+{{TOKENS_CSS}}
+{{ESTILO_BASE}}
+/* Passo a passo: a marca e efemera e local. Sem barra e sem percentual, de proposito. */
+.passo{border-top:1px solid var(--l1);padding:18px 0}
+.passo:first-of-type{border-top:0}
+.passo h3{font:600 15px/1.35 var(--sans);margin:0 0 4px;color:var(--t1);display:flex;gap:10px;align-items:baseline}
+.passo h3 .num{font:700 12px/1 var(--mono);color:var(--accent);border:1px solid var(--accent-line);padding:4px 7px}
+.passo .esperado{font:400 13px/1.6 var(--sans);color:var(--t3);margin:8px 0 0;padding-left:14px;border-left:2px solid var(--good-line)}
+.passo .esperado b{color:var(--good)}
+.marca{display:flex;gap:9px;align-items:center;margin-top:12px;font:400 13px/1.5 var(--sans);color:var(--t4);cursor:pointer}
+.marca input{accent-color:var(--accent);width:16px;height:16px;flex:0 0 auto}
+.efemero{background:var(--panel);border:1px solid var(--l1);padding:12px 15px;margin:18px 0;font:400 13px/1.6 var(--sans);color:var(--t3)}
+.efemero b{color:var(--t2)}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+<p class="kick">{{EYEBROW}}</p>
+<h1>{{TITULO}}</h1>
+<p class="nota">{{SUBTITULO}}</p>
+</header>
+
+<p class="efemero"><b>As marcas desta página são suas e ficam neste navegador.</b> Elas não vão
+para o git, não são progresso de projeto nenhum e ninguém mais as vê. Servem só para você não
+perder o lugar. Se o navegador não deixar guardar, a página funciona igual e a marca não
+persiste.</p>
+
+<section>
+<h2>Antes de começar</h2>
+{{ANTES}}
+</section>
+
+<section>
+<h2>Os passos</h2>
+{{PASSOS}}
+</section>
+
+<section>
+<h2>Se der errado</h2>
+{{ERRADO}}
+</section>
+
+</main>
+<footer>{{RODAPE}}</footer>
+<script>
+// Marca efemera: localStorage do leitor, nunca commit. Tudo em try/catch porque
+// aba anonima, site data bloqueado e preview fazem o acessor lancar ou voltar vazio.
+(function () {
+  var chave = "detonado:passo:" + (document.title || "sem-titulo");
+  var vistos = {};
+  try { vistos = JSON.parse(localStorage.getItem(chave) || "{}") || {}; } catch (e) { vistos = {}; }
+  var caixas = document.querySelectorAll(".marca input[type=checkbox]");
+  caixas.forEach(function (c) {
+    if (vistos[c.id]) { c.checked = true; }
+    c.addEventListener("change", function () {
+      vistos[c.id] = c.checked;
+      try { localStorage.setItem(chave, JSON.stringify(vistos)); } catch (e) { /* sem persistencia, segue */ }
+    });
+  });
+})();
+</script>
+</body>
+</html>

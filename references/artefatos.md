@@ -1,6 +1,7 @@
-# Os cinco artefatos
+# Os artefatos
 
-O que vai em cada um, quando atualizar, o que nunca entra. Templates em `assets/templates/`.
+Cinco nascem com o projeto e três são opcionais. O que vai em cada um, quando atualizar, o
+que nunca entra. Templates em `assets/templates/`.
 
 | Artefato | Papel | Atualiza quando | Apagável |
 |---|---|---|---|
@@ -10,6 +11,8 @@ O que vai em cada um, quando atualizar, o que nunca entra. Templates em `assets/
 | `tasks/lessons.md` | O que custou caro | quando algo custou caro | não |
 | `docs/guia-<projeto>/` | Guia vivo, imagens, script de build | a cada etapa provada | não |
 | `docs/mapa-<projeto>/` | Mapa, a foto datada de todos os guias. Opcional | quando quiser a foto | sim, é foto |
+| `docs/consultivo-<nome>/` | Guia consultivo: decide, sem estado nenhum. Opcional | quando a recomendação mudar | sim |
+| `docs/passo-<nome>/` | Passo a passo: receita reusável, marca efêmera no navegador. Opcional | quando o procedimento mudar | sim |
 
 ## CLAUDE.md
 

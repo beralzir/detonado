@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO}}</title>
+<style>
+{{TOKENS_CSS}}
+{{ESTILO_BASE}}
+/* Consultivo: sem barra, sem caixa, sem percentual. Nao ha estado a mostrar. */
+.tese{border-left:3px solid var(--accent);padding:2px 0 2px 16px;margin:20px 0}
+.tese p{font:400 17px/1.6 var(--sans);color:var(--t1);margin:0}
+.opcao{background:var(--panel);border:1px solid var(--l1);padding:16px 18px;margin:14px 0}
+.opcao h3{font:600 15px/1.3 var(--sans);margin:0 0 8px;color:var(--t1)}
+.opcao .custo{font:400 13px/1.6 var(--sans);color:var(--t4);margin-top:10px}
+.viraria{border:1px dashed var(--l2);padding:16px 18px;margin:20px 0}
+.viraria h2{margin-top:0}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+<p class="kick">{{EYEBROW}}</p>
+<h1>{{TITULO}}</h1>
+<p class="nota">{{SUBTITULO}}</p>
+</header>
+
+<section>
+<h2>O problema</h2>
+{{PROBLEMA}}
+</section>
+
+<section>
+<h2>O que se sabe, e como se sabe</h2>
+{{EVIDENCIA}}
+</section>
+
+<section>
+<h2>As opções, com o custo de cada uma</h2>
+{{OPCOES}}
+</section>
+
+<section>
+<h2>Recomendação</h2>
+<div class="tese">{{RECOMENDACAO}}</div>
+</section>
+
+<div class="viraria">
+<h2>O que mudaria esta recomendação</h2>
+{{VIRARIA}}
+</div>
+
+</main>
+<footer>{{RODAPE}}</footer>
+</body>
+</html>
