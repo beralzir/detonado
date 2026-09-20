@@ -9,10 +9,12 @@ claude plugin eval --case <nome> --ablation none --no-publish .
 
 `--ablation none` corta o braço sem-plugin, que dobra as execuções e o custo. Use a ablação
 quando a pergunta for "a skill melhora o resultado?", não quando for "a skill regrediu?".
-Cada caso roda três vezes, e cada rodada sobe um Claude filho na sua credencial, então a suíte
-custa dinheiro real: um caso são uns US$ 0,60 sem ablação, o dobro com ela. `--max-cost-usd`
-põe teto, e quando o teto bate os graders pagos são pulados, o que estraga o número em vez de
-só interromper.
+Cada caso roda três vezes, e cada rodada sobe um Claude filho na sua credencial. O valor que a
+ferramenta imprime, uns US$ 0,60 por caso sem ablação e o dobro com ela, é **estimativa em preço
+de API**, não cobrança: com `billingType: stripe_subscription` e uso extra desligado, isso sai da
+**cota do plano**, a mesma que o rate limit controla. Ou seja, rodar a suíte não gera fatura,
+gasta cota e aproxima o limite semanal. `--max-cost-usd` põe teto sobre essa estimativa, e quando
+o teto bate os graders pagos são pulados, o que estraga o número em vez de só interromper.
 
 Para investigar uma reprovação, `--keep-temp` preserva o sandbox de cada rodada, e o
 transcript fica em `<temp>/out/trace.jsonl`. Sem ele o resultado guarda o veredito e perde a
@@ -64,7 +66,7 @@ precisa de duas coisas além do prompt:
 
 **Na Predator esse tipo de caso não roda hoje.** O sandbox recusa com "the SSH (~/.ssh)
 credential store on this machine holds a symbolic link inside it", porque `~/.ssh/config.d` é um
-link para os dotfiles do `linux-kit`. A recusa é anterior ao gasto, então custa zero, e a
+link para os dotfiles do `linux-kit`. A recusa é anterior a qualquer rodada, então não consome cota, e a
 mensagem diz o caminho: o conteúdo do cofre precisa estar num diretório comum, e só a raiz dele
 pode ser link. É decisão de setup, não da skill.
 
