@@ -49,6 +49,25 @@ Corolário dos dois: **critério ambíguo dá voto disperso**. Quando os três j
 resposta; voto dividido costuma ser sinal do critério. Por isso o `criteria.md` deste caso tem
 uma seção inteira dizendo o que **não** reprova.
 
+## Caso que precisa de Bash, e o bloqueio da Predator
+
+Caso que manda o agente rodar um script (o `declara-sem-prova` roda o `progresso.py --declarar`)
+precisa de duas coisas além do prompt:
+
+- O formato **`case.yaml`**, não `prompt.md`. O `prompt.md` só aceita `schema_version`, `name`,
+  `description`, `tags`, `plugins`, `runs`, `expected_outcome`, `model`, `max_turns`,
+  `timeout_seconds`, `allowed_tools`, `artifact_publish`, `append_system_prompt` e `env`. O
+  `scaffold_script`, que monta a fixture no diretório da rodada, só existe no `case.yaml`, dentro
+  do bloco `execution`, e o `schema_version` ali é a string `"1.0"`, não o número.
+- A flag **`--allow-tools Bash`** na linha de comando. Sem ela o caso roda, gasta e reprova por
+  construção, porque o agente não consegue executar nada. Custou uma rodada inteira descobrir.
+
+**Na Predator esse tipo de caso não roda hoje.** O sandbox recusa com "the SSH (~/.ssh)
+credential store on this machine holds a symbolic link inside it", porque `~/.ssh/config.d` é um
+link para os dotfiles do `linux-kit`. A recusa é anterior ao gasto, então custa zero, e a
+mensagem diz o caminho: o conteúdo do cofre precisa estar num diretório comum, e só a raiz dele
+pode ser link. É decisão de setup, não da skill.
+
 ## Dívida: os 12 casos do `evals.json`
 
 O `evals.json` na raiz desta pasta tem 12 casos escritos antes desta estrutura existir, e

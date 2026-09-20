@@ -18,7 +18,8 @@ progresso mostra o que foi provado, não o que foi prometido. O método nasceu n
 
 ## Onde as coisas moram
 
-A bancada é o diretório que guarda as skills e o Marvin. Ela se resolve nesta ordem:
+A bancada é o diretório que guarda as skills e o Marvin, que é onde moram o brief de cada
+projeto, as preferências do Bera e as lições de como trabalhar com ele. Ela se resolve assim:
 `$STARTER_KIT_WORKSPACE`, ou `~/workspace` quando a variável não existir, que é a mesma regra do
 instalador do starter-kit. Aqui e nas references ela aparece como `<bancada>`.
 
@@ -40,7 +41,7 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 |---|---|---|---|
 | **abrir** | "abre o detonado do homelab" | Cria o projeto com os cinco artefatos e as fases validadas | `references/metodo.md`, `references/artefatos.md` |
 | **adotar** | "manda o detonado adotar esse repo" | Projeto existente: introduz só o que falta, sem sobrescrever | `references/artefatos.md`, e `references/metodo.md` se for nascer guia |
-| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`: marcar com prova, declarar quando o Bera disser que não há prova, fechar fase, **cancelar fase que morreu**, inserir fase, reescrever "Onde paramos" | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
+| **guia** | "monta a fase 3 no guia", "marca a etapa D2" | Estado e estrutura por `progresso.py`, nunca à mão. Marcar exige `--prova` | `references/guia-vivo.md`, e `references/metodo.md` para fase nova |
 | **fechar** | "detonado, fecha a sessão" | SESSION.md, guia, HANDOFF se o ponto de retomada mudou, commit | `references/retomada.md` |
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
 | **mapa** | "detonado, desenha o mapa" | Foto datada de todos os guias de uma vez: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada | `references/documentos.md` | documento: a regra que separa as famílias, e o que consultivo e passo a passo têm e não têm |
@@ -71,7 +72,7 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
    inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`, e documento sem
    estado é `documento.py`. O que sobra para
    edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
-   dela `progresso.py --listar` tem que sair limpo. Tocar em `checked` ou `data-done` à mão é o
+   dela `progresso.py --listar` tem que sair limpo; se não sair, conserte antes de commitar. Tocar em `checked` ou `data-done` à mão é o
    jeito de o guia divergir.
 6. **Lição só vira regra depois de confirmada.** Caso isolado entra como "a confirmar". O Bera diz
    se é padrão.
@@ -131,14 +132,10 @@ Detalhe, anatomia e comandos em `references/guia-vivo.md`.
 
 ## Fechar e retomar
 
-Detalhe em `references/retomada.md`. O essencial: fechar é SESSION.md com tabela item e prova,
-guia atualizado por script, HANDOFF só se o ponto de retomada mudou, lição se houve, commit só dos
-artefatos desta skill, adicionados por caminho, com mensagem que diz o que fechou. Retomar é ler
-CLAUDE.md, HANDOFF e SESSION, ler o bloco de sanidade antes de rodar (ele só imprime estado, e se
-algum comando altera o sistema, não rode e aponte), e responder nesta ordem: as divergências do
-registro primeiro, uma por linha, e depois o núcleo em até quatro linhas curtas (onde estamos, o
-que falta e com quem, o próximo bloco). Fecha no próximo bloco, ou na decisão que destrava quando
-não há próximo bloco.
+Os dois modos mandam ler `references/retomada.md` antes, e o detalhe mora lá. Três invariantes
+que não mudam: o SESSION vem primeiro, com tabela item e prova; o HANDOFF só se mexe se o ponto
+de retomada mudou; o commit leva só os artefatos desta skill, adicionados por caminho. No
+retomar, as divergências do registro vêm antes do núcleo, e o núcleo cabe em quatro linhas.
 
 ## Regras default
 
