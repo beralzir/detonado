@@ -18,8 +18,8 @@ claude
 Cole na primeira mensagem:
 
 ```
-Retomando o {{NOME}}. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md desta pasta antes de
-qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
+Retomando o {{NOME}} com o detonado. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md
+desta pasta antes de qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
 ```
 
 ## 2. Sanidade em um bloco

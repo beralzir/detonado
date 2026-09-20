@@ -16,12 +16,22 @@ progresso mostra o que foi provado, não o que foi prometido. O método nasceu n
 > `risca-de-giz`. Se você se pegar planejando fases sem prova, executando sem cross-check ou
 > inventando paleta, saiu da skill.
 
+## Onde as coisas moram
+
+A bancada é o diretório que guarda as skills e o Marvin. Ela se resolve nesta ordem:
+`$STARTER_KIT_WORKSPACE`, ou `~/workspace` quando a variável não existir, que é a mesma regra do
+instalador do starter-kit. Aqui e nas references ela aparece como `<bancada>`.
+
+Nem toda máquina tem bancada. Na que não tiver, os modos continuam funcionando: o que depende
+dela (o ponteiro do Marvin, o schema de design) **degrada e diz que degradou**, em vez de mandar
+ler um caminho que não existe. Projeto, guia e registro não dependem da bancada.
+
 ## Modos
 
 Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, ou o projeto não está nomeado, pergunte
 antes de tocar em arquivo. Em **retomar**, **guia** e **fechar**, projeto nomeado cujo diretório
 não existe nesta máquina não se cria: diga onde ele mora (ponteiro em
-`~/workspace/marvin/projetos/`) e pare aí. Em **abrir**, o diretório não existir é a premissa do
+`<bancada>/marvin/projetos/`) e pare aí. Em **abrir**, o diretório não existir é a premissa do
 modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 
 | Modo | Pedido típico | O que faz | Leia antes |
@@ -41,16 +51,18 @@ modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUse
 2. **Caixa marcada é prova, não intenção.** Um checkbox só recebe `checked` com evidência citada
    na conversa: saída de comando, URL com status, arquivo lido. O Bera dizer "eu fiz" vale como
    declaração, e declaração fica visível como tal, não vira prova. `systemctl is-active` não prova
-   inferência, `curl -s` engole erro, cache de browser confunde versão. A tabela do que vale está
-   em `references/metodo.md`.
+   inferência, `curl -s` engole erro, cache de browser confunde versão. A tabela do que vale
+   está em `references/metodo.md`. A evidência entra no guia junto com a caixa: `--marcar`
+   exige `--prova`, e sem ela o script sai com 2. E prova vale enquanto está visível nesta
+   sessão: se veio de antes de uma compactação, reverifique ou use `--declarar`.
 3. **Escrito para o celular.** O HANDOFF é lido por SSH no iPhone. Blocos únicos, parágrafos
    curtos, o esperado logo abaixo do comando.
 4. **Retomar é ler, não lembrar.** "Onde paramos" se responde abrindo o HANDOFF e o SESSION, mesmo
    quando a memória parece boa. Principalmente quando parece boa.
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
    script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
-   fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura inicial e imagens embutidas
-   são `novo_projeto.py` e `build_artifact.py`. O que sobra para edição à mão é a prosa livre das
+   fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura
+   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`. O que sobra para edição à mão é a prosa livre das
    seções (parágrafos, tabelas, blocos de comando), e depois dela `progresso.py --listar` tem que
    sair limpo. Tocar em `checked` ou `data-done` à mão é o jeito de o guia divergir.
 6. **Lição só vira regra depois de confirmada.** Caso isolado entra como "a confirmar". O Bera diz
@@ -60,31 +72,34 @@ modo, não um impedimento. Pergunta redutível a até 4 opções vai por `AskUse
    como o registro apodrece. `progresso.py --cancelar <fase> --motivo "..."` tira as caixas da
    fase e escreve por que ela morreu, com a data. O que sai do numerador sai também do
    denominador, então a barra passa a medir só o que ainda pode acontecer.
+8. **A aparência tem dono, e não é o projeto.** CSS, tokens e cartões do guia não são prosa
+   livre: mudança visual entra pelo template do detonado, nunca pelo guia de um projeto.
+   Direção nova é decisão da `risca-de-giz`.
 
 ## Fluxo de abrir
 
 1. **Confirme o mínimo** que muda a estrutura: nome do projeto, diretório (padrão
    `~/projetos/<nome>`), objetivo em uma frase, o que já existe. Se o brief mora no Marvin
-   (`~/workspace/marvin/projetos/<nome>.md`), leia e aponte, não copie.
+   (`<bancada>/marvin/projetos/<nome>.md`), leia e aponte, não copie.
 2. **Fatie em fases com prova.** Fase 0 é sempre o guia vivo e o checkpoint. Cada etapa tem um
    "pronto quando" observável e a prova aceita. Regras de fatiamento em `references/metodo.md`.
 3. **Valide o fatiamento com o Bera** antes de criar arquivo. Se ele dispensou a validação no
    próprio pedido ("assume o razoável"), pule a pergunta e liste as premissas adotadas na resposta
    e no SESSION.md inicial.
-4. **Escreva as fases num JSON** (formato em `references/metodo.md`) e rode
-   `scripts/novo_projeto.py`, primeiro com `--dry-run` para ver o que nasce. Ele cria os artefatos
-   a partir dos templates e nunca sobrescreve o que existe.
+4. **Escreva as fases num JSON** e rode o `novo_projeto.py` com a linha completa de
+   `references/metodo.md` (formato do JSON e invocação estão os dois lá), `--dry-run` primeiro.
+   Ele cria os artefatos a partir dos templates e nunca sobrescreve o que existe.
 5. **Preencha o que o template deixa em aberto**: HANDOFF (Voltando, Sanidade, O que está de pé,
    Pendências), CLAUDE.md curto com o mapa dos documentos, SESSION.md inicial.
-6. **Commit inicial** e sugira ao Bera a linha de ponteiro em `~/workspace/marvin/projetos/`.
+6. **Commit inicial** e sugira ao Bera a linha de ponteiro em `<bancada>/marvin/projetos/`.
    Esta skill não escreve no Marvin.
 
 ## Fluxo de adotar
 
 1. **Leia o que existe** antes de criar qualquer coisa: HANDOFF, README, SESSION, o que houver.
-2. **Rode `scripts/novo_projeto.py --dry-run`** para ver o que nasceria. Sem fase aberta para o
-   guia mostrar, use `--sem-guia`. Com fase aberta, o fatiamento passa pela mesma validação do
-   modo abrir, e o Bera pode dispensá-la no pedido.
+2. **Rode o `novo_projeto.py --dry-run`** pela linha de `references/metodo.md`, para ver o que
+   nasceria. Sem fase aberta para o guia mostrar, use `--sem-guia`. Com fase aberta, o
+   fatiamento passa pela mesma validação do modo abrir, e o Bera pode dispensá-la no pedido.
 3. **Não reformate o que existe.** HANDOFF com outra estrutura ganha as seções Voltando e
    Sanidade acrescentadas, e a divergência de estrutura vai para o SESSION.md.
 4. **Commit por caminho** só do que a skill criou ou acrescentou.

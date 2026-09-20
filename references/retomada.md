@@ -46,8 +46,8 @@ esperar, o checkpoint não.
 Todo HANDOFF traz, na seção Voltando, a mensagem que abre a sessão. Modelo:
 
 ```
-Retomando o <projeto>. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md desta pasta antes de
-qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
+Retomando o <projeto> com o detonado. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md
+desta pasta antes de qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
 ```
 
 E os comandos:

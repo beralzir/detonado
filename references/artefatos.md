@@ -63,7 +63,7 @@ negrito**, contexto com data e o comando certo. Caso isolado leva "[a confirmar]
 dizer que é padrão.
 
 Lição de infraestrutura fica no projeto. Lição de como trabalhar com o Bera fica em
-`~/workspace/marvin/tasks/lessons.md`, e o projeto aponta. Não duplique.
+`<bancada>/marvin/tasks/lessons.md`, e o projeto aponta. Não duplique.
 
 ## docs/guia-<projeto>/
 
@@ -76,10 +76,10 @@ derivado e ignorado pelo git. Detalhe em `references/guia-vivo.md`.
 | Informação | Dono | Quem aponta |
 |---|---|---|
 | Estado do projeto (versões, serviços, portas) | `HANDOFF.md` do projeto | Marvin, outros projetos |
-| Brief, links curados, decisões de escopo | `~/workspace/marvin/projetos/<nome>.md` | HANDOFF do projeto |
-| Como o Bera quer ser atendido | `~/workspace/marvin/contexto/preferencias.md` | ninguém copia |
+| Brief, links curados, decisões de escopo | `<bancada>/marvin/projetos/<nome>.md` | HANDOFF do projeto |
+| Como o Bera quer ser atendido | `<bancada>/marvin/contexto/preferencias.md` | ninguém copia |
 | Lição de infra | `tasks/lessons.md` do projeto | Marvin, se virar regra geral |
-| Lição de como trabalhar | `~/workspace/marvin/tasks/lessons.md` | projeto |
+| Lição de como trabalhar | `<bancada>/marvin/tasks/lessons.md` | projeto |
 
 ## Adotar um projeto existente
 

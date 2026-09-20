@@ -9,7 +9,7 @@ Uso:
     progresso.py GUIA.html --listar              todas as etapas, com id e estado
     progresso.py GUIA.html --resumo              uma linha, para o bloco de sanidade
     progresso.py GUIA.html --json                estado completo em JSON
-    progresso.py GUIA.html --marcar e-f1-2 e-f1-3
+    progresso.py GUIA.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
     progresso.py GUIA.html --desmarcar e-f1-3
     progresso.py GUIA.html --fechar f1           marca "Etapa concluída" da fase
     progresso.py GUIA.html --reabrir f1
@@ -35,6 +35,7 @@ Sai 0 em sucesso, 1 se há inconsistência (fase fechada com etapa aberta) e nad
 2 se um id não existe, o arquivo não é um guia do detonado, ou a entrada é inválida.
 """
 
+from html import escape as escape_html
 import argparse
 import json
 import re
@@ -160,6 +161,22 @@ def declarar(html: str, it: dict, data: str):
     return html[:fim_label] + nota + html[fim_label:], f"declarou {it['id']} em {data}"
 
 
+def provar(html: str, it: dict, data: str, texto: str):
+    """Registra a evidência que fechou a etapa. Simétrico a declarar().
+
+    Declaração anterior é substituída: prova real supera "sem prova".
+    """
+    fim_label = html.index("</label>", it["span"][1])
+    trecho = html[it["span"][1]:fim_label]
+    if 'class="prova"' in trecho:
+        return html, f"{it['id']} já tinha prova registrada, mantida"
+    limpo = re.sub(r'<small class="decl">.*?</small>', "", trecho)
+    nota = f'<small class="prova">Provado em {data}: {escape_html(texto)}</small>'
+    novo = html[:it["span"][1]] + limpo + nota + html[fim_label:]
+    sufixo = ", substituindo a declaração" if limpo != trecho else ""
+    return novo, f"registrou a prova de {it['id']}{sufixo}"
+
+
 def onde_paramos(html: str, texto: str):
     m = re.search(r'(<p id="status-atual"[^>]*>).*?(</p>)', html, flags=re.S)
     if not m:
@@ -273,6 +290,8 @@ def main() -> int:
     ap.add_argument("--reabrir", nargs="+", metavar="FASE", default=[])
     ap.add_argument("--carimbar", metavar="DD/MM/AAAA")
     ap.add_argument("--declarar", nargs="+", metavar="ID", default=[])
+    ap.add_argument("--prova", metavar="TEXTO",
+                    help="evidência que fecha a etapa; obrigatório com --marcar")
     ap.add_argument("--onde-paramos", metavar="TEXTO")
     ap.add_argument("--inserir-fase", metavar="FASES.json", type=Path)
     ap.add_argument("--cancelar", nargs="+", metavar="FASE", default=[],
@@ -280,6 +299,12 @@ def main() -> int:
     ap.add_argument("--motivo", metavar="TEXTO",
                     help="obrigatorio com --cancelar: por que a fase morreu")
     a = ap.parse_args()
+
+    if a.marcar and not a.prova:
+        print('ERRO: --marcar exige --prova "<evidência>". Sem evidência a etapa não fecha:\n'
+              '      use --declarar, que anota a declaração e deixa a caixa aberta.',
+              file=sys.stderr)
+        return 2
 
     html = ler(a.guia)
     itens = inventario(html)
@@ -348,6 +373,15 @@ def main() -> int:
             if it["checked"] != valor:
                 html = set_checked(html, it["span"], valor)
                 mudancas.append(f"{'marcou' if valor else 'desmarcou'} {chave[0]} {chave[1]}")
+        itens = inventario(html)
+
+    if a.marcar and a.prova:
+        indice = {it["id"]: it for it in itens if it["tipo"] == "etapa"}
+        data = a.carimbar or hoje()
+        for i in sorted([x for x in a.marcar if x in indice],
+                        key=lambda i: -indice[i]["span"][0]):
+            html, msg = provar(html, indice[i], data, a.prova)
+            mudancas.append(msg)
         itens = inventario(html)
 
     if a.declarar:

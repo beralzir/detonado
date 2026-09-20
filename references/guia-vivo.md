@@ -99,7 +99,7 @@ Artifact action:"read_db" url:<a do guia> db_op:"list" collection:"notas"
 P=~/.claude/skills/detonado/scripts/progresso.py
 python3 $P docs/guia-x/guia-x.html --listar                       # estado, avisos de consistência
 python3 $P docs/guia-x/guia-x.html --resumo                       # uma linha, para o bloco de sanidade
-python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 e-f1-3         # só com prova citada na conversa
+python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
 python3 $P docs/guia-x/guia-x.html --declarar e-f1-4              # "declarado pelo Bera, sem prova", caixa fica aberta
 python3 $P docs/guia-x/guia-x.html --fechar f1                    # caixa "Fase concluída"
 python3 $P docs/guia-x/guia-x.html --reabrir f1 --desmarcar e-f1-3   # prova falsa: reabre a fase antes de desmarcar
@@ -110,8 +110,9 @@ python3 $P docs/guia-x/guia-x.html --carimbar 02/09/2026          # data em #sta
 
 O script recusa id inexistente e fase repetida (sai 2), avisa fase fechada com etapa aberta (sai 1
 quando nada foi alterado), recusa declarar etapa já marcada, e imprime o progresso depois de cada
-operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar` não vier junto. Marque só
-com a prova citada na conversa. Declaração sem prova é `--declarar`, nunca `--marcar`.
+operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar` não vier junto. **`--marcar`
+sem `--prova` sai com 2**: a evidência entra no guia junto com a caixa, numa nota datada
+simétrica à da declaração. Sem evidência, o caminho é `--declarar`, que deixa a caixa aberta.
 
 O que sobra para edição à mão é a prosa livre das seções: parágrafos, tabelas, blocos de comando,
 cartões da seção Contexto. Depois de editar, `--listar` tem que sair limpo. `checked` e `data-done`
@@ -143,7 +144,7 @@ zero, sem sombra, sem gradiente, Inter e JetBrains Mono. `neutro.css` é o fallb
 O `novo_projeto.py` inclui o escolhido inline (`--tokens bera|neutro`).
 
 Trocar cor, tipo ou direção não é decisão desta skill. Direção nova passa pela `risca-de-giz`,
-que carrega o schema em `~/workspace/design-schemas/` e roda o gate dele. Calibragem aprovada
+que carrega o schema em `<bancada>/design-schemas/` e roda o gate dele. Calibragem aprovada
 volta para o schema, e daí para `tokens/bera.css`.
 
 ## O que não entra

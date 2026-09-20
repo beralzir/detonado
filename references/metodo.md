@@ -98,6 +98,31 @@ fatiamento inicial.
 de gerar. Etapa que depende do Bera leva `"quem": "Bera"`. Crase vira `code`, asterisco duplo
 vira negrito.
 
+## Rodar o `novo_projeto.py`
+
+Os quatro argumentos são obrigatórios, e `--sem-guia` não dispensa nenhum deles: sem `--fases` o
+script sai com `error: the following arguments are required: --fases`. Escreva o JSON primeiro,
+rode com `--dry-run`, confira o que nasce, e só então rode de verdade.
+
+```bash
+D=~/.claude/skills/detonado/scripts/novo_projeto.py
+
+cat > /tmp/fases-<projeto>.json <<JSON
+{ "fases": [ { "id": "f0", "tag": "FASE 0", "titulo": "...", "resumo": "...",
+               "etapas": [ {"texto": "...", "pronto": "..."} ] } ] }
+JSON
+
+python3 $D \
+  --nome <projeto> \
+  --titulo "<Título do projeto>" \
+  --objetivo "<o objetivo em uma frase>" \
+  --fases /tmp/fases-<projeto>.json \
+  --dry-run
+```
+
+Conferido o que nasceria, repita sem `--dry-run`. Opcionais: `--dir <caminho>` muda o destino,
+`--tokens bera|neutro` escolhe os tokens da marca, `--sem-guia` adota projeto sem fase aberta.
+
 ## Com as outras skills
 
 - `daquele-jeito` traz o plano e a auditoria de quatro eixos. O "pronto quando" da etapa é o

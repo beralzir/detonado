@@ -3,7 +3,7 @@
 O que custou tempo. Só vira regra o que o Bera confirmou como padrão recorrente. Caso isolado
 fica "[a confirmar]". Uma linha de contexto com data, uma de regra, o comando certo quando houver.
 
-Lição de como trabalhar com o Bera fica em `~/workspace/marvin/tasks/lessons.md`, não aqui.
+Lição de como trabalhar com o Bera fica em `<bancada>/marvin/tasks/lessons.md`, não aqui.
 
 ## Testes que mentem
 

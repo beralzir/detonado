@@ -18,7 +18,7 @@ claude
 Cole na primeira mensagem:
 
 ```
-Retomando o radio-pirata. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md desta pasta antes de
+Retomando o radio-pirata com o detonado. Leia o CLAUDE.md, o HANDOFF.md e o SESSION.md desta pasta antes de
 qualquer coisa. Estou no celular via SSH: bloco único por vez e resposta curta.
 ```
 
