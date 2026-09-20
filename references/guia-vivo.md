@@ -15,7 +15,9 @@ O `novo_projeto.py` monta o guia a partir dos dois e do JSON das fases.
 - `header` com o hero (SVG line art ou imagem com `alt`), o bloco "Onde paramos"
   (`#status-atual`, com `data-v` da data) e o bloco "Como funciona".
 - `section#retomada`: contexto, cartões (concluído antes, agora, vigilância), tabela de decisões.
-- `section.phase#<fase>`: cabeçalho com tag, título, resumo e a caixa "Etapa concluída"
+- `section.phase#<fase>`: ao fechar, a seção ganha `data-fechada="DD/MM/AAAA"`, simétrico ao
+  `data-cancelada`, e o `--reabrir` a tira. É a única fonte de data por fase: o `data-done`
+  guarda o id da fase, não a data. Cabeçalho com tag, título, resumo e a caixa "Etapa concluída"
   (`.pdone`, `data-done="<fase>"`), depois `.checks` com uma `label` por etapa, cada uma com
   `<input type="checkbox" id="e-<fase>-<n>">` e o "pronto quando" em `<small>`.
 - Blocos de comando `.cb` com `<pre tabindex="0">` e botão copiar. Caixas `.call` (`regra`, `aviso`,
@@ -101,7 +103,7 @@ python3 $P docs/guia-x/guia-x.html --listar                       # estado, avis
 python3 $P docs/guia-x/guia-x.html --resumo                       # uma linha, para o bloco de sanidade
 python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
 python3 $P docs/guia-x/guia-x.html --declarar e-f1-4              # "declarado pelo Bera, sem prova", caixa fica aberta
-python3 $P docs/guia-x/guia-x.html --fechar f1                    # caixa "Fase concluída"
+python3 $P docs/guia-x/guia-x.html --fechar f1                    # caixa "Fase concluída" e data-fechada
 python3 $P docs/guia-x/guia-x.html --reabrir f1 --desmarcar e-f1-3   # prova falsa: reabre a fase antes de desmarcar
 python3 $P docs/guia-x/guia-x.html --inserir-fase fases.json      # fase nova, nav e seção, do mesmo JSON de metodo.md
 python3 $P docs/guia-x/guia-x.html --onde-paramos "**02/09**: \`podman ps\` com Up, porta 4533 em aberto"

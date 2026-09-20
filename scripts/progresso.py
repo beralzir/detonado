@@ -11,7 +11,7 @@ Uso:
     progresso.py GUIA.html --json                estado completo em JSON
     progresso.py GUIA.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
     progresso.py GUIA.html --desmarcar e-f1-3
-    progresso.py GUIA.html --fechar f1           marca "Etapa concluída" da fase
+    progresso.py GUIA.html --fechar f1           marca "Etapa concluída" e carimba data-fechada
     progresso.py GUIA.html --reabrir f1
     progresso.py GUIA.html --carimbar 02/09/2026 data em #status-atual[data-v] e #atualizado
     progresso.py GUIA.html --declarar e-f1-2     anota "declarado pelo Bera, sem prova" na etapa
@@ -175,6 +175,34 @@ def provar(html: str, it: dict, data: str, texto: str):
     novo = html[:it["span"][1]] + limpo + nota + html[fim_label:]
     sufixo = ", substituindo a declaração" if limpo != trecho else ""
     return novo, f"registrou a prova de {it['id']}{sufixo}"
+
+
+def carimbar_fechamento(html: str, fase: str, data: str):
+    """Grava a data de fechamento na seção da fase, simétrico a data-cancelada.
+
+    Sem isso a linha do tempo do modo mapa não tem fonte de data: o `data-done` guarda o id
+    da fase, não a data, e nada no guia registrava quando a fase fechou. Fase que morria
+    ganhava data e fase que fechava não, que é o contrário do que uma timeline precisa.
+    """
+    sec = re.compile(r'<section class="phase" id="' + re.escape(fase) + r'"', re.IGNORECASE)
+    m = sec.search(html)
+    if not m:
+        return html, ""
+    fim_tag = html.index(">", m.end())
+    if "data-fechada=" in html[m.end():fim_tag]:
+        return html, ""
+    return html[:m.end()] + f' data-fechada="{data}"' + html[m.end():], f"carimbou o fechamento de {fase} em {data}"
+
+
+def descarimbar_fechamento(html: str, fase: str):
+    """Tira a data de fechamento. Fase reaberta não está fechada, e não pode alegar data."""
+    sec = re.compile(
+        r'(<section class="phase" id="' + re.escape(fase) + r'")([^>]*)(>)', re.IGNORECASE)
+    m = sec.search(html)
+    if not m or "data-fechada=" not in m.group(2):
+        return html, ""
+    limpo = re.sub(r'\s*data-fechada="[^"]*"', "", m.group(2))
+    return html[:m.start()] + m.group(1) + limpo + m.group(3) + html[m.end():], f"tirou a data de fechamento de {fase}"
 
 
 def onde_paramos(html: str, texto: str):
@@ -373,6 +401,16 @@ def main() -> int:
             if it["checked"] != valor:
                 html = set_checked(html, it["span"], valor)
                 mudancas.append(f"{'marcou' if valor else 'desmarcou'} {chave[0]} {chave[1]}")
+        itens = inventario(html)
+
+    if a.fechar or a.reabrir:
+        data = a.carimbar or hoje()
+        for f in a.fechar:
+            html, msg = carimbar_fechamento(html, f, data)
+            if msg: mudancas.append(msg)
+        for f in a.reabrir:
+            html, msg = descarimbar_fechamento(html, f)
+            if msg: mudancas.append(msg)
         itens = inventario(html)
 
     if a.marcar and a.prova:
