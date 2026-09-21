@@ -280,17 +280,23 @@ def cancelar(html: str, fase: str, motivo: str, data: str):
         f'  <span class="lb">CANCELADA</span>\n'
         f'  <p><strong>Cancelada em {data}.</strong> {motivo}</p>\n'
         f' </div>\n'
-        f' <ul style="opacity:.6;margin:0 0 20px;padding-left:20px">\n{lista}\n </ul>'
+        f' <ul style="color:var(--t5);margin:0 0 20px;padding-left:20px">\n{lista}\n </ul>'
     )
     corpo_novo = corpo.replace(bloco.group(0), aviso)
     # A fase deixa de ter caixa de "Fase concluida": nao foi concluida nem esta pendente.
     corpo_novo = re.sub(
         r'<label class="pdone">.*?</label>',
-        '<span class="pdone" style="opacity:.6">Fase cancelada</span>',
+        '<span class="pdone" style="color:var(--t5)">Fase cancelada</span>',
         corpo_novo, count=1, flags=re.DOTALL | re.IGNORECASE)
     abertura_nova = abertura + f' data-cancelada="{data}"'
     novo_html = html[:m.start()] + abertura_nova + corpo_novo + fim + html[m.end():]
 
+    # Cor solida em vez de opacidade, e o motivo e medido: `opacity:.45` levava o texto
+    # da linha a 3,0:1 e o numero da fase a 2,3:1 sobre a superficie, os dois reprovando
+    # AA, e `opacity:.6` na lista de etapas dava 3,3:1 sobre a tinta. O `--t5` solido mede
+    # 5,47:1 e passa. O guardrail da marca ja proibia opacidade generica por escrito, e o
+    # cancelamento continua legivel pelo line-through e pela palavra CANCELADA, entao a
+    # informacao nunca dependeu da cor. Medido em 20/09/2026 pelo cor.py do cao-guia.
     # A navegacao lateral tambem mente se nao for tocada: o ponto da fase fica apagado
     # (o JS procura .pdone input, que acabou de sumir) e a linha continua parecendo
     # pendente. Estilo inline pelo mesmo motivo do resto: guia ja publicado nao tem classe.
@@ -302,7 +308,7 @@ def cancelar(html: str, fase: str, motivo: str, data: str):
         if 'cancelada' in corpo_nav.lower():
             return mm.group(0)
         corpo_nav = corpo_nav.replace('</a>', ' <span style="font-size:10px;letter-spacing:.1em">CANCELADA</span></a>', 1)
-        return mm.group(1) + ' style="opacity:.45;text-decoration:line-through"' + corpo_nav
+        return mm.group(1) + ' style="color:var(--t5);text-decoration:line-through"' + corpo_nav
     return nav.sub(marca_nav, novo_html, count=1), None
 
 
