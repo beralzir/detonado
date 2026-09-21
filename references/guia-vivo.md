@@ -146,6 +146,11 @@ desde que o arquivo suba junto. Medido no guia do Linux em 21/09/2026: **968 KB 
 contra 54 KB sem**, e o custo real não era o byte, era a releitura. O publish obriga a ler a
 versão publicada inteira antes de sobrescrever, e 94% do que se lia era pixel que nunca muda.
 
+**Registre o `sha256` junto da URL**, na seção 5b do HANDOFF. O script imprime o do derivado
+a cada execução, e é o que permite saber se o publicado está em dia sem republicar para
+descobrir. Sem ele a única forma de conferir é o caminho caro: o publish obriga a ler a versão
+publicada inteira antes de sobrescrever.
+
 Publicar é ação externa: só com ok do Bera na conversa. Primeira publicação: ferramenta Artifact
 com título curto e estável, favicon fixo, descrição de uma frase, e a URL vai para o HANDOFF e o
 SESSION. Republicação: a mesma ferramenta com a `url` registrada no HANDOFF, senão nasce um

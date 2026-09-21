@@ -3,6 +3,54 @@
 O guia vivo não é o único documento que esta skill produz, e tentar fazer um template servir
 para tudo é o jeito mais rápido de perder o que torna o guia vivo confiável.
 
+## Rodar
+
+```bash
+python3 ~/.claude/skills/detonado/scripts/documento.py \
+  --tipo consultivo --nome comparar-distro --conteudo c.json --dry-run
+python3 ~/.claude/skills/detonado/scripts/documento.py \
+  --tipo passo --nome restaurar-backup --conteudo p.json --dir ~/projetos/x
+```
+
+Sai em `docs/<tipo>-<nome>/<tipo>-<nome>.html`. **O `--dir` é obrigatório na prática**: sem
+ele o script escreve no diretório onde a sessão estiver, que quase nunca é o destino
+pretendido. Este é o único artefato da skill que não é de projeto, então o destino se
+pergunta antes, nunca se assume.
+
+### O JSON, consultivo
+
+```json
+{"titulo": "...", "subtitulo": "...", "problema": "...",
+ "evidencia": [{"afirmacao": "...", "fonte": "..."}],
+ "opcoes": [{"titulo": "...", "corpo": "...", "custo": "..."}],
+ "recomendacao": "...", "viraria": ["..."]}
+```
+
+Obrigatórias: `titulo`, `problema`, `evidencia`, `opcoes`, `recomendacao`. **Toda evidência
+precisa de `fonte`**, e o script recusa sem ela, porque recomendação sem o que a sustenta é
+opinião com tipografia boa.
+
+### O JSON, passo a passo
+
+```json
+{"titulo": "...", "subtitulo": "...", "antes": ["..."],
+ "passos": [{"texto": "...", "comando": "...", "esperado": "..."}],
+ "errado": [{"sintoma": "...", "saida": "..."}]}
+```
+
+Obrigatórias: `titulo` e `passos`. **Passo com `comando` precisa de `esperado`**, e o script
+recusa sem ele, pela mesma regra do HANDOFF: quem segue receita precisa saber se deu certo
+antes de ir para o próximo.
+
+### O gate, e por que ele existe
+
+Até 21/09/2026 todo campo era lido com valor padrão vazio, então **um JSON com chaves
+improvisadas produzia um HTML bem formatado, com cabeçalho e rodapé datado, seções vazias, e
+saída 0**. Documento vazio entregue como pronto é o mesmo defeito que o guia vivo combate com
+"caixa marcada é prova, não intenção", na família que não tem caixa. Agora chave desconhecida,
+seção obrigatória vazia e as duas regras acima reprovam com saída 2, e nada é escrito. Rode com
+`--dry-run` primeiro e confira o tamanho em bytes antes de aceitar.
+
 ## A regra que separa as famílias
 
 **Só o guia vivo tem estado.** Caixa marcada ali é prova, mora no arquivo, está em git e só o
@@ -62,3 +110,13 @@ progresso está dizendo que 40% de um argumento está pronto, o que não quer di
 Os três compartilham os tokens e o CSS do `guia.template.html`, injetado e não copiado, pelo
 mesmo motivo do mapa: cópia diverge. Direção visual nova é decisão da `risca-de-giz`, não
 desta skill, e vale o princípio 8.
+
+## Publicar
+
+Igual ao guia vivo e ao mapa: o derivado sai pelo `build_artifact.py`, a primeira publicação
+registra a URL onde o documento for citado, e republicar passa a mesma URL. Publicar é ação
+externa, só com ok do Bera.
+
+Os portões de saída são os mesmos, os dois manual-only: anti-slop e `cão-guia`. Consultivo e
+passo a passo são HTML para leitura humana como qualquer outro desta skill, então nomeie os
+dois e espere o Bera chamar.

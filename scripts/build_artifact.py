@@ -40,6 +40,7 @@ Sai 0 se gerou, 1 se alguma imagem ou documento faltou (gera mesmo assim e lista
 achou a fonte ou o resultado passou de 16 MB.
 """
 
+import hashlib
 import html
 import json
 import pathlib
@@ -47,6 +48,11 @@ import re
 import sys
 
 LIMITE_MB = 16
+# Captura de tela em PNG passa fácil de meio mega e não precisa: o mesmo conteúdo em WebP
+# costuma cair para um décimo. Não otimizamos aqui de propósito, porque isso traria uma
+# dependência de imagem para uma skill que hoje roda só com a biblioteca padrão. O script
+# mede e avisa; converter é decisão de quem escreve o guia.
+LIMITE_IMG_KB = 300
 SRC = re.compile(r'(<img\b[^>]*\bsrc=")([^"]+)(")', re.IGNORECASE)
 # Link marcado com class="doc": vira painel com o conteúdo do arquivo embutido.
 DOC = re.compile(r'<a\b(?=[^>]*\bclass="doc")[^>]*\bhref="([^"]+)"[^>]*>(.*?)</a>',
@@ -268,7 +274,7 @@ def main() -> int:
 
     base = fonte.parent
     texto_html = fonte.read_text(encoding="utf-8")
-    faltando, imagens, docs = [], [], 0
+    faltando, imagens, pesadas, docs = [], [], [], 0
 
     def troca_img(m: re.Match) -> str:
         nonlocal imagens
@@ -282,6 +288,9 @@ def main() -> int:
         # Não embute: o caminho relativo funciona no Artifact desde que a imagem suba
         # junto, por `files`. O que o script faz é registrar quais são, para o bloco final.
         imagens.append(rel)
+        kb = caminho.stat().st_size / 1024
+        if kb > LIMITE_IMG_KB:
+            pesadas.append(f"{rel} ({kb:.0f} KB)")
         return m.group(0)
 
     def troca_doc(m: re.Match) -> str:
@@ -306,9 +315,14 @@ def main() -> int:
         print(f"ERRO: {tamanho_mb:.1f} MB passa do limite de {LIMITE_MB} MB do Artifact. "
               "Reduza as imagens ou embuta menos documentos.", file=sys.stderr)
         return 2
-    saida.write_text(afirmar_lang(saida_html), encoding="utf-8")
+    final = afirmar_lang(saida_html)
+    saida.write_text(final, encoding="utf-8")
+    # O sha256 vai para o HANDOFF junto da URL. Sem ele não dá para saber se o que está
+    # publicado é o que está em disco, e a única forma de descobrir é republicar.
+    digest = hashlib.sha256(final.encode("utf-8")).hexdigest()
     print(f"{saida.name}: {len(imagens)} imagem(ns) por arquivo, {docs} documento(s) "
           f"embutido(s), {tamanho_mb:.2f} MB")
+    print(f"sha256: {digest}")
     if imagens:
         # O mapa `files` do publish. Sem ele a página sobe sem imagem, então ele é a saída
         # do script e não um extra: o caminho publicado é o mesmo que o HTML já referencia.
@@ -318,6 +332,13 @@ def main() -> int:
         print("  files: " + json.dumps(mapa, ensure_ascii=False))
         print("Numa republicação em que a imagem não mudou, o mapa pode ser omitido: "
               "arquivo não reenviado é mantido.")
+    if pesadas:
+        print("\nAVISO: imagem pesada, considere converter para WebP antes de publicar:",
+              file=sys.stderr)
+        for f in pesadas:
+            print("  " + f, file=sys.stderr)
+        print("  cwebp -q 82 entrada.png -o saida.webp, e troque o src no guia.",
+              file=sys.stderr)
     if faltando:
         print("AVISO: não encontrados, mantidos com caminho relativo:", file=sys.stderr)
         for f in faltando:

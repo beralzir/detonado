@@ -119,12 +119,61 @@ def bloco_errado(itens):
             + linhas + "\n</tbody></table></div>")
 
 
+# Todo campo era lido com .get(chave, default), então um JSON com chaves improvisadas
+# produzia um HTML bem formatado, com cabeçalho e rodapé datado, seções vazias, e saída 0.
+# Documento vazio saindo como pronto é o mesmo defeito que esta skill combate no guia vivo
+# ("caixa marcada é prova, não intenção"), na família de documento que ela acabou de criar.
+# Achado pela auditoria de prompt em 21/09/2026.
+SCHEMA = {
+    "consultivo": {
+        "obrigatorias": ("titulo", "problema", "evidencia", "opcoes", "recomendacao"),
+        "opcionais": ("subtitulo", "viraria"),
+    },
+    "passo": {
+        "obrigatorias": ("titulo", "passos"),
+        "opcionais": ("subtitulo", "antes", "errado"),
+    },
+}
+
+
+def valida(d: dict, tipo: str) -> list:
+    """Devolve a lista de problemas do JSON. Lista vazia quer dizer conteúdo utilizável."""
+    if not isinstance(d, dict):
+        return ["o JSON precisa ser um objeto, não " + type(d).__name__]
+    esperadas = SCHEMA[tipo]["obrigatorias"] + SCHEMA[tipo]["opcionais"]
+    problemas = []
+    for k in sorted(set(d) - set(esperadas)):
+        parecida = [e for e in esperadas if e.startswith(k[:3])]
+        dica = f", talvez `{parecida[0]}`" if parecida else ""
+        problemas.append(f"chave desconhecida `{k}`{dica}")
+    for k in SCHEMA[tipo]["obrigatorias"]:
+        if k not in d:
+            problemas.append(f"falta a chave obrigatória `{k}`")
+        elif not d[k]:
+            problemas.append(f"`{k}` está vazia, e é obrigatória")
+    if tipo == "consultivo":
+        for i, e in enumerate(d.get("evidencia") or [], 1):
+            if isinstance(e, dict) and not e.get("fonte"):
+                problemas.append(f"evidência {i} sem `fonte`: recomendação sem o que a "
+                                 "sustenta é opinião com tipografia boa")
+    else:
+        for i, pa in enumerate(d.get("passos") or [], 1):
+            if isinstance(pa, dict) and pa.get("comando") and not pa.get("esperado"):
+                problemas.append(f"passo {i} tem `comando` e não tem `esperado`: quem segue "
+                                 "receita precisa saber se deu certo")
+    return problemas
+
+
 def main():
     ap = argparse.ArgumentParser(description="Monta guia consultivo ou passo a passo")
     ap.add_argument("--tipo", choices=["consultivo", "passo"], required=True)
     ap.add_argument("--nome", required=True, help="slug, minúsculas e hífens")
     ap.add_argument("--conteudo", type=Path, required=True, help="JSON com o conteúdo")
-    ap.add_argument("--dir", type=Path, default=Path.cwd())
+    # Sem default: este e o unico artefato da skill que nao e de projeto, entao o destino
+    # e decisao, nao conveniencia. Cair no cwd da sessao escreve num repo que quase nunca e
+    # o certo, e o "fora de escopo" do SKILL.md proibe exatamente isso.
+    ap.add_argument("--dir", type=Path, required=True,
+                    help="onde escrever. Obrigatorio: documento nao e de projeto nenhum")
     ap.add_argument("--tokens", choices=["bera", "neutro"], default="bera")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
@@ -137,6 +186,15 @@ def main():
 
     hoje = date.today().strftime("%d/%m/%Y")
     raiz = a.dir.expanduser().resolve()
+    erro_schema = valida(d, a.tipo)
+    if erro_schema:
+        print("ERRO de conteúdo, nada foi escrito:", file=sys.stderr)
+        for e in erro_schema:
+            print("  " + e, file=sys.stderr)
+        print("\nO formato está na docstring deste script e em references/documentos.md.",
+              file=sys.stderr)
+        return 2
+
     destino = raiz / "docs" / f"{a.tipo}-{a.nome}" / f"{a.tipo}-{a.nome}.html"
     tpl_nome = "consultivo.template.html" if a.tipo == "consultivo" else "passo.template.html"
     tpl = (GUIA_DIR / tpl_nome).read_text(encoding="utf-8")

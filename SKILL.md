@@ -29,8 +29,20 @@ ler um caminho que não existe. Projeto, guia e registro não dependem da bancad
 
 ## Modos
 
-Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, ou o projeto não está nomeado, pergunte
-antes de tocar em arquivo. Em **retomar**, **guia** e **fechar**, projeto nomeado cujo diretório
+Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, pergunte antes de tocar em arquivo.
+
+**Sete modos são de projeto e um não é.** `abrir`, `adotar`, `guia`, `fechar`, `retomar`,
+`lição` e `mapa` exigem projeto nomeado: sem ele, pergunte. O **documento** não é de projeto
+nenhum, é receita ou recomendação que se reusa, então o que ele exige é outra coisa: o tipo
+(consultivo ou passo a passo) e o **destino**. Sem destino explícito, pergunte onde escrever.
+Nunca deixe o `--dir` cair no diretório da sessão, que quase nunca é o lugar certo.
+
+**`guia` ou `documento`, quando os dois se chamam guia.** Na língua do Bera os dois são "guia".
+O que separa é se aquilo vai ser **acompanhado** ou **seguido**: guia vivo acompanha um projeto
+e o progresso dele é fato registrado, passo a passo é receita que alguém segue muitas vezes, e
+consultivo decide uma questão. Na dúvida, pergunte qual dos dois antes de escolher o modo.
+
+Em **retomar**, **guia**, **fechar** e **mapa**, projeto nomeado cujo diretório
 não existe nesta máquina não se cria: leia `<bancada>/marvin/projetos/<nome>.md`, diga em que
 máquina ele mora e pare aí. Ler o Marvin é permitido, escrever nele não; sem bancada, diga que o
 ponteiro não está nesta máquina. Em **abrir**, o diretório não existir é a premissa do modo, não
@@ -164,7 +176,7 @@ prova é desta skill: é a forma do registro, não um segundo plano. Governar ex
 (`portas-em-automatico`).
 Decidir direção visual ou paleta (`risca-de-giz`), produzir protótipo (`huashu-design`), auditar
 acessibilidade (`cão-guia`). Construir agente, MCP ou site (handoff à triagem do Gepeto). Escrever
-fora do diretório do projeto. Executar as etapas do projeto por conta própria: a skill dá a forma,
+fora do diretório do projeto, ou fora do destino que o Bera deu para um documento. Executar as etapas do projeto por conta própria: a skill dá a forma,
 o trabalho segue o ritmo da conversa e das skills de execução.
 
 ## Referências e scripts

@@ -53,6 +53,17 @@ nada que reinicie, apague ou instale.
 
 - Projeto aberto com o detonado. Fases validadas com o Bera.
 
+## 5b. O que está publicado
+
+Uma linha por artefato publicado. **A URL sozinha não diz se o que está no ar é o que está em
+disco**, e descobrir isso republicando custa caro: o publish obriga a ler a versão publicada
+inteira antes de sobrescrever. O `sha256` que o `build_artifact.py` imprime resolve, e
+comparar é `sha256sum` no derivado.
+
+| Artefato | URL | sha256 do derivado | Publicado em |
+|---|---|---|---|
+| `docs/guia-{{NOME}}/` | (primeira publicação registra aqui) | | |
+
 ## 6. Onde está cada coisa
 
 | Arquivo | O que é |
@@ -61,4 +72,4 @@ nada que reinicie, apague ou instale.
 | `HANDOFF.md` | Este arquivo |
 | `SESSION.md` | Checkpoint da sessão |
 | `tasks/lessons.md` | O que custou caro |
-| `docs/guia-{{NOME}}/` | Guia vivo, imagens, script de build |
+| `docs/guia-{{NOME}}/` | Guia vivo, imagens, invocador do build_artifact |
