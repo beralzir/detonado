@@ -2,7 +2,7 @@
 """Abre ou adota um projeto no formato do detonado.
 
 Cria, a partir dos templates da skill, os cinco artefatos: CLAUDE.md, HANDOFF.md, SESSION.md,
-tasks/lessons.md e docs/guia-<nome>/ (guia vivo, build_artifact.py, img/). Nunca sobrescreve:
+tasks/lessons.md e docs/guia-<nome>/ (guia vivo, invocador do build_artifact, img/). Nunca sobrescreve:
 arquivo existente é pulado e relatado, o que torna o script seguro para adotar projeto que já
 tem parte da estrutura.
 
@@ -29,6 +29,32 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parent.parent
 TEMPLATES = SKILL / "assets" / "templates"
 GUIA = SKILL / "assets" / "guia"
+
+# Até 20/09/2026 o projeto recebia uma CÓPIA do build_artifact.py, e as cópias envelheciam:
+# em 20/09 apareceram duas congeladas em projeto real e três nas fixtures de eval, uma delas
+# quatro vezes menor que o original. Cópia congelada é o defeito que esta skill combate em
+# todo lugar ("o estado tem dono, aponte não copie"), e ela o praticava no próprio código.
+# Agora o projeto recebe um invocador de três linhas: uma fonte só, e correção na skill
+# alcança todo projeto. O custo é que o projeto passa a depender da skill instalada, e o
+# invocador diz isso em vez de quebrar com ImportError.
+INVOCADOR = '''#!/usr/bin/env python3
+"""Invoca o build_artifact.py da skill detonado.
+
+Não é cópia, de propósito: cópia de script envelhece e diverge da skill. Se a skill não
+estiver instalada, este arquivo diz onde ela deveria estar em vez de falhar torto.
+"""
+import pathlib
+import runpy
+import sys
+
+ALVO = pathlib.Path.home() / ".claude" / "skills" / "detonado" / "scripts" / "build_artifact.py"
+
+if not ALVO.is_file():
+    sys.exit(f"ERRO: skill detonado não encontrada em {ALVO}.\\n"
+             "Instale pelo starter-kit, ou rode o script da skill direto pelo caminho dela.")
+sys.argv[0] = str(ALVO)
+runpy.run_path(str(ALVO), run_name="__main__")
+'''
 ID_OK = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 GITIGNORE = "docs/**/*.artifact.html\n*.env\n.DS_Store\n__pycache__/\n"
 
@@ -177,7 +203,7 @@ def main() -> int:
         arquivos.pop(guia_dir / "img" / ".gitkeep")
     else:
         arquivos[guia_dir / f"guia-{a.nome}.html"] = guia
-        arquivos[guia_dir / "build_artifact.py"] = (SKILL / "scripts" / "build_artifact.py").read_text(encoding="utf-8")
+        arquivos[guia_dir / "build_artifact.py"] = INVOCADOR
 
     sobra = sorted(set(re.findall(r"\{\{[A-Z_]+\}\}", guia)))
     if sobra:

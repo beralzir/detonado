@@ -60,10 +60,11 @@ sair da página para lê-los quebra o fluxo. Um link marcado com `class="doc"` r
 
 No navegador local continua sendo link relativo que funciona. No derivado, o
 `build_artifact.py` lê o arquivo e troca por um `<details>` com o conteúdo dentro, markdown
-já renderizado. Uma fonte, dois comportamentos, que é a mesma ideia das imagens em base64.
+já renderizado. Uma fonte, dois comportamentos.
 
-O renderizador de markdown mora dentro do `build_artifact.py`, e não num módulo ao lado,
-porque o `novo_projeto.py` copia aquele arquivo sozinho para cada projeto. Ele é da
+O renderizador de markdown mora dentro do `build_artifact.py`, e não num módulo ao lado. O
+motivo era a cópia por projeto, que acabou em 21/09/2026: hoje o projeto recebe um invocador
+de três linhas e a skill é a fonte única. Ele é da
 biblioteca padrão: puxar lib de CDN quebraria o guia offline e instalar pacote daria
 dependência a uma skill que hoje não tem nenhuma. Cobre título, negrito, itálico, código,
 cerca, tabela, lista, citação, link e regra. O que não reconhece vira parágrafo, nunca erro.
@@ -129,9 +130,21 @@ O guia e o HANDOFF dizem a mesma coisa, com a mesma data.
 python3 docs/guia-x/build_artifact.py
 ```
 
-Gera `guia-x.artifact.html` com as imagens em base64, e recusa acima de 16 MB. O CSP dos
-Artifacts bloqueia host externo e caminho relativo, e libera fontes só do Google Fonts. A display
-Cabinet Grotesk (Fontshare) cai para Inter, que já é o fallback do token.
+Gera `guia-x.artifact.html` e recusa acima de 16 MB. O CSP dos Artifacts bloqueia host
+externo e libera fontes só do Google Fonts. A display Cabinet Grotesk (Fontshare) cai para
+Inter, que já é o fallback do token.
+
+**A imagem sobe como arquivo ao lado da página, e o script imprime o mapa pronto.** No fim da
+execução sai um bloco `PUBLIQUE COM`, com o `root` e o `files` para passar ao publish. Publicar
+sem esse mapa deixa a página sem imagem nenhuma, então ele não é detalhe, é a saída do script.
+Numa republicação em que a imagem não mudou o mapa pode ser omitido, porque arquivo não
+reenviado é mantido.
+
+**Por que não base64, e a medida que decidiu.** Até 20/09/2026 o script embutia imagem como
+data URI, por uma premissa que envelheceu: a de que o CSP não servia caminho relativo. Serve,
+desde que o arquivo suba junto. Medido no guia do Linux em 21/09/2026: **968 KB com base64
+contra 54 KB sem**, e o custo real não era o byte, era a releitura. O publish obriga a ler a
+versão publicada inteira antes de sobrescrever, e 94% do que se lia era pixel que nunca muda.
 
 Publicar é ação externa: só com ok do Bera na conversa. Primeira publicação: ferramenta Artifact
 com título curto e estável, favicon fixo, descrição de uma frase, e a URL vai para o HANDOFF e o

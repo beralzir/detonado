@@ -1,23 +1,35 @@
 #!/usr/bin/env python3
-"""Gera a versão publicável do guia vivo: imagens em base64 e documentos do repo embutidos.
+"""Gera a versão publicável do guia vivo: documentos do repo embutidos, imagem por arquivo.
 
-Por que existe: o CSP dos Artifacts do Claude bloqueia host externo e não serve caminho
-relativo, então `img/foo.jpg` não carrega lá e um link para `../../HANDOFF.md` morre. A fonte
-da verdade continua sendo o HTML com caminho relativo, que abre bem no repo e no navegador
-local. Este script deriva a cópia publicável, que o .gitignore ignora de propósito: derivado
-versionado é como duas cópias divergem.
+Por que existe: o CSP dos Artifacts do Claude bloqueia host externo, então um link para
+`../../HANDOFF.md` morre lá. A fonte da verdade continua sendo o HTML com caminho relativo,
+que abre bem no repo e no navegador local. Este script deriva a cópia publicável, que o
+.gitignore ignora de propósito: derivado versionado é como duas cópias divergem.
 
-Duas substituições:
+**Imagem não vira base64, e a mudança tem data.** Até 20/09/2026 este script embutia imagem
+como data URI, porque a premissa escrita aqui era que o CSP não servia caminho relativo.
+Isso deixou de valer: o publish aceita arquivos ao lado da página, referenciados pelo mesmo
+caminho relativo que o HTML já escreve, e arquivo não reenviado num update é mantido.
+Medido no guia do Linux em 21/09/2026: **968 KB com base64 contra 54 KB sem**, dezoito vezes
+menor, com as sete imagens carregando. O custo do base64 não era o byte, era a releitura: o
+publish obriga a ler a versão publicada inteira antes de sobrescrever, e 94% do que se lia
+era pixel que nunca muda.
 
-1. `<img src="img/x.png">`            vira `data:` em base64.
-2. `<a class="doc" href="../../X.md">rótulo</a>` vira um `<details>` com o conteúdo do
+Uma substituição, e uma lista:
+
+1. `<a class="doc" href="../../X.md">rótulo</a>` vira um `<details>` com o conteúdo do
    arquivo dentro, markdown já renderizado. No navegador local o mesmo HTML continua sendo
    um link relativo que funciona. Uma fonte, dois comportamentos.
+2. As imagens ficam como estão, e o script **imprime o mapa `files` pronto** para quem
+   publica. Publicar sem esse mapa deixa a página sem imagem, então o mapa é a saída, não
+   um detalhe: leia o bloco `PUBLIQUE COM` no fim da execução.
 
-O renderizador de markdown mora aqui dentro de propósito, e não num módulo ao lado: o
-`novo_projeto.py` copia este arquivo sozinho para cada projeto, então um import de vizinho
-quebraria na cópia. Ele é enxuto e cobre o que os documentos deste método usam. Não é
-CommonMark e não tenta ser: o que não reconhece vira parágrafo, nunca erro.
+O renderizador de markdown mora aqui dentro e não num módulo ao lado. O motivo original era
+que o `novo_projeto.py` copiava este arquivo para cada projeto, e um import de vizinho
+quebraria na cópia. Desde 21/09/2026 o projeto recebe um invocador e não uma cópia, então a
+restrição caiu, mas o renderizador fica aqui: mover agora é mexer no que funciona sem ganho.
+Ele é enxuto e cobre o que os documentos deste método usam. Não é CommonMark e não tenta
+ser: o que não reconhece vira parágrafo, nunca erro.
 
 Uso:
     python3 build_artifact.py [GUIA.html]
@@ -28,9 +40,8 @@ Sai 0 se gerou, 1 se alguma imagem ou documento faltou (gera mesmo assim e lista
 achou a fonte ou o resultado passou de 16 MB.
 """
 
-import base64
 import html
-import mimetypes
+import json
 import pathlib
 import re
 import sys
@@ -257,10 +268,10 @@ def main() -> int:
 
     base = fonte.parent
     texto_html = fonte.read_text(encoding="utf-8")
-    faltando, embutidas, docs = [], 0, 0
+    faltando, imagens, docs = [], [], 0
 
     def troca_img(m: re.Match) -> str:
-        nonlocal embutidas
+        nonlocal imagens
         rel = m.group(2)
         if rel.startswith(("data:", "http://", "https://", "//")):
             return m.group(0)
@@ -268,10 +279,10 @@ def main() -> int:
         if not caminho.is_file():
             faltando.append(rel)
             return m.group(0)
-        mime = mimetypes.guess_type(caminho.name)[0] or "application/octet-stream"
-        dado = base64.b64encode(caminho.read_bytes()).decode("ascii")
-        embutidas += 1
-        return f"{m.group(1)}data:{mime};base64,{dado}{m.group(3)}"
+        # Não embute: o caminho relativo funciona no Artifact desde que a imagem suba
+        # junto, por `files`. O que o script faz é registrar quais são, para o bloco final.
+        imagens.append(rel)
+        return m.group(0)
 
     def troca_doc(m: re.Match) -> str:
         nonlocal docs
@@ -296,8 +307,17 @@ def main() -> int:
               "Reduza as imagens ou embuta menos documentos.", file=sys.stderr)
         return 2
     saida.write_text(afirmar_lang(saida_html), encoding="utf-8")
-    print(f"{saida.name}: {embutidas} imagem(ns), {docs} documento(s) embutido(s), "
-          f"{tamanho_mb:.2f} MB")
+    print(f"{saida.name}: {len(imagens)} imagem(ns) por arquivo, {docs} documento(s) "
+          f"embutido(s), {tamanho_mb:.2f} MB")
+    if imagens:
+        # O mapa `files` do publish. Sem ele a página sobe sem imagem, então ele é a saída
+        # do script e não um extra: o caminho publicado é o mesmo que o HTML já referencia.
+        mapa = {rel: rel for rel in sorted(set(imagens))}
+        print("\nPUBLIQUE COM (a página sobe sem imagem se este mapa não for junto):")
+        print(f"  root:  {base}")
+        print("  files: " + json.dumps(mapa, ensure_ascii=False))
+        print("Numa republicação em que a imagem não mudou, o mapa pode ser omitido: "
+              "arquivo não reenviado é mantido.")
     if faltando:
         print("AVISO: não encontrados, mantidos com caminho relativo:", file=sys.stderr)
         for f in faltando:

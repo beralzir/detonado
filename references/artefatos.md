@@ -72,7 +72,7 @@ Lição de infraestrutura fica no projeto. Lição de como trabalhar com o Bera 
 ## docs/guia-<projeto>/
 
 `guia-<projeto>.html` (fonte da verdade, imagem por caminho relativo), `img/` (com `alt` em
-todas), `build_artifact.py` (copiado pelo `novo_projeto.py`), e `guia-<projeto>.artifact.html`
+todas), `build_artifact.py` (invocador de três linhas que chama o da skill, escrito pelo `novo_projeto.py`), e `guia-<projeto>.artifact.html`
 derivado e ignorado pelo git. Detalhe em `references/guia-vivo.md`.
 
 ## Estado tem dono
