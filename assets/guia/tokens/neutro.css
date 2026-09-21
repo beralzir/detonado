@@ -1,6 +1,8 @@
 /* Tokens neutros, sem marca, para o guia vivo do detonado. Fontes do sistema, sem import.
    Mesmo contrato do bera.css. Texto pequeno em --t5 mede 5,9:1 sobre --bg (AA). */
 :root{
+ /* o wrapper do publish impoe color-scheme:light, e a barra de rolagem vem clara sobre fundo escuro */
+ color-scheme:dark;
  --bg:#111315; --panel:#191c1f; --hov:#20242a; --l1:#262a30; --l2:#31363d; --pre:#0b0d0f;
  --fg:#F2F4F6; --t1:#C9CED4; --t2:#B6BCC3; --t3:#A3AAB2; --t4:#959CA5; --t5:#8A919A;
  --accent:#6FB1E3; --accent-tint:rgba(111,177,227,.07); --accent-line:rgba(111,177,227,.3); --accent-sel:rgba(111,177,227,.3);

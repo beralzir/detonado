@@ -261,22 +261,32 @@ def bloco_timeline(guias):
             + legenda + nota)
 
 
-def bloco_fluxograma(raiz, guias):
+def ler_mapa_json(raiz):
+    """O que o guia não sabe e ninguém pode inferir: dependência entre frentes e URL publicada.
+
+    Devolve (dados, erro). Sem arquivo, os dois vêm vazios: ausência não é erro.
+    """
     for cand in (raiz / "mapa.json", raiz / "docs" / "mapa.json"):
         if cand.exists():
             try:
-                dados = json.loads(cand.read_text(encoding="utf-8"))
+                return json.loads(cand.read_text(encoding="utf-8")), None
             except (OSError, ValueError) as e:
-                return f'<div class="call perigo"><span class="lb">mapa.json inválido</span><p>{esc(e)}</p></div>'
-            arestas = dados.get("depende", [])
-            if not arestas:
-                break
-            itens = "\n".join(
-                f'<li><strong>{esc(a.get("de",""))}</strong> depende de '
-                f'<strong>{esc(a.get("para",""))}</strong>'
-                + (f' <span class="nota">({esc(a["porque"])})</span>' if a.get("porque") else "")
-                + "</li>" for a in arestas)
-            return f'<ul>\n{itens}\n</ul>'
+                return {}, str(e)
+    return {}, None
+
+
+def bloco_fluxograma(raiz, guias):
+    dados, erro = ler_mapa_json(raiz)
+    if erro:
+        return f'<div class="call perigo"><span class="lb">mapa.json inválido</span><p>{esc(erro)}</p></div>'
+    arestas = dados.get("depende", [])
+    if arestas:
+        itens = "\n".join(
+            f'<li><strong>{esc(a.get("de",""))}</strong> depende de '
+            f'<strong>{esc(a.get("para",""))}</strong>'
+            + (f' <span class="nota">({esc(a["porque"])})</span>' if a.get("porque") else "")
+            + "</li>" for a in arestas)
+        return f'<ul>\n{itens}\n</ul>'
     ids = ", ".join(f'{f["id"]}' for g in guias for f in g["fases"][:3]) or "f1, f2"
     return ('<div class="call aviso"><span class="lb">Fluxograma não sai</span>'
             '<p>Dependência entre frentes não é dado que o guia tenha: ninguém declarou. '
@@ -317,12 +327,34 @@ def bloco_de_pe(guias):
             + "\n".join(linhas) + "\n</tbody></table></div>")
 
 
-def bloco_fontes(guias):
-    li = [f'<li><a class="doc" href="../../{esc(g["arquivo"])}">{esc(g["arquivo"])}</a></li>'
-          for g in guias]
+def bloco_fontes(guias, publicado=None):
+    """Links dos guias e do registro.
+
+    Caminho relativo abre no repo e no navegador local, mas morre no Artifact, que não serve
+    caminho relativo e não embute .html. Por isso o `mapa.json` pode declarar a URL publicada de
+    cada guia, em `publicado`, e ela vence quando existe. Guia sem URL declarada continua em
+    caminho relativo, e o mapa diz que ele só abre local em vez de fingir um link que quebra.
+    """
+    publicado = publicado or {}
+    li, sem_url = [], []
+    for g in guias:
+        url = publicado.get(g["nome"])
+        if url:
+            href = url if url.startswith("http") else f"https://{url}"
+            li.append(f'<li><a href="{esc(href)}">guia {esc(g["nome"])}</a> '
+                      f'<span class="nota">publicado</span></li>')
+        else:
+            sem_url.append(g["nome"])
+            li.append(f'<li><a class="doc" href="../../{esc(g["arquivo"])}">{esc(g["arquivo"])}</a> '
+                      f'<span class="nota">só local, sem URL declarada</span></li>')
     for doc in ("HANDOFF.md", "SESSION.md", "CLAUDE.md"):
         li.append(f'<li><a class="doc" href="../../{doc}">{doc}</a></li>')
-    return "<ul>\n" + "\n".join(li) + "\n</ul>"
+    nota = ""
+    if sem_url:
+        nota = ('<p class="nota">Sem URL publicada declarada no <code>mapa.json</code>: '
+                + esc(", ".join(sem_url))
+                + '. No mapa publicado esses links abrem só quem tem o repo.</p>')
+    return "<ul>\n" + "\n".join(li) + "\n</ul>" + nota
 
 
 def estilo_base():
@@ -374,7 +406,7 @@ def main():
              .replace("{{TIMELINE}}", bloco_timeline(guias))
              .replace("{{PRA_ONDE}}", bloco_pra_onde(guias))
              .replace("{{DE_PE}}", bloco_de_pe(guias))
-             .replace("{{FONTES}}", bloco_fontes(guias))
+             .replace("{{FONTES}}", bloco_fontes(guias, ler_mapa_json(raiz)[0].get("publicado")))
              .replace("{{RODAPE}}", f"Foto de {hoje_br()} · {destino.relative_to(raiz)}"))
 
     if a.dry_run:

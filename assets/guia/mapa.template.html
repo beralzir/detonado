@@ -8,7 +8,7 @@
 {{TOKENS_CSS}}
 {{ESTILO_BASE}}
 /* Especifico do mapa. O resto vem do guia, injetado acima, para os dois nao divergirem. */
-.tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:22px 0}
+.tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:16px 0 0}
 .tile{background:var(--panel);border:1px solid var(--l1);padding:14px 16px}
 .tile h3{font:600 13px/1.3 var(--sans);margin:0 0 10px;color:var(--t2)}
 .tile .n{font:700 26px/1 var(--display);color:var(--accent)}
@@ -36,8 +36,11 @@ figcaption{font:400 12px/1.6 var(--sans);color:var(--t4);margin-top:10px}
 <p class="nota">{{SUBTITULO}}</p>
 </header>
 
-<section class="tiles" aria-label="Progresso por guia vivo">
+<section aria-labelledby="h-progresso">
+<h2 id="h-progresso">Progresso por guia vivo</h2>
+<div class="tiles">
 {{TILES}}
+</div>
 </section>
 
 <div class="call regra">

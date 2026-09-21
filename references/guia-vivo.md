@@ -141,7 +141,7 @@ republicação.
 
 ## Tokens e marca
 
-`assets/guia/tokens/bera.css` traz os tokens do schema `bera` (v2.1.1, Atelier Técnico):
+`assets/guia/tokens/bera.css` traz os tokens do schema `bera` (v2.3.2, Atelier Técnico):
 `#0A0A0A` de fundo, dourado `#E5B748` liderando no escuro, terracota `#D97757` apoiando, raio
 zero, sem sombra, sem gradiente, Inter e JetBrains Mono. `neutro.css` é o fallback sem marca.
 O `novo_projeto.py` inclui o escolhido inline (`--tokens bera|neutro`).
@@ -149,6 +149,36 @@ O `novo_projeto.py` inclui o escolhido inline (`--tokens bera|neutro`).
 Trocar cor, tipo ou direção não é decisão desta skill. Direção nova passa pela `risca-de-giz`,
 que carrega o schema em `<bancada>/design-schemas/` e roda o gate dele. Calibragem aprovada
 volta para o schema, e daí para `tokens/bera.css`.
+
+### O que a v2.3.2 mudou, em 20/09/2026
+
+O arquivo estava na v2.1.1 enquanto o schema já estava na v2.3.2, e por isso todo guia nascia
+fora da marca. Quatro trocas, todas com a linha do schema que as manda:
+
+- **Positivo passa do verde `#34D399` para o teal `#28BDB1`.** O schema diz "Positivo é o próprio
+  teal". Mede 8,03:1 sobre `--panel`, contra 9,74:1 do verde, e os dois passam AA.
+- **A grade de fundo passa de terracota para teal.** Guardrail: "overlay de grade de 12 colunas
+  em 4 a 10% da cor de apoio (teal)".
+- **A display passa de Cabinet Grotesk para Versos**, e o corpo também. Guardrail: "Nunca usa a
+  fonte de sistema nem a fonte da v2.0 como display". A Inter era o corpo até a v2.0 e sai dos
+  dois papéis.
+- **A terracota desce para `--support`**, na variante suave `#E8977C`, porque no escuro ela deixou
+  de ser apoio e virou terceira série.
+
+**Ressalva de licença, e ela decide onde a fonte pode morar.** A Versos é da Fabio Haag Type,
+modalidade Individual: webfont sim, não repassar o arquivo. **Este repo é público**, então o
+`woff2` não entra aqui e não há `@font-face` com caminho relativo. Em máquina sem a Versos o
+texto cai para a `system-ui` declarada, que é o que a "Ressalva de ambiente" do schema prevê.
+Peça que precise da fonte de verdade a embute como data URI no próprio HTML, e só em repo
+privado. O `woff2` do Bera vive em `~/workspace/hub-pessoal/marca/brand-guide/fonts/`.
+
+**Achado aberto, a devolver ao schema.** O aviso (`--support-text`, `#E8977C`) e o perigo
+(`--bad`, `#F87171`) colidem sob deuteranopia: ΔE 4,5 pelo `cor.py` do `cão-guia`, abaixo do
+limiar de colisão de 10. O defeito já existia na v2.1.1 e não nasceu na troca. Nenhuma terracota
+resolve: a cheia `#D97757` também colide (ΔE 8,3) e a `#C1502B` reprova contraste AA sobre o
+painel. O schema não define cor de aviso, só acento, apoio, positivo e negativo. Enquanto a
+decisão não vem, os dois callouts se separam pelo rótulo em texto, que o template já traz, e a
+peça não comunica só por cor.
 
 ## O que não entra
 

@@ -223,6 +223,25 @@ def escolher_fonte(aqui: pathlib.Path) -> pathlib.Path | None:
     return cands[0] if len(cands) == 1 else None
 
 
+
+# O publish do Artifact monta um <html> proprio em volta deste arquivo e NAO carrega o lang do
+# documento: uma pagina em portugues e anunciada como ingles pelo leitor de tela (WCAG 3.1.1).
+# O HTML fonte tem lang="pt-BR" e abre certo no navegador local, entao a correcao pertence a
+# este derivador, nao ao template. Medido em 20/09/2026: axe acusa html-has-lang na montagem
+# reproduzida do publish, e some com este bloco.
+AFIRMA_LANG = (
+    "<script>/* o wrapper do publish nao carrega o lang do documento */\n"
+    "if(document.documentElement.lang!=='pt-BR'){document.documentElement.lang='pt-BR';}\n"
+    "</script>\n"
+)
+
+
+def afirmar_lang(html: str) -> str:
+    if "documentElement.lang" in html:
+        return html
+    return html + AFIRMA_LANG
+
+
 def main() -> int:
     aqui = pathlib.Path(__file__).resolve().parent
     if len(sys.argv) > 1:
@@ -276,7 +295,7 @@ def main() -> int:
         print(f"ERRO: {tamanho_mb:.1f} MB passa do limite de {LIMITE_MB} MB do Artifact. "
               "Reduza as imagens ou embuta menos documentos.", file=sys.stderr)
         return 2
-    saida.write_text(saida_html, encoding="utf-8")
+    saida.write_text(afirmar_lang(saida_html), encoding="utf-8")
     print(f"{saida.name}: {embutidas} imagem(ns), {docs} documento(s) embutido(s), "
           f"{tamanho_mb:.2f} MB")
     if faltando:
