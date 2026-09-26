@@ -40,6 +40,11 @@ Sai 0 se gerou, 1 se alguma imagem ou documento faltou (gera mesmo assim e lista
 achou a fonte ou o resultado passou de 16 MB.
 """
 
+# O python3 do macOS (o do Xcode, em /usr/bin) é 3.9, e o 3.9 avalia anotação na hora do
+# def: `pathlib.Path | None` quebrava com TypeError antes de o script fazer qualquer coisa.
+# Com este import a anotação vira string e nunca é avaliada. Achado em 26/09/2026.
+from __future__ import annotations
+
 import hashlib
 import html
 import json
