@@ -78,9 +78,9 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
    quando a memória parece boa. Principalmente quando parece boa.
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
    script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
-   fase, reescrever o bloco "Onde paramos" e carimbar a data são `progresso.py`. Estrutura
-   inicial e imagens embutidas são `novo_projeto.py` e `build_artifact.py`, e documento sem
-   estado é `documento.py`. O que sobra para
+   fase, reescrever o bloco "Onde paramos", trocar o texto dos cartões dele e carimbar a data
+   são `progresso.py`. Estrutura inicial e imagens embutidas são `novo_projeto.py` e
+   `build_artifact.py`, e documento sem estado é `documento.py`. O que sobra para
    edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
    dela `progresso.py --listar` tem que sair limpo; se não sair, conserte antes de commitar. Tocar em `checked` ou `data-done` à mão é o
    jeito de o guia divergir.
@@ -91,9 +91,10 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
    como o registro apodrece. `progresso.py --cancelar <fase> --motivo "..."` tira as caixas da
    fase e escreve por que ela morreu, com a data. O que sai do numerador sai também do
    denominador, então a barra passa a medir só o que ainda pode acontecer.
-8. **A aparência tem dono, e não é o projeto.** CSS, tokens e cartões do guia não são prosa
-   livre: mudança visual entra pelo template do detonado, nunca pelo guia de um projeto.
-   Direção nova é decisão da `risca-de-giz`.
+8. **A aparência tem dono, e não é o projeto.** CSS, tokens e a forma dos cartões do guia não
+   são prosa livre: mudança visual entra pelo template do detonado, nunca pelo guia de um
+   projeto. Direção nova é decisão da `risca-de-giz`. O texto dos cartões resume o HANDOFF e
+   muda por `progresso.py --cartao`.
 
 ## Fluxo de abrir
 
@@ -193,7 +194,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `scripts/mapa.py` | mapa: lê os guias por `progresso.py` e desenha. `--dry-run` antes, `--dir` para outro projeto |
 | `scripts/documento.py` | documento: monta consultivo ou passo a passo a partir de um JSON de conteúdo. `--dry-run` antes |
 | `assets/guia/mapa.template.html` | mapa: template, que injeta o CSS do `guia.template.html` para os dois não divergirem |
-| `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos", carimba data, valida consistência |
+| `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos" e o texto dos cartões, carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML, embute documento do repo e imprime o mapa `files` das imagens. O projeto recebe um invocador, não uma cópia |
 | `assets/templates/` | os quatro templates em markdown |
 | `assets/guia/` | os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens |

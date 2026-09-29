@@ -11,7 +11,9 @@ Na ordem, porque cada passo alimenta o seguinte:
    com o que está provado bom, o que prova que falha, próxima hipótese não testada. "O que
    falta" com quem. Formatos âncora reafirmados. Vigilância.
 2. **Guia.** `progresso.py --marcar` para cada etapa provada hoje, `--fechar` para fase que
-   fechou, `--carimbar` com a data de hoje. Bloco "Onde paramos" reescrito.
+   fechou, `--carimbar` com a data de hoje. Bloco "Onde paramos" reescrito com `--onde-paramos`
+   e, na mesma chamada, `--cartao` para cada cartão que deixou de valer. O Agora quase sempre
+   muda.
 3. **HANDOFF.md**, só se o ponto de retomada mudou: parágrafo de abertura com data e hora,
    fase que saiu de Pendências, item novo em Resolvidos com sintoma e causa.
 4. **tasks/lessons.md**, se algo custou caro. "[a confirmar]" em caso isolado.
@@ -66,6 +68,7 @@ Quando o Bera pede "onde paramos" e quer **ver**, não ler, o modo é `mapa`, n�
 - HANDOFF sem data no parágrafo de abertura.
 - SESSION com "próxima hipótese" que já foi testada e ninguém registrou.
 - Guia com fase fechada e etapa aberta (o `progresso.py --listar` avisa).
+- Cartão Agora do guia falando de fase que já fechou ou saiu da fila.
 - Estado de outro projeto copiado em vez de apontado.
 - "Resolvidos" sem causa, só sintoma.
 

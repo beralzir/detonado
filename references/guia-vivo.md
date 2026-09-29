@@ -15,6 +15,7 @@ O `novo_projeto.py` monta o guia a partir dos dois e do JSON das fases.
 - `header` com o hero (SVG line art ou imagem com `alt`), o bloco "Onde paramos"
   (`#status-atual`, com `data-v` da data) e o bloco "Como funciona".
 - `section#retomada`: contexto, cartões (concluído antes, agora, vigilância), tabela de decisões.
+  O texto de cada cartão muda por `--cartao`, e a forma é do template.
 - `section.phase#<fase>`: ao fechar, a seção ganha `data-fechada="DD/MM/AAAA"`, simétrico ao
   `data-cancelada`, e o `--reabrir` a tira. É a única fonte de data por fase: o `data-done`
   guarda o id da fase, não a data. Cabeçalho com tag, título, resumo e a caixa "Etapa concluída"
@@ -109,6 +110,7 @@ python3 $P docs/guia-x/guia-x.html --reabrir f1 --desmarcar e-f1-3   # prova fal
 python3 $P docs/guia-x/guia-x.html --inserir-fase fases.json      # fase nova, nav e seção, do mesmo JSON de metodo.md
 python3 $P docs/guia-x/guia-x.html --onde-paramos "**02/09**: \`podman ps\` com Up, porta 4533 em aberto"
 python3 $P docs/guia-x/guia-x.html --carimbar 02/09/2026          # data em #status-atual e no rodapé
+python3 $P docs/guia-x/guia-x.html --cartao agora "Fase 2" "Proxy no ar, falta o certificado"   # .val e .why de um cartão
 ```
 
 O script recusa id inexistente e fase repetida (sai 2), avisa fase fechada com etapa aberta (sai
@@ -118,8 +120,17 @@ cada operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar`
 datada simétrica à da declaração. Sem evidência, o caminho é `--declarar`, que deixa a caixa
 aberta.
 
-O que sobra para edição à mão é a prosa livre das seções: parágrafos, tabelas, blocos de comando,
-cartões da seção Contexto. Depois de editar, `--listar` tem que sair limpo. `checked` e `data-done`
+`--cartao` troca o `.val` e o `.why` de um cartão de `#retomada`, e mais nada. O nome é a
+primeira palavra do rótulo, sem acento (`concluido`, `agora`, `vigilancia`), e a opção se repete
+para mais de um cartão. Cartão inexistente, texto vazio e cartão repetido na mesma chamada saem
+com 2, sem gravar. Ela não carimba data: no fechamento, vai na mesma chamada do
+`--onde-paramos`, que carimba. Quando o `--onde-paramos` roda sem ela, o script imprime o que o
+Agora diz, porque era nesse momento que os cartões envelheciam sem ninguém ver.
+
+O que sobra para edição à mão é a prosa livre das seções: parágrafos, tabelas, blocos de comando.
+Os cartões da seção Contexto saíram desta lista em 29/09/2026: como prosa à mão, estavam parados
+havia 16 a 23 commits nos três guias do detonado, e o projeto que proibia editá-los à mão não
+tinha outro caminho. Depois de editar, `--listar` tem que sair limpo. `checked` e `data-done`
 nunca se tocam à mão.
 
 O guia e o HANDOFF dizem a mesma coisa, com a mesma data.

@@ -18,6 +18,7 @@ Uso:
     progresso.py GUIA.html --onde-paramos "texto com `crase` virando code"   reescreve #status-atual
     progresso.py GUIA.html --inserir-fase fases.json   acrescenta fases novas (nav e seção)
     progresso.py GUIA.html --cancelar f3 --motivo "a F1 respondeu antes, e mais barato"
+    progresso.py GUIA.html --cartao agora "Fase 2" "Proxy no ar, falta o certificado"   texto de um cartão
 
 Fase cancelada é escopo que morreu no meio, e não é nem aberta nem fechada. `--cancelar`
 troca os checkboxes da fase por uma lista estática com o motivo e a data: as caixas somem,
@@ -25,6 +26,12 @@ então tanto este script quanto o JS da própria página param de contá-las, e 
 medir só o que ainda pode acontecer. Por isso funciona também nos guias já publicados, que
 não conhecem classe de CSS nova. É destrutivo de propósito e não tem `--descancelar`:
 desfazer é `git checkout` no guia.
+
+Os cartões de `section#retomada` (Concluído antes, Agora, Vigilância) resumem o HANDOFF.
+`--cartao` troca só o texto do `.val` e do `.why` de um deles, e o nome do cartão é a primeira
+palavra do rótulo, sem acento. Rótulo, classe e CSS ficam, porque a forma é do template. Antes
+desta opção os cartões eram prosa à mão, o ritual de fechar só reescrevia o `#status-atual`, e
+em 29/09/2026 os três guias do detonado tinham os cartões parados havia 16 a 23 commits.
 
 Convenção do template: etapa é `<input type="checkbox" id="e-<fase>-<n>">`, fase é
 `<input type="checkbox" data-done="<fase>">`. O percentual conta todos os checkboxes, igual ao
@@ -35,11 +42,12 @@ Sai 0 em sucesso, 1 se há inconsistência (fase fechada com etapa aberta) e nad
 2 se um id não existe, o arquivo não é um guia do detonado, ou a entrada é inválida.
 """
 
-from html import escape as escape_html
+from html import escape as escape_html, unescape as unescape_html
 import argparse
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 TAG = re.compile(r"<input\b[^>]*\btype=\"checkbox\"[^>]*>", re.IGNORECASE)
@@ -48,6 +56,15 @@ DONE = re.compile(r"\bdata-done=\"([^\"]+)\"")
 CHECKED = re.compile(r"\s+checked\b(?:=\"[^\"]*\")?")
 ETAPA = re.compile(r"^e-([a-z0-9][a-z0-9-]*)-(\d+)$")
 DATA = re.compile(r"^\d{2}/\d{2}/\d{4}$")
+RETOMADA = re.compile(r'<section\b[^>]*\bid="retomada"[^>]*>.*?</section>', re.DOTALL | re.IGNORECASE)
+# Cartão como o template escreve: rótulo, valor e porquê, nesta ordem. O texto não atravessa
+# `<div` nem `</div`: com `.*?`, um cartão sem .why casava até o .why do cartão seguinte, e o
+# --cartao apagava o vizinho saindo 0. Cartão fora do formato fica sem casar, e o script recusa.
+SEM_DIV = r"((?:(?!</?div\b).)*)"
+CARTAO = re.compile(
+    r'<div class="card\b[^"]*">\s*<div class="lbl">([^<]*)</div>\s*'
+    r'<div class="val">' + SEM_DIV + r'</div>\s*<div class="why">' + SEM_DIV + r'</div>\s*</div>',
+    re.DOTALL)
 
 
 def ler(caminho: Path) -> str:
@@ -212,6 +229,46 @@ def onde_paramos(html: str, texto: str):
     return html[:m.start()] + m.group(1) + inline_code(texto) + m.group(2) + html[m.end():], 1
 
 
+def chave_cartao(rotulo: str) -> str:
+    """Primeira palavra do rótulo, sem acento e em minúscula: "Concluído antes" vira
+    "concluido". O nome vem do guia, não de uma lista fixa, então cartão novo já funciona."""
+    texto = unicodedata.normalize("NFKD", unescape_html(rotulo))
+    palavras = "".join(c for c in texto if not unicodedata.combining(c)).lower().split()
+    return palavras[0] if palavras else ""
+
+
+def cartoes(html: str) -> list:
+    """Cartões de section#retomada na ordem do documento, com os spans do .val e do .why."""
+    sec = RETOMADA.search(html)
+    if not sec:
+        return []
+    return [{"chave": chave_cartao(m.group(1)), "rotulo": m.group(1).strip(),
+             "val": m.group(2), "why": m.group(3), "span_val": m.span(2), "span_why": m.span(3)}
+            for m in CARTAO.finditer(html, sec.start(), sec.end())]
+
+
+def reescrever_cartao(html: str, chave: str, val: str, why: str):
+    """Troca o texto do .val e do .why de um cartão. Rótulo, classe e CSS não se tocam.
+
+    Cartão fora do formato do template não é achado, e o script recusa em vez de adivinhar:
+    reescrever pela metade seria mexer na estrutura. Crase e negrito seguem o --onde-paramos.
+    """
+    achados = cartoes(html)
+    alvo = [c for c in achados if c["chave"] == chave_cartao(chave)]
+    if len(alvo) != 1:
+        existentes = ", ".join(f"{c['chave']} ({c['rotulo']})" for c in achados) or "nenhum"
+        motivo = ("não está em #retomada no formato do template" if not alvo
+                  else "aparece mais de uma vez em #retomada")
+        return None, f"cartão {chave} {motivo}. Cartões achados: {existentes}"
+    c = alvo[0]
+    novo_val, novo_why = inline_code(val.strip()), inline_code(why.strip())
+    if (c["val"], c["why"]) == (novo_val, novo_why):
+        return html, f"cartão {c['rotulo']} já dizia isso, mantido"
+    (vi, vf), (wi, wf) = c["span_val"], c["span_why"]
+    return (html[:vi] + novo_val + html[vf:wi] + novo_why + html[wf:],
+            f"reescreveu o cartão {c['rotulo']}")
+
+
 def inserir_fase(html: str, caminho_json: Path, itens):
     """Acrescenta fases novas antes da seção de referência, com link na nav."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -332,7 +389,11 @@ def main() -> int:
                     help="escopo que morreu: tira as caixas da fase e escreve o motivo")
     ap.add_argument("--motivo", metavar="TEXTO",
                     help="obrigatorio com --cancelar: por que a fase morreu")
+    ap.add_argument("--cartao", nargs=3, action="append", metavar=("CARTAO", "VAL", "WHY"),
+                    help="reescreve o texto de um cartão de Onde paramos (concluido, agora, "
+                         "vigilancia). Repita a opção para mais de um")
     a = ap.parse_args()
+    pedidos = a.cartao or []
 
     if a.marcar and not a.prova:
         print('ERRO: --marcar exige --prova "<evidência>". Sem evidência a etapa não fecha:\n'
@@ -356,6 +417,16 @@ def main() -> int:
         return 2
     if a.motivo and not a.cancelar:
         print("ERRO: --motivo so faz sentido com --cancelar", file=sys.stderr)
+        return 2
+    vazios = [c for c, val, why in pedidos if not val.strip() or not why.strip()]
+    if vazios:
+        print("ERRO: --cartao exige VAL e WHY com texto, e veio vazio em: " + ", ".join(vazios),
+              file=sys.stderr)
+        return 2
+    chaves = [chave_cartao(c) for c, _, _ in pedidos]
+    repetidas = sorted({k for k in chaves if chaves.count(k) > 1})
+    if repetidas:
+        print("ERRO: --cartao repetido na mesma chamada: " + ", ".join(repetidas), file=sys.stderr)
         return 2
 
     mudancas = []
@@ -449,6 +520,14 @@ def main() -> int:
         if not a.carimbar:
             a.carimbar = hoje()
 
+    for c, val, why in pedidos:
+        novo, msg = reescrever_cartao(html, c, val, why)
+        if novo is None:
+            print(f"ERRO: --cartao: {msg}", file=sys.stderr)
+            return 2
+        html = novo
+        mudancas.append(msg)
+
     if a.carimbar:
         html, n = carimbar(html, a.carimbar)
         mudancas.append(f"carimbou {a.carimbar} em {n} lugar(es)")
@@ -487,6 +566,14 @@ def main() -> int:
         print(resumo(itens))
         for av in avisos:
             print("AVISO: " + av)
+        # O Agora envelhecia justamente aqui: o fechamento reescrevia o status e ninguém olhava
+        # os cartões. Mostrar o que ele diz, na hora, custa uma linha.
+        if a.onde_paramos and not pedidos:
+            for c in cartoes(html):
+                if c["chave"] == "agora":
+                    texto = unescape_html(re.sub(r"<[^>]+>", "", c["val"]))
+                    print(f'LEMBRETE: os cartões de Onde paramos não mudaram, e o Agora diz "{texto}". '
+                          'Se não vale mais: --cartao agora "VAL" "WHY"')
 
     if avisos and not mudancas and any(a.startswith("fase") and "fechada com etapa aberta" in a for a in avisos):
         return 1
