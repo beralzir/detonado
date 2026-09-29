@@ -37,6 +37,8 @@ O método nasceu num projeto real, a migração de um PC para servidor pessoal d
 | **guia** | "marca a etapa 2 da fase 1" | Guia vivo atualizado por script, com a prova citada |
 | **fechar** | "detonado, fecha a sessão" | `SESSION.md`, guia, `HANDOFF.md` se mudou, commit |
 | **retomar** | "chama o detonado, onde paramos?" | Lê o registro, roda a sanidade, responde curto |
+| **mapa** | "detonado, desenha o mapa" | Foto datada dos guias vivos do projeto: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada |
+| **documento** | "detonado, faz um consultivo sobre X", "detonado, escreve o passo a passo de X" | Guia consultivo (decide, sem estado) ou passo a passo (receita que se reusa). Não é de projeto nenhum, e sem destino explícito pergunta onde escrever |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" |
 
 Os cinco artefatos de um projeto: `CLAUDE.md`, `HANDOFF.md`, `SESSION.md`, `tasks/lessons.md`
@@ -44,11 +46,13 @@ e `docs/guia-<projeto>/`. O que vai em cada um está em `references/artefatos.md
 
 ## O guia vivo
 
-Um HTML por projeto, com navegação lateral, barra de progresso, uma caixa por etapa com o
-"pronto quando", blocos de comando com botão de copiar e o bloco "Onde paramos" sincronizado com
-o `HANDOFF.md`. O estado é o atributo `checked`, versionado no git. Marcar, desmarcar e fechar
-fase é trabalho do `scripts/progresso.py`, nunca de edição à mão. O `build_artifact.py` deriva a
-versão publicável com as imagens em base64.
+Um HTML por projeto, ou por fase longa, com navegação lateral, barra de progresso, uma caixa por
+etapa com o "pronto quando", blocos de comando com botão de copiar e o bloco "Onde paramos"
+sincronizado com o `HANDOFF.md`. O estado é o atributo `checked`, versionado no git. Marcar,
+desmarcar e fechar fase é trabalho do `scripts/progresso.py`, nunca de edição à mão. O
+`build_artifact.py` deriva a versão publicável, com os documentos do repo que o guia cita
+embutidos. A imagem não vai em base64: sobe como arquivo ao lado da página, e o script imprime
+o mapa `files` pronto para o publish.
 
 Os tokens visuais ficam em `assets/guia/tokens/`: `bera.css` traz a marca do autor, `neutro.css`
 é o fallback sem marca. Trocar de marca é trocar o arquivo. O template passou pelo detector
@@ -68,8 +72,9 @@ daltonismo medidos) antes de entrar aqui.
 ## Invocação
 
 Manual-only, por decisão do autor. Dispara só quando nomeada: `/detonado`, "usa o detonado",
-"chama o detonado", "abre o detonado do <projeto>", "detonado, fecha a sessão". Pedido genérico
-de guia, handoff, checklist ou "onde paramos" não dispara.
+"chama o detonado", "abre o detonado do <projeto>", "detonado, fecha a sessão", "detonado,
+desenha o mapa", "detonado, faz um consultivo sobre X", "detonado, escreve o passo a passo de
+X". Pedido genérico de guia, handoff, checklist ou "onde paramos" não dispara.
 
 ## Instalação
 
@@ -87,14 +92,18 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 |---|---|
 | `SKILL.md` | A instrução: modos, princípios, fluxo de abrir, regras default, fora de escopo |
 | `references/metodo.md` | Fases com prova: fatiamento, o que vale como prova, testes que mentem, JSON das fases |
-| `references/artefatos.md` | Os cinco artefatos, quando atualizar cada um, estado com dono |
+| `references/artefatos.md` | Os cinco artefatos do projeto e os três opcionais, quando atualizar cada um, estado com dono |
 | `references/guia-vivo.md` | Anatomia do guia, contrato dos tokens, atualização, publicação, acessibilidade, portões |
 | `references/retomada.md` | Rituais de fechar e retomar, mensagem para colar no celular |
+| `references/mapa.md` | Anatomia do mapa, o que é foto e o que é vivo, honestidade das datas |
+| `references/documentos.md` | A regra que separa as famílias, o que consultivo e passo a passo têm e não têm |
 | `assets/templates/` | Templates de `CLAUDE.md`, `HANDOFF.md`, `SESSION.md` e `lessons.md` |
-| `assets/guia/` | Template do guia, bloco de fase, tokens `bera` e `neutro` |
+| `assets/guia/` | Os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens `bera` e `neutro` |
 | `scripts/novo_projeto.py` | Cria ou adota um projeto a partir dos templates, sem sobrescrever |
-| `scripts/progresso.py` | Lista, marca, desmarca, fecha fase, carimba data, valida consistência |
-| `scripts/build_artifact.py` | Deriva o HTML publicável com imagens em base64, limite de 16 MB |
+| `scripts/progresso.py` | Lista, marca, desmarca, declara sem prova, fecha, reabre, cancela e insere fase, reescreve "Onde paramos", carimba data, valida consistência |
+| `scripts/build_artifact.py` | Deriva o HTML publicável, embute documento do repo e imprime o mapa `files` das imagens, que sobem como arquivo. Recusa acima de 16 MB. O projeto recebe um invocador, não uma cópia |
+| `scripts/mapa.py` | Lê os guias pelo `progresso.py` e desenha o mapa, sem marcar nada |
+| `scripts/documento.py` | Monta consultivo ou passo a passo a partir de um JSON de conteúdo |
 | `evals/` | Casos de teste da skill e o projeto de exemplo `radio-pirata` |
 
 ## Licença
