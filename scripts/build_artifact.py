@@ -34,7 +34,8 @@ ser: o que não reconhece vira parágrafo, nunca erro.
 Uso:
     python3 build_artifact.py [GUIA.html]
 
-Sem argumento, usa o único *.html da própria pasta que não termina em .artifact.html.
+Sem argumento, usa o único *.html que não termina em .artifact.html na pasta do arquivo que o
+Python executou: a do invocador, no projeto, ou esta, quando o script roda direto.
 Saída: <nome>.artifact.html ao lado da fonte.
 Sai 0 se gerou, 1 se alguma imagem ou documento faltou (gera mesmo assim e lista), 2 se não
 achou a fonte ou o resultado passou de 16 MB.
@@ -265,7 +266,12 @@ def afirmar_lang(html: str) -> str:
 
 
 def main() -> int:
-    aqui = pathlib.Path(__file__).resolve().parent
+    # A pasta do guia é a do arquivo que o Python executou, não a de __file__. Desde 21/09/2026
+    # o projeto chama este script por um invocador com runpy, e aí __file__ aponta para a pasta
+    # de scripts da skill: sem argumento, nenhum guia era achado e o script saía 2, inclusive no
+    # comando da seção Publicar do guia-vivo.md. O sys.path[0] é a pasta do invocador, ou a
+    # deste arquivo quando ele roda direto. Achado em 29/09/2026, ao conferir o README.
+    aqui = pathlib.Path(sys.path[0] or ".").resolve()
     if len(sys.argv) > 1:
         fonte = pathlib.Path(sys.argv[1]).resolve()
     else:
