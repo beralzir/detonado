@@ -109,7 +109,8 @@ progresso está dizendo que 40% de um argumento está pronto, o que não quer di
 
 Os três compartilham os tokens e o CSS do `guia.template.html`, injetado e não copiado, pelo
 mesmo motivo do mapa: cópia diverge. Direção visual nova é decisão da `risca-de-giz`, não
-desta skill, e vale o princípio 8.
+desta skill, e vale o princípio 8. Os dois aceitam `--tokens bera|neutro|almapbbdo`, e o
+`almapbbdo` é o tema claro da AlmapBBDO, que o guia vivo ainda não aceita (`guia-vivo.md`).
 
 ## Publicar
 

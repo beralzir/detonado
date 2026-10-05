@@ -174,7 +174,7 @@ def main():
     # o certo, e o "fora de escopo" do SKILL.md proibe exatamente isso.
     ap.add_argument("--dir", type=Path, required=True,
                     help="onde escrever. Obrigatorio: documento nao e de projeto nenhum")
-    ap.add_argument("--tokens", choices=["bera", "neutro"], default="bera")
+    ap.add_argument("--tokens", choices=["bera", "neutro", "almapbbdo"], default="bera")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 

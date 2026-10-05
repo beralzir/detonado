@@ -55,7 +55,8 @@ embutidos. A imagem não vai em base64: sobe como arquivo ao lado da página, e 
 o mapa `files` pronto para o publish.
 
 Os tokens visuais ficam em `assets/guia/tokens/`: `bera.css` traz a marca do autor, `neutro.css`
-é o fallback sem marca. Trocar de marca é trocar o arquivo. O template passou pelo detector
+é o fallback sem marca, e `almapbbdo.css` é o tema claro da AlmapBBDO, só para consultivo e passo
+a passo (`documento.py --tokens almapbbdo`). Trocar de marca é trocar o arquivo. O template passou pelo detector
 anti-slop da `impeccable` e pela auditoria de acessibilidade do `cão-guia` (axe-core, contraste e
 daltonismo medidos) antes de entrar aqui.
 
@@ -98,7 +99,7 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 | `references/mapa.md` | Anatomia do mapa, o que é foto e o que é vivo, honestidade das datas |
 | `references/documentos.md` | A regra que separa as famílias, o que consultivo e passo a passo têm e não têm |
 | `assets/templates/` | Templates de `CLAUDE.md`, `HANDOFF.md`, `SESSION.md` e `lessons.md` |
-| `assets/guia/` | Os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens `bera` e `neutro` |
+| `assets/guia/` | Os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens `bera`, `neutro` e `almapbbdo` |
 | `scripts/novo_projeto.py` | Cria ou adota um projeto a partir dos templates, sem sobrescrever |
 | `scripts/progresso.py` | Lista, marca, desmarca, declara sem prova, fecha, reabre, cancela e insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | Deriva o HTML publicável, embute documento do repo e imprime o mapa `files` das imagens, que sobem como arquivo. Recusa acima de 16 MB. O projeto recebe um invocador, não uma cópia |

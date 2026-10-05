@@ -1,0 +1,28 @@
+/* Tokens da AlmapBBDO para o consultivo e o passo a passo do detonado. Tema claro.
+   Fonte: ~/Workspaces/design-schemas/almapbbdo.md v1.4.0 (paleta, guardrails e contraste).
+   Mesmo contrato do bera.css. So o documento.py aceita este conjunto: o guia vivo e o mapa
+   tem o veu do hero fixo em escuro (rgba(10,10,10,.78)), calibrado para tema escuro.
+   Contraste medido em 05/10/2026 sobre --bg #E7E6E1: --t5 ardosia 5,75:1, --t2 cinza 10,09:1.
+   Guardrails que decidem este arquivo:
+   - vermelho #EB1E23 sobre off-white mede 3,54:1 e nao pode ser texto menor que 24px, e o
+     template usa --accent em texto de 11 e 12px. Por isso --accent e preto e o vermelho
+     entra so como fio (--accent-line), que e decorativo.
+   - sem verde na paleta: --good e preto, e o "Esperado" se distingue pelo peso e pelo fio.
+   - bege nunca e texto nem borda de componente sobre claro, so fio decorativo e fundo.
+   - Inter em todos os papeis, sem monoespacada; cantos retos, sem sombra, sem gradiente.
+   Limite conhecido: o h1 do template e peso 700, e o schema pede titulo grande em 400. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
+:root{
+ color-scheme:light;
+ --bg:#E7E6E1; --panel:#FFFFFF; --hov:#FFFFFF; --l1:#AFAA9B; --l2:#373232; --pre:#FFFFFF;
+ --fg:#000000; --t1:#1E1E1E; --t2:#373232; --t3:#373232; --t4:#52585F; --t5:#52585F;
+ --accent:#000000; --accent-tint:#FFFFFF; --accent-line:#EB1E23; --accent-sel:#AFAA9B;
+ --support:#373232; --support-text:#373232; --support-tint:#FFFFFF; --support-line:#AFAA9B;
+ --good:#000000; --good-tint:#FFFFFF; --good-line:#000000;
+ --bad:#000000; --bad-tint:#FFFFFF; --bad-line:#D83831;
+ --grid-svg:none;
+ --mono:Inter,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+ --sans:Inter,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+ --display:Inter,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+ --radius:0px;
+}

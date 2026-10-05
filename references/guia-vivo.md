@@ -175,6 +175,13 @@ republicação.
 zero, sem sombra, sem gradiente, Inter e JetBrains Mono. `neutro.css` é o fallback sem marca.
 O `novo_projeto.py` inclui o escolhido inline (`--tokens bera|neutro`).
 
+`almapbbdo.css` (05/10/2026, schema `almapbbdo` v1.4.0) é tema claro e vale só no
+`documento.py`. O guia vivo e o mapa não o aceitam porque o véu do hero é escuro fixo
+(`rgba(10,10,10,.78)`), calibrado para tema escuro: com texto preto por cima, o cabeçalho
+reprovaria. Levar a AlmapBBDO ao guia vivo pede um véu por token, e isso é mudança de template.
+No conjunto, `--accent` é preto, porque o template pinta texto de 11 e 12px com ele e o vermelho
+`#EB1E23` mede 3,54:1 sobre o off-white. O vermelho entra como fio, em `--accent-line`.
+
 Trocar cor, tipo ou direção não é decisão desta skill. Direção nova passa pela `risca-de-giz`,
 que carrega o schema em `<bancada>/design-schemas/` e roda o gate dele. Calibragem aprovada
 volta para o schema, e daí para `tokens/bera.css`.
