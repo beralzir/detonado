@@ -104,6 +104,7 @@ P=~/.claude/skills/detonado/scripts/progresso.py
 python3 $P docs/guia-x/guia-x.html --listar                       # estado, avisos de consistência
 python3 $P docs/guia-x/guia-x.html --resumo                       # uma linha, para o bloco de sanidade
 python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
+python3 $P docs/guia-x/guia-x.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 4G" --substituir-prova   # troca a prova
 python3 $P docs/guia-x/guia-x.html --declarar e-f1-4              # "declarado pelo Bera, sem prova", caixa fica aberta
 python3 $P docs/guia-x/guia-x.html --fechar f1                    # caixa "Fase concluída" e data-fechada
 python3 $P docs/guia-x/guia-x.html --reabrir f1 --desmarcar e-f1-3   # prova falsa: reabre a fase antes de desmarcar
@@ -119,6 +120,13 @@ cada operação. `--onde-paramos` carimba a data de hoje sozinho se `--carimbar`
 **`--marcar` sem `--prova` sai com 2**: a evidência entra no guia junto com a caixa, numa nota
 datada simétrica à da declaração. Sem evidência, o caminho é `--declarar`, que deixa a caixa
 aberta.
+
+A nota já carimba a data, então o texto de `--prova` não a repete: se ele começar com a data do
+carimbo seguida de dois-pontos, o script tira a repetição e avisa. Prova registrada fica, e
+`--marcar` de novo na mesma etapa não a troca. Para corrigir uma prova escrita errada,
+`--substituir-prova` na mesma chamada do `--marcar` troca a nota inteira, com a data de hoje ou
+a do `--carimbar`. Foi o que faltou em 07/10/2026, quando quatro provas de um guia saíram com a
+data duas vezes e nada além da edição à mão, que a regra proíbe, as corrigia.
 
 `--cartao` troca o `.val` e o `.why` de um cartão de `#retomada`, e mais nada. O nome é a
 primeira palavra do rótulo, sem acento (`concluido`, `agora`, `vigilancia`), e a opção se repete

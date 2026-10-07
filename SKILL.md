@@ -77,10 +77,10 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 4. **Retomar é ler, não lembrar.** "Onde paramos" se responde abrindo o HANDOFF e o SESSION, mesmo
    quando a memória parece boa. Principalmente quando parece boa.
 5. **Decisão determinística não se delega ao modelo.** Estado e estrutura do guia mudam só por
-   script: marcar, desmarcar, declarar sem prova, fechar e reabrir fase, cancelar fase, inserir
-   fase, reescrever o bloco "Onde paramos", trocar o texto dos cartões dele e carimbar a data
-   são `progresso.py`. Estrutura inicial e imagens embutidas são `novo_projeto.py` e
-   `build_artifact.py`, e documento sem estado é `documento.py`. O que sobra para
+   script: marcar, substituir a prova de etapa já marcada, desmarcar, declarar sem prova,
+   fechar e reabrir fase, cancelar fase, inserir fase, reescrever o bloco "Onde paramos",
+   trocar o texto dos cartões dele e carimbar a data são `progresso.py`. Estrutura inicial e
+   imagens embutidas são `novo_projeto.py` e `build_artifact.py`, e documento sem estado é `documento.py`. O que sobra para
    edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
    dela `progresso.py --listar` tem que sair limpo; se não sair, conserte antes de commitar. Tocar em `checked` ou `data-done` à mão é o
    jeito de o guia divergir.
@@ -194,7 +194,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `scripts/mapa.py` | mapa: lê os guias por `progresso.py` e desenha. `--dry-run` antes, `--dir` para outro projeto |
 | `scripts/documento.py` | documento: monta consultivo ou passo a passo a partir de um JSON de conteúdo. `--dry-run` antes |
 | `assets/guia/mapa.template.html` | mapa: template, que injeta o CSS do `guia.template.html` para os dois não divergirem |
-| `scripts/progresso.py` | guia e fechar: lista, marca, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos" e o texto dos cartões, carimba data, valida consistência |
+| `scripts/progresso.py` | guia e fechar: lista, marca, substitui prova, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos" e o texto dos cartões, carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML, embute documento do repo e imprime o mapa `files` das imagens. O projeto recebe um invocador, não uma cópia |
 | `assets/templates/` | os quatro templates em markdown |
 | `assets/guia/` | os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens |

@@ -10,6 +10,7 @@ Uso:
     progresso.py GUIA.html --resumo              uma linha, para o bloco de sanidade
     progresso.py GUIA.html --json                estado completo em JSON
     progresso.py GUIA.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200 do 5G"
+    progresso.py GUIA.html --marcar e-f1-2 --prova "curl -i: HTTP/2 200" --substituir-prova   troca a prova
     progresso.py GUIA.html --desmarcar e-f1-3
     progresso.py GUIA.html --fechar f1           marca "Etapa concluída" e carimba data-fechada
     progresso.py GUIA.html --reabrir f1
@@ -32,6 +33,12 @@ Os cartões de `section#retomada` (Concluído antes, Agora, Vigilância) resumem
 palavra do rótulo, sem acento. Rótulo, classe e CSS ficam, porque a forma é do template. Antes
 desta opção os cartões eram prosa à mão, o ritual de fechar só reescrevia o `#status-atual`, e
 em 29/09/2026 os três guias do detonado tinham os cartões parados havia 16 a 23 commits.
+
+A prova de uma etapa é a nota "Provado em <data>: <texto>", e marcar de novo uma etapa provada
+mantém a nota que já estava. Trocar é explícito, com `--substituir-prova` junto do `--marcar`.
+Faltou em 07/10/2026, quando quatro provas de um guia saíram "Provado em 07/10/2026: 07/10/2026:"
+porque o texto já trazia a data, e nada no script as corrigia. Pelo mesmo motivo, `--prova` que
+começa com a data do carimbo seguida de dois-pontos perde essa repetição, com AVISO.
 
 Convenção do template: etapa é `<input type="checkbox" id="e-<fase>-<n>">`, fase é
 `<input type="checkbox" data-done="<fase>">`. O percentual conta todos os checkboxes, igual ao
@@ -178,20 +185,50 @@ def declarar(html: str, it: dict, data: str):
     return html[:fim_label] + nota + html[fim_label:], f"declarou {it['id']} em {data}"
 
 
-def provar(html: str, it: dict, data: str, texto: str):
+def sem_data_repetida(texto: str, data: str):
+    """Tira do começo da prova a data que a nota já carimba. Devolve (texto, se tirou).
+
+    Sai só a mesma data do carimbo seguida de dois-pontos, quantas vezes vier, também com o
+    "Provado em" de uma nota copiada inteira. Outra data no começo pode ser informação, e data
+    no meio do texto é sempre informação, então as duas ficam.
+    """
+    repetida = re.compile(r"\s*(?:provado em\s+)?" + re.escape(data) + r"\s*:\s*", re.IGNORECASE)
+    limpo = texto
+    m = repetida.match(limpo)
+    while m:
+        limpo = limpo[m.end():]
+        m = repetida.match(limpo)
+    return limpo, limpo != texto
+
+
+def provar(html: str, it: dict, data: str, texto: str, substituir: bool = False):
     """Registra a evidência que fechou a etapa. Simétrico a declarar().
 
-    Declaração anterior é substituída: prova real supera "sem prova".
+    Declaração anterior é substituída: prova real supera "sem prova". Prova anterior fica, a
+    não ser com `substituir` (o --substituir-prova), que tira a nota antiga e grava a nova com
+    a data deste carimbo. Nota antiga fora do formato do script não é adivinhada: recusa, em
+    vez de deixar duas provas na mesma etapa.
     """
     fim_label = html.index("</label>", it["span"][1])
     trecho = html[it["span"][1]:fim_label]
-    if 'class="prova"' in trecho:
+    tinha_prova = 'class="prova"' in trecho
+    if tinha_prova and not substituir:
         return html, f"{it['id']} já tinha prova registrada, mantida"
-    limpo = re.sub(r'<small class="decl">.*?</small>', "", trecho)
+    sem_decl = re.sub(r'<small class="decl">.*?</small>', "", trecho)
+    limpo, n = re.subn(r'<small class="prova">.*?</small>', "", sem_decl, flags=re.DOTALL)
+    if tinha_prova and not n:
+        return html, f"recusado: a prova de {it['id']} está fora do formato do script, nada trocado"
+    texto, tirou = sem_data_repetida(texto, data)
     nota = f'<small class="prova">Provado em {data}: {escape_html(texto)}</small>'
     novo = html[:it["span"][1]] + limpo + nota + html[fim_label:]
-    sufixo = ", substituindo a declaração" if limpo != trecho else ""
-    return novo, f"registrou a prova de {it['id']}{sufixo}"
+    partes = [f"{'substituiu' if tinha_prova else 'registrou'} a prova de {it['id']}"]
+    if sem_decl != trecho:
+        partes.append("substituindo a declaração")
+    if substituir and not tinha_prova:
+        partes.append("sem prova anterior para substituir")
+    if tirou:
+        partes.append("sem a data repetida no começo do texto")
+    return novo, ", ".join(partes)
 
 
 def carimbar_fechamento(html: str, fase: str, data: str):
@@ -383,6 +420,9 @@ def main() -> int:
     ap.add_argument("--declarar", nargs="+", metavar="ID", default=[])
     ap.add_argument("--prova", metavar="TEXTO",
                     help="evidência que fecha a etapa; obrigatório com --marcar")
+    ap.add_argument("--substituir-prova", action="store_true",
+                    help="com --marcar: troca a prova já registrada pela de --prova. Sem esta "
+                         "opção, a prova antiga fica")
     ap.add_argument("--onde-paramos", metavar="TEXTO")
     ap.add_argument("--inserir-fase", metavar="FASES.json", type=Path)
     ap.add_argument("--cancelar", nargs="+", metavar="FASE", default=[],
@@ -400,6 +440,10 @@ def main() -> int:
               '      use --declarar, que anota a declaração e deixa a caixa aberta.',
               file=sys.stderr)
         return 2
+    if a.substituir_prova and not a.marcar:
+        print("ERRO: --substituir-prova vai junto com --marcar e --prova, que trazem a prova nova",
+              file=sys.stderr)
+        return 2
 
     html = ler(a.guia)
     itens = inventario(html)
@@ -410,6 +454,16 @@ def main() -> int:
     if a.carimbar and not DATA.match(a.carimbar):
         print("ERRO: --carimbar espera DD/MM/AAAA", file=sys.stderr)
         return 2
+
+    if a.marcar:
+        prova, tirou = sem_data_repetida(a.prova, a.carimbar or hoje())
+        if not prova.strip():
+            print("ERRO: --prova sem texto" + (" depois de tirar a data repetida" if tirou else "")
+                  + ". Sem evidência a etapa não fecha.", file=sys.stderr)
+            return 2
+        if tirou:
+            print(f'AVISO: --prova começava com "{a.prova[:len(a.prova) - len(prova)].strip()}", '
+                  "e a nota já carimba a data. A prova entra sem esse começo.", file=sys.stderr)
 
     if a.cancelar and not a.motivo:
         print("ERRO: --cancelar exige --motivo. Fase que morre sem motivo escrito vira\n       caixa orfa daqui a um mes, que e o problema que este comando existe para evitar.",
@@ -495,7 +549,7 @@ def main() -> int:
         data = a.carimbar or hoje()
         for i in sorted([x for x in a.marcar if x in indice],
                         key=lambda i: -indice[i]["span"][0]):
-            html, msg = provar(html, indice[i], data, a.prova)
+            html, msg = provar(html, indice[i], data, a.prova, a.substituir_prova)
             mudancas.append(msg)
         itens = inventario(html)
 

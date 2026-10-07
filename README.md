@@ -101,10 +101,11 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 | `assets/templates/` | Templates de `CLAUDE.md`, `HANDOFF.md`, `SESSION.md` e `lessons.md` |
 | `assets/guia/` | Os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens `bera`, `neutro` e `almapbbdo` |
 | `scripts/novo_projeto.py` | Cria ou adota um projeto a partir dos templates, sem sobrescrever |
-| `scripts/progresso.py` | Lista, marca, desmarca, declara sem prova, fecha, reabre, cancela e insere fase, reescreve "Onde paramos", carimba data, valida consistência |
+| `scripts/progresso.py` | Lista, marca, substitui prova, desmarca, declara sem prova, fecha, reabre, cancela e insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | Deriva o HTML publicável, embute documento do repo e imprime o mapa `files` das imagens, que sobem como arquivo. Recusa acima de 16 MB. O projeto recebe um invocador, não uma cópia |
 | `scripts/mapa.py` | Lê os guias pelo `progresso.py` e desenha o mapa, sem marcar nada |
 | `scripts/documento.py` | Monta consultivo ou passo a passo a partir de um JSON de conteúdo |
+| `tests/` | Testes do `progresso.py` em unittest, só stdlib: `python3 -m unittest discover -s tests` na raiz |
 | `evals/` | Casos de teste da skill e o projeto de exemplo `radio-pirata` |
 
 ## Licença
