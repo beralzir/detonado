@@ -70,6 +70,22 @@ link para os dotfiles do `linux-kit`. A recusa é anterior a qualquer rodada, en
 mensagem diz o caminho: o conteúdo do cofre precisa estar num diretório comum, e só a raiz dele
 pode ser link. É decisão de setup, não da skill.
 
+## Os três casos da prancheta, e o scaffold que não montou
+
+`prancheta-aprovacao-velha` (marca mudada depois da aprovação: não registrar como aprovado),
+`prancheta-fato-sem-fonte` (o gate reprova e a fonte não se inventa) e `prancheta-sem-projeto`
+(pergunta antes de montar). Os erros plantados do próprio script estão em
+`tests/test_prancheta.py`, sem custo de cota.
+
+Em 17/10/2026, no MacBook M5 com o Claude Code 2.1.286, o `claude plugin eval --scaffold` rodou os
+dois casos com `case.yaml`, mas a rodada abriu vazia, só com `.claude/`: o `scaffold.sh` não
+montou a fixture no diretório da rodada. A skill fez o certo pela regra dela (projeto que não
+existe nesta máquina não se cria) e o juiz reprovou, por construção. É resultado inconclusivo,
+não reprovação da skill. Os dois casos rodaram então pelo runner da bancada
+(`skills-bera/detonado-workspace/prancheta-v1/evals-agente/run_erros.sh`), que roda o mesmo
+`scaffold.sh` numa pasta e chama `claude -p` nela, com checagem objetiva. O `prancheta-sem-projeto`,
+que não depende de scaffold, passou pelo `claude plugin eval`.
+
 ## Dívida: os 12 casos do `evals.json`
 
 O `evals.json` na raiz desta pasta tem 12 casos escritos antes desta estrutura existir, e

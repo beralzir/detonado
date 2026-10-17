@@ -66,6 +66,12 @@ vale e qual não vale, e aí o guia vivo deixa de significar alguma coisa.
 | Guia consultivo | nenhum | não existe | ninguém |
 | Passo a passo | marca efêmera de quem lê | `localStorage` do navegador daquela pessoa | quem está lendo |
 | Mapa | nenhum, só lê | não existe | ninguém |
+| Prancheta | decisão do Bera a caminho do registro | `db` do Artifact, lido de volta e commitado no projeto | o Bera marca, o Claude lê e registra |
+
+A prancheta tem estado e por isso não é documento: é modo próprio, em `references/prancheta.md`.
+O estado dela não é progresso provado nem marca de leitura. É a decisão do Bera indo do quadro
+para o registro do projeto, como a anotação por `db` do guia vivo, só que a página inteira, e
+depois de aprovada ela vira registro só leitura.
 
 ## Guia consultivo
 

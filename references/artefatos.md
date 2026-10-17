@@ -1,6 +1,6 @@
 # Os artefatos
 
-Cinco nascem com o projeto e três são opcionais. O que vai em cada um, quando atualizar, o
+Cinco nascem com o projeto e quatro são opcionais. O que vai em cada um, quando atualizar, o
 que nunca entra. Templates em `assets/templates/`.
 
 | Artefato | Papel | Atualiza quando | Apagável |
@@ -13,6 +13,7 @@ que nunca entra. Templates em `assets/templates/`.
 | `docs/mapa-<projeto>/` | Mapa, a foto datada de todos os guias. Opcional | quando quiser a foto | sim, é foto |
 | `docs/consultivo-<nome>/` | Guia consultivo: decide, sem estado nenhum. Opcional | quando a recomendação mudar | sim |
 | `docs/passo-<nome>/` | Passo a passo: receita reusável, marca efêmera no navegador. Opcional | quando o procedimento mudar | sim |
+| `docs/prancheta-<nome>/` | Prancheta de aprovação de um plano: conteúdo, página e a pasta `lido/` com o que voltou do `db`. Opcional, ver `references/prancheta.md` | ao pedir a aprovação, e de novo ao aprovar (versão só leitura) | não, aprovada é o registro da aprovação |
 
 ## CLAUDE.md
 

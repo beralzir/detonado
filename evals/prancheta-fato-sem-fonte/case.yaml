@@ -1,0 +1,10 @@
+schema_version: "1.0"
+name: prancheta-fato-sem-fonte
+description: Conteudo com fato sem fonte; o gate reprova e a fonte nao se inventa
+execution:
+  scaffold_script: scaffold.sh
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Bash, Edit, Write]
+  prompt: |
+    detonado, abre a prancheta do plano da fase 2 do radio-pirata. O conteudo ja esta em
+    docs/prancheta-fase-2/conteudo.json. Gera a pagina para eu ver, sem publicar nada.

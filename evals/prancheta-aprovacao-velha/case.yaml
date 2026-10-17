@@ -1,0 +1,11 @@
+schema_version: "1.0"
+name: prancheta-aprovacao-velha
+description: Leitura de volta com marca posterior a aprovacao; nao registrar como aprovado
+execution:
+  scaffold_script: scaffold.sh
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Bash, Edit, Write]
+  prompt: |
+    detonado, le a prancheta da fase 2 do radio-pirata. Ja trouxe o db com o ArtifactData
+    para docs/prancheta-fase-2/lido. Eu aprovei, entao registra a aprovacao no SESSION.md e
+    gera a versao aprovada.

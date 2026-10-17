@@ -1,6 +1,6 @@
 ---
 name: detonado
-description: "Dá forma a um projeto de execução do Bera: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md e um guia vivo em HTML. Abre ou adota projeto, monta e atualiza o guia, fecha a sessão, registra lição e responde 'onde paramos' lendo o registro. MANUAL-ONLY. Acionar EXCLUSIVAMENTE quando o Bera pedir de forma explícita e nominal, via /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, faz um consultivo sobre X', 'detonado, escreve o passo a passo de X'. Pedidos genéricos de guia, passo a passo, checklist, handoff, checkpoint, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO são gatilho válido; nesses casos responder normalmente e, no máximo, sugerir em texto que o Bera pode chamá-la. Não ativar quando 'detonado' aparecer fora de contexto de projeto (ex.: 'tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
+description: "Dá forma a um projeto de execução do Bera: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md, guia vivo em HTML e prancheta de aprovação de plano. Abre ou adota projeto, monta o guia, fecha a sessão, registra lição, responde 'onde paramos' e lê de volta a prancheta. MANUAL-ONLY. Acionar EXCLUSIVAMENTE com pedido nominal: /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, faz um consultivo sobre X', 'detonado, escreve o passo a passo de X', 'detonado, abre a prancheta do plano', 'detonado, lê a prancheta'. Pedido genérico de guia, passo a passo, checklist, handoff, checkpoint, quadro de aprovação, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO é gatilho: responder normalmente e, no máximo, sugerir a skill em texto. Não ativar com 'detonado' fora de projeto ('tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
 ---
 
 # detonado
@@ -31,8 +31,8 @@ ler um caminho que não existe. Projeto, guia e registro não dependem da bancad
 
 Detecte o modo pelo pedido. Se o pedido não cabe em nenhum, pergunte antes de tocar em arquivo.
 
-**Sete modos são de projeto e um não é.** `abrir`, `adotar`, `guia`, `fechar`, `retomar`,
-`lição` e `mapa` exigem projeto nomeado: sem ele, pergunte. O **documento** não é de projeto
+**Oito modos são de projeto e um não é.** `abrir`, `adotar`, `guia`, `fechar`, `retomar`,
+`lição`, `mapa` e `prancheta` exigem projeto nomeado: sem ele, pergunte. O **documento** não é de projeto
 nenhum, é receita ou recomendação que se reusa, então o que ele exige é outra coisa: o tipo
 (consultivo ou passo a passo) e o **destino**. Sem destino explícito, pergunte onde escrever.
 Nunca deixe o `--dir` cair no diretório da sessão, que quase nunca é o lugar certo.
@@ -42,7 +42,13 @@ O que separa é se aquilo vai ser **acompanhado** ou **seguido**: guia vivo acom
 e o progresso dele é fato registrado, passo a passo é receita que alguém segue muitas vezes, e
 consultivo decide uma questão. Na dúvida, pergunte qual dos dois antes de escolher o modo.
 
-Em **retomar**, **guia**, **fechar** e **mapa**, projeto nomeado cujo diretório
+**`abrir` ou `prancheta`, quando o pedido diz "abre".** "Abre o detonado do homelab" é abrir: o
+projeto nasce. "Abre a prancheta do plano" é prancheta: o projeto já existe, e o que se abre é a
+aprovação de um plano dele. **`prancheta` ou consultivo, quando os dois decidem.** O consultivo
+decide uma questão e não guarda nada. A prancheta aprova um plano inteiro, passo a passo, e o que
+o Bera marca nela volta para o registro do projeto.
+
+Em **retomar**, **guia**, **fechar**, **mapa** e **prancheta**, projeto nomeado cujo diretório
 não existe nesta máquina não se cria: leia `<bancada>/marvin/projetos/<nome>.md`, diga em que
 máquina ele mora e pare aí. Ler o Marvin é permitido, escrever nele não; sem bancada, diga que o
 ponteiro não está nesta máquina. Em **abrir**, o diretório não existir é a premissa do modo, não
@@ -58,6 +64,7 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
 | **retomar** | "chama o detonado, onde paramos?" | Lê HANDOFF e SESSION, roda a sanidade, responde curto | `references/retomada.md` |
 | **mapa** | "detonado, desenha o mapa" | Foto datada dos guias vivos de um projeto: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada | `references/mapa.md` |
 | **documento** | "detonado, faz um consultivo sobre X" | Guia consultivo (decide, sem estado) ou passo a passo (receita, marca efêmera). Nenhum dos dois tem progresso de projeto, e nenhum é de projeto nenhum | `references/documentos.md` |
+| **prancheta** | "detonado, abre a prancheta do plano", "detonado, lê a prancheta" | Prancheta de aprovação de um plano: o Bera marca só o que muda, aprova no próprio quadro com data e hora, e o Claude lê de volta pelo `db` do Artifact, registra no projeto e republica a versão aprovada | `references/prancheta.md` |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" até virar padrão | `references/artefatos.md` |
 
 ## Princípios
@@ -80,7 +87,8 @@ adotar. Pergunta redutível a até 4 opções vai por `AskUserQuestion`.
    script: marcar, substituir a prova de etapa já marcada, desmarcar, declarar sem prova,
    fechar e reabrir fase, cancelar fase, inserir fase, reescrever o bloco "Onde paramos",
    trocar o texto dos cartões dele e carimbar a data são `progresso.py`. Estrutura inicial e
-   imagens embutidas são `novo_projeto.py` e `build_artifact.py`, e documento sem estado é `documento.py`. O que sobra para
+   imagens embutidas são `novo_projeto.py` e `build_artifact.py`, documento sem estado é
+   `documento.py`, e a prancheta, aberta ou aprovada, é `prancheta.py`. O que sobra para
    edição à mão é a prosa livre das seções (parágrafos, tabelas, blocos de comando), e depois
    dela `progresso.py --listar` tem que sair limpo; se não sair, conserte antes de commitar. Tocar em `checked` ou `data-done` à mão é o
    jeito de o guia divergir.
@@ -150,6 +158,23 @@ que não mudam: o SESSION vem primeiro, com tabela item e prova; o HANDOFF só s
 de retomada mudou; o commit leva só os artefatos desta skill, adicionados por caminho. No
 retomar, as divergências do registro vêm antes do núcleo, e o núcleo cabe em quatro linhas.
 
+## Prancheta, em cinco regras
+
+Ciclo, JSON, leitura de volta e as duas lições do uso real em `references/prancheta.md`.
+
+- **A prancheta não faz o plano, dá forma à aprovação dele.** O plano vem da `daquele-jeito` ou
+  do fatiamento de `references/metodo.md`. O padrão é a recomendação: o Bera marca só o que muda.
+- **Conteúdo em JSON, página pelo `prancheta.py`, `--dry-run` antes.** Passo sem "pronto quando",
+  fato sem fonte, opção fora sem o porquê e mais de quatro perguntas reprovam com saída 2.
+- **Publicar só com ok do Bera**, com `capabilities: {db: {}, user: {}}`, e logo depois sondar o
+  `db` (gravar, ler e apagar um documento de sonda). Nada se grava em nome do Bera: o Claude só
+  escreve no `db` as respostas que o Bera deu no chat.
+- **Aprovação vale com data e hora, lida de volta.** Ela acontece na prancheta, com confirmação,
+  nunca por resposta rápida no chat. `prancheta.py --estado` com saída 3 (pendente, desfeita ou
+  com marca posterior) não se registra como aprovado: diga ao Bera o que falta.
+- **Aprovada, ela vira registro.** O resumo vai para o SESSION.md, a versão só leitura sai do
+  `--estado`, é republicada na mesma URL e commitada por caminho. Mudar depois é rodada nova.
+
 ## Regras default
 
 1. **Pergunte quando o projeto, a fase ou a prova esperada não estiverem claros.** Sem projeto
@@ -193,8 +218,10 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `references/mapa.md` | mapa: anatomia das seções, o que é foto e o que é vivo, honestidade das datas |
 | `scripts/mapa.py` | mapa: lê os guias por `progresso.py` e desenha. `--dry-run` antes, `--dir` para outro projeto |
 | `scripts/documento.py` | documento: monta consultivo ou passo a passo a partir de um JSON de conteúdo. `--dry-run` antes |
+| `references/prancheta.md` | prancheta: quando usar, ciclo de publicar a registrar, JSON, estado no `db`, leitura de volta pelo `ArtifactData`, sonda |
+| `scripts/prancheta.py` | prancheta: monta a partir do JSON, `--dry-run` antes, e `--estado` confere o que voltou do `db`, imprime o resumo para o registro e gera a versão aprovada |
 | `assets/guia/mapa.template.html` | mapa: template, que injeta o CSS do `guia.template.html` para os dois não divergirem |
 | `scripts/progresso.py` | guia e fechar: lista, marca, substitui prova, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos" e o texto dos cartões, carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML, embute documento do repo e imprime o mapa `files` das imagens. O projeto recebe um invocador, não uma cópia |
 | `assets/templates/` | os quatro templates em markdown |
-| `assets/guia/` | os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens |
+| `assets/guia/` | os seis templates de HTML (guia, fase, mapa, consultivo, passo a passo, prancheta) e os tokens, com o `neutro-claro.css` que só a prancheta usa |

@@ -40,6 +40,7 @@ O método nasceu num projeto real, a migração de um PC para servidor pessoal d
 | **mapa** | "detonado, desenha o mapa" | Foto datada dos guias vivos do projeto: tiles, linha do tempo, o que trava o quê. Só lê, não marca nada |
 | **documento** | "detonado, faz um consultivo sobre X", "detonado, escreve o passo a passo de X" | Guia consultivo (decide, sem estado) ou passo a passo (receita que se reusa). Não é de projeto nenhum, e sem destino explícito pergunta onde escrever |
 | **lição** | "detonado, registra essa lição" | `tasks/lessons.md`, marcada "a confirmar" |
+| **prancheta** | "detonado, abre a prancheta do plano", "detonado, lê a prancheta" | Prancheta de aprovação de um plano, publicada como Artifact com memória: o autor marca só o que muda (Manter, Ajustar ou Cortar, Incluir ou Fora, Ok ou Vetar, fases antecipadas ou adiadas com cascata) e aprova no próprio quadro, com data e hora. O Claude lê as marcas de volta, registra no projeto e republica a versão aprovada, só leitura |
 
 Os cinco artefatos de um projeto: `CLAUDE.md`, `HANDOFF.md`, `SESSION.md`, `tasks/lessons.md`
 e `docs/guia-<projeto>/`. O que vai em cada um está em `references/artefatos.md`.
@@ -56,7 +57,9 @@ o mapa `files` pronto para o publish.
 
 Os tokens visuais ficam em `assets/guia/tokens/`: `bera.css` traz a marca do autor, `neutro.css`
 é o fallback sem marca, e `almapbbdo.css` é o tema claro da AlmapBBDO, só para consultivo e passo
-a passo (`documento.py --tokens almapbbdo`). Trocar de marca é trocar o arquivo. O template passou pelo detector
+a passo (`documento.py --tokens almapbbdo`). A prancheta usa os dois temas do neutro, o
+`neutro-claro.css` e o `neutro.css`, com duas séries para a linha do tempo validadas nos dois
+pelo script da skill `dataviz`. Trocar de marca é trocar o arquivo. O template passou pelo detector
 anti-slop da `impeccable` e pela auditoria de acessibilidade do `cão-guia` (axe-core, contraste e
 daltonismo medidos) antes de entrar aqui.
 
@@ -75,7 +78,8 @@ daltonismo medidos) antes de entrar aqui.
 Manual-only, por decisão do autor. Dispara só quando nomeada: `/detonado`, "usa o detonado",
 "chama o detonado", "abre o detonado do <projeto>", "detonado, fecha a sessão", "detonado,
 desenha o mapa", "detonado, faz um consultivo sobre X", "detonado, escreve o passo a passo de
-X". Pedido genérico de guia, handoff, checklist ou "onde paramos" não dispara.
+X", "detonado, abre a prancheta do plano", "detonado, lê a prancheta". Pedido genérico de guia,
+handoff, checklist, quadro de aprovação ou "onde paramos" não dispara.
 
 ## Instalação
 
@@ -98,14 +102,16 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 | `references/retomada.md` | Rituais de fechar e retomar, mensagem para colar no celular |
 | `references/mapa.md` | Anatomia do mapa, o que é foto e o que é vivo, honestidade das datas |
 | `references/documentos.md` | A regra que separa as famílias, o que consultivo e passo a passo têm e não têm |
+| `references/prancheta.md` | A prancheta de aprovação: quando usar, ciclo de publicar a registrar, JSON, estado no `db`, leitura de volta, as duas lições do uso real |
 | `assets/templates/` | Templates de `CLAUDE.md`, `HANDOFF.md`, `SESSION.md` e `lessons.md` |
-| `assets/guia/` | Os cinco templates de HTML (guia, fase, mapa, consultivo, passo a passo) e os tokens `bera`, `neutro` e `almapbbdo` |
+| `assets/guia/` | Os seis templates de HTML (guia, fase, mapa, consultivo, passo a passo, prancheta) e os tokens `bera`, `neutro`, `neutro-claro` e `almapbbdo` |
 | `scripts/novo_projeto.py` | Cria ou adota um projeto a partir dos templates, sem sobrescrever |
 | `scripts/progresso.py` | Lista, marca, substitui prova, desmarca, declara sem prova, fecha, reabre, cancela e insere fase, reescreve "Onde paramos", carimba data, valida consistência |
 | `scripts/build_artifact.py` | Deriva o HTML publicável, embute documento do repo e imprime o mapa `files` das imagens, que sobem como arquivo. Recusa acima de 16 MB. O projeto recebe um invocador, não uma cópia |
 | `scripts/mapa.py` | Lê os guias pelo `progresso.py` e desenha o mapa, sem marcar nada |
 | `scripts/documento.py` | Monta consultivo ou passo a passo a partir de um JSON de conteúdo |
-| `tests/` | Testes do `progresso.py` em unittest, só stdlib: `python3 -m unittest discover -s tests` na raiz |
+| `scripts/prancheta.py` | Monta a prancheta a partir de um JSON, confere o estado lido de volta do `db`, imprime o resumo para o registro e gera a versão aprovada |
+| `tests/` | Testes do `progresso.py` e do `prancheta.py` em unittest, só stdlib: `python3 -m unittest discover -s tests` na raiz |
 | `evals/` | Casos de teste da skill e o projeto de exemplo `radio-pirata` |
 
 ## Licença
