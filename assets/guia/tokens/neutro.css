@@ -1,5 +1,10 @@
 /* Tokens neutros, sem marca, para o guia vivo do detonado. Fontes do sistema, sem import.
-   Mesmo contrato do bera.css. Texto pequeno em --t5 mede 5,9:1 sobre --bg (AA). */
+   Mesmo contrato do bera.css. Texto pequeno em --t5 mede 5,9:1 sobre --bg (AA).
+   Tema escuro. O claro do mesmo conjunto e o neutro-claro.css, que so a prancheta usa.
+   --serie-1 e --serie-2 entraram em 17/10/2026 para a linha do tempo da prancheta: o --accent e
+   o --support daqui reprovam como serie no validate_palette.js da dataviz (fora da faixa de
+   luminosidade do escuro, e o azul abaixo do piso de croma). Os dois abaixo passam em todas as
+   checagens sobre --panel e --bg, CVD 23,9. Guia, mapa e documento nao usam as duas. */
 :root{
  /* o wrapper do publish impoe color-scheme:light, e a barra de rolagem vem clara sobre fundo escuro */
  color-scheme:dark;
@@ -9,6 +14,7 @@
  --support:#D7A35B; --support-text:#E3B879; --support-tint:rgba(215,163,91,.07); --support-line:rgba(215,163,91,.3);
  --good:#4CC38A; --good-tint:rgba(76,195,138,.06); --good-line:rgba(76,195,138,.3);
  --bad:#F0706E; --bad-tint:rgba(240,112,110,.07); --bad-line:rgba(240,112,110,.4);
+ --serie-1:#5B92D6; --serie-2:#C2861C;
  --grid-svg:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><path d='M64 0H0V64' fill='none' stroke='%23FFFFFF' stroke-opacity='0.03'/></svg>");
  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;

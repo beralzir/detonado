@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITULO}}</title>
+<style>
+/* Tokens (assets/guia/tokens/ do detonado): claro em :root, escuro no prefers-color-scheme e no data-theme */
+{{TOKENS_CSS}}
+/* Prancheta: coluna de 1040 px com barra de estado fixa. CSS proprio sobre o contrato de tokens:
+   o layout do guia vivo (navegacao lateral, heroi escuro) nao serve aqui. */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent);text-underline-offset:3px}
+p{margin:0}
+ul,ol{margin:0;padding:0}
+code{font-family:var(--mono);font-size:.88em;color:var(--fg);background:var(--pre);padding:1px 5px;overflow-wrap:anywhere}
+strong{font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pular{position:absolute;left:-999px;top:8px;z-index:50;background:var(--panel);color:var(--accent);padding:10px 14px;border:2px solid var(--accent)}
+.pular:focus{left:8px}
+.wrap{max-width:1040px;margin-inline:auto;padding:0 20px 96px}
+@media (max-width:480px){.wrap{padding-inline:16px}}
+
+/* barra fixa */
+.topo{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--l2);padding-top:env(safe-area-inset-top,0px)}
+.topo-in{max-width:1040px;margin-inline:auto;padding:8px 20px 0;display:grid;gap:6px}
+@media (max-width:480px){.topo-in{padding:8px 16px 0}}
+.topo-l1{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 16px;min-width:0}
+.topo-nome{font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;min-width:0}
+.topo-nome #topo-titulo{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tarja{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;font-weight:700;background:var(--fg);color:var(--panel);padding:2px 7px;flex:none}
+.topo-dir{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.cont{font-family:var(--mono);font-size:13px;color:var(--t2);font-variant-numeric:tabular-nums}
+.pilula{font-family:var(--mono);font-size:12.5px;padding:2px 9px;border:1px solid var(--t5);color:var(--t2);white-space:nowrap}
+.pilula[data-s="salvo"],.pilula[data-a="aprovada"]{border-color:var(--good);color:var(--good)}
+.pilula[data-s="erro"],.pilula[data-s="local"],.pilula[data-a="desatualizada"]{border-color:var(--support-text);color:var(--support-text);border-style:dashed}
+.pilula[data-a="aprovada"]{border-width:2px;font-weight:700}
+.nav{display:flex;gap:6px;overflow-x:auto;padding-block:4px 9px;scrollbar-width:thin}
+.nav a{flex:none;font-size:13.5px;text-decoration:none;padding:5px 10px;border:1px solid var(--t5);color:var(--t2);background:var(--panel);min-height:28px;display:inline-flex;align-items:center}
+.nav a:hover{border-color:var(--fg);color:var(--fg)}
+
+/* capa */
+.capa{display:grid;gap:18px;padding-block:32px 28px}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,58px);line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.6vw,32px);line-height:1.1;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h3{font-size:17px;line-height:1.3;margin:0;font-weight:700}
+.lede{font-size:18px;line-height:1.5;max-width:68ch;color:var(--t1)}
+.sub{color:var(--t3);max-width:70ch}
+.uso{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;counter-reset:uso;list-style:none}
+.uso li{background:var(--panel);border:1px solid var(--l2);padding:12px 14px 12px 44px;position:relative;font-size:15px;min-width:0;color:var(--t1)}
+.uso li::before{counter-increment:uso;content:counter(uso);position:absolute;left:13px;top:9px;font:700 24px/1 var(--display);color:var(--t4)}
+.cartao-aprov{border:2px solid var(--t5);background:var(--panel);padding:14px 16px;display:grid;gap:8px}
+.cartao-aprov[data-a="aprovada"]{border-color:var(--good);background:var(--good-tint)}
+.cartao-aprov[data-a="desatualizada"]{border-color:var(--support-text);border-style:dashed;background:var(--support-tint)}
+.cartao-aprov .tit{font-weight:700;font-size:16px}
+.cartao-aprov .det{font-size:14.5px;color:var(--t2)}
+
+/* seções */
+section.bloco{display:grid;gap:18px;padding-block:40px 6px;border-top:1px solid var(--l2);scroll-margin-top:150px}
+.cab{display:grid;gap:8px}
+.cartoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.cartao{background:var(--panel);border:1px solid var(--l2);padding:16px;display:grid;gap:9px;align-content:start;min-width:0}
+.cartao p{font-size:15px;color:var(--t1)}
+.fonte{font-family:var(--mono);font-size:12.5px;color:var(--t3);line-height:1.45;overflow-wrap:anywhere}
+.falta{font-size:14px;color:var(--t2)}
+.nota-fina{font-size:13.5px;color:var(--t3);max-width:76ch}
+.pistas{font-size:14.5px;color:var(--t2);background:var(--hov);padding:12px 14px}
+
+/* selos em forma, não só em cor */
+.selo,.sev{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:2px 8px;border:1.5px solid var(--fg);color:var(--fg);width:max-content;max-width:100%}
+.selo.documentado{border-style:solid}
+.selo.alegado{border-style:dashed}
+.selo.nao_confirmado{border-style:dotted;border-width:2px}
+.selo.misto{border-style:double;border-width:3px}
+.sev.alto{border-width:3px}
+.sev.medio{border-style:dashed}
+.sev.baixo{border-style:dotted;border-width:2px}
+.rec{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--fg);color:var(--panel);padding:2px 7px;width:max-content}
+
+/* listas de linha */
+.linhas{display:grid;border:1px solid var(--l2);background:var(--panel);list-style:none}
+.linhas>li{display:grid;gap:4px 14px;padding:11px 14px;border-top:1px solid var(--l1);font-size:14.5px;align-items:baseline;min-width:0}
+.linhas>li:first-child{border-top:0}
+.pedidos>li{grid-template-columns:2.2rem minmax(0,1fr) auto}
+.pedidos .n{font:700 20px/1 var(--display);color:var(--t4)}
+.pedidos .q{font-family:var(--mono);font-size:13px;color:var(--t2);text-align:right}
+.riscos>li{grid-template-columns:5.5rem minmax(0,1fr) minmax(0,1fr)}
+.acessos>li{grid-template-columns:10rem minmax(0,1fr)}
+.acessos .k{font-weight:700}
+.mit{color:var(--t2)}
+@media (max-width:700px){.pedidos>li{grid-template-columns:2rem minmax(0,1fr)}.pedidos .q{grid-column:2;text-align:left}.riscos>li,.acessos>li{grid-template-columns:minmax(0,1fr)}}
+
+/* linha do tempo */
+.legenda{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;align-items:center;color:var(--t2)}
+.legenda span{display:inline-flex;align-items:center}
+.legenda i{display:inline-block;width:22px;height:10px;margin-right:7px}
+.lg-1{background:var(--serie-1)}
+.lg-2{background:var(--serie-2)}
+.lg-f{width:0!important;height:16px!important;border-left:1.5px dashed var(--t3)}
+.lg-g{border:1.2px dashed var(--t4)}
+.tempo-box{overflow-x:auto;border:1px solid var(--l2);background:var(--panel)}
+.tempo-box:focus-visible{outline-offset:-2px}
+.tempo-box svg{display:block;min-width:720px;width:100%;height:auto}
+.g-dia{font-family:var(--mono);font-size:12px;fill:var(--t3)}
+.g-grade{stroke:var(--l1);stroke-width:1}
+.g-fase{font-family:var(--display);font-weight:700;font-size:16px;fill:var(--fg)}
+.g-fnome{font-size:12.5px;fill:var(--t3)}
+.g-rot,.g-fixat,.g-delta,.g-conf,.g-hojet{paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+.g-rot{font-size:12.5px;fill:var(--fg)}
+.g-s1{fill:var(--serie-1)}
+.g-s2{fill:var(--serie-2)}
+.g-fantasma{fill:none;stroke:var(--t4);stroke-width:1.2;stroke-dasharray:4 3}
+.g-fixa{stroke:var(--t3);stroke-width:1.2;stroke-dasharray:3 3}
+.g-fixat{font-size:12px;font-weight:600;fill:var(--t2)}
+.g-hoje{stroke:var(--fg);stroke-width:1.5}
+.g-hojet{font-family:var(--mono);font-size:11.5px;font-weight:700;fill:var(--fg)}
+.g-delta{font-family:var(--mono);font-size:12px;font-weight:700;fill:var(--fg)}
+.g-conf{font-size:12px;font-weight:700;fill:var(--bad)}
+.g-linha{cursor:default}
+.g-linha:focus{outline:none}
+.g-linha:focus-visible .g-alvo{stroke:var(--accent);stroke-width:2}
+.g-alvo{fill:transparent;stroke:transparent}
+.marcos{display:grid;border:1px solid var(--l2);background:var(--panel);list-style:none}
+.marco{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:12px 14px;border-top:1px solid var(--l1);align-items:center}
+.marco:first-child{border-top:0}
+@media (max-width:700px){.marco{grid-template-columns:minmax(0,1fr)}}
+.mc-txt{display:grid;gap:2px;min-width:0;font-size:14.5px}
+.mc-per{font-family:var(--mono);font-size:13px;color:var(--t2)}
+.mc-causa{font-size:13.5px;color:var(--t2)}
+.mc-conf{font-size:13.5px;font-weight:700;color:var(--bad)}
+.mover{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.mv-val{font-family:var(--mono);font-size:13px;min-width:4.5em;text-align:center;color:var(--fg)}
+.efeito{font-size:14.5px;color:var(--t1);background:var(--hov);padding:12px 14px}
+
+/* fases e passos */
+.fases{display:grid;gap:16px}
+.fase{background:var(--panel);border:1px solid var(--l2);padding:18px 18px 6px;display:grid;gap:4px;scroll-margin-top:150px}
+.fase-cab{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 14px;align-items:center;padding-bottom:8px}
+.fase-n{font:700 38px/.95 var(--display);color:var(--fg)}
+.fase-t{font-size:19px;font-weight:700;line-height:1.25}
+.fase-m{font-family:var(--mono);font-size:13px;color:var(--t2)}
+.fase-pausa{grid-column:1/-1;font-size:14px;color:var(--t2);padding-top:6px}
+.passo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;padding-block:14px;border-top:1px dashed var(--l2);align-items:start}
+@media (max-width:700px){.passo{grid-template-columns:minmax(0,1fr)}}
+.passo-txt{display:grid;gap:6px;min-width:0}
+.passo-tit{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.passo-id{font-family:var(--mono);font-size:12.5px;color:var(--t3)}
+.passo-muda{font-size:15px;color:var(--t1);max-width:70ch}
+.meta{display:grid;gap:2px;font-size:13.5px;color:var(--t2);margin:0}
+.meta div{display:flex;flex-wrap:wrap;gap:0 6px}
+.meta dt{font-weight:700;color:var(--fg)}
+.meta dt::after{content:":"}
+.meta dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.estado{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border:1.5px solid currentColor;width:max-content}
+.e-ajustar{color:var(--support-text)}
+.e-cortar,.e-vetar{color:var(--bad)}
+.e-incluir{color:var(--good)}
+.e-fora{color:var(--t3);border-style:dashed}
+.e-data{color:var(--accent)}
+.e-manter,.e-ok{color:var(--t3)}
+.passo[data-v="cortar"] h3,.premissa[data-v="vetar"] .pm-txt{text-decoration:line-through;text-decoration-thickness:2px}
+.opcao[data-v="fora"]{background:transparent;border-style:dashed}
+
+/* controles */
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--t5);background:var(--panel);width:max-content;max-width:100%;border-radius:var(--radius)}
+.seg input,.chip input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.seg label{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;font-size:14px;font-weight:600;cursor:pointer;color:var(--t2);border-left:1px solid var(--t5);user-select:none}
+.seg label:first-of-type{border-left:0}
+.seg input:checked+label{background:var(--fg);color:var(--panel)}
+.seg input[value="ajustar"]:checked+label{background:var(--support-text)}
+.seg input[value="cortar"]:checked+label,.seg input[value="vetar"]:checked+label{background:var(--bad)}
+.seg input[value="incluir"]:checked+label{background:var(--good)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-4px}
+.seg input:disabled+label{cursor:not-allowed}
+.ajuste{grid-column:1/-1;display:grid;gap:8px;padding:10px 12px;background:var(--hov)}
+.ajuste-rot{font-size:13.5px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{position:relative;display:inline-flex}
+.chip span{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid var(--t5);font-size:14px;cursor:pointer;background:var(--panel);color:var(--t2);user-select:none}
+.chip input:checked+span{border:2px solid var(--fg);font-weight:700;color:var(--fg)}
+.chip input:checked+span::before{content:"\2713";margin-right:6px}
+.chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.chip input:disabled+span{cursor:not-allowed}
+textarea{width:100%;min-height:62px;font:inherit;font-size:15px;line-height:1.45;padding:8px 10px;border:1px solid var(--t5);background:var(--panel);color:var(--fg);resize:vertical}
+textarea::placeholder{color:var(--t4)}
+textarea[readonly]{background:var(--pre)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{min-height:44px;padding:0 18px;border:2px solid var(--fg);background:var(--fg);color:var(--panel);font:700 15px var(--sans);cursor:pointer;border-radius:var(--radius)}
+.btn.sec{background:var(--panel);color:var(--fg)}
+.btn.peq{min-height:36px;padding:0 12px;font-size:14px}
+.btn:disabled{cursor:not-allowed;opacity:.6}
+
+/* onde mora, opções, premissas */
+.casas{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.cam{font-family:var(--mono);font-size:12.5px;color:var(--t2);overflow-wrap:anywhere}
+.papel{font-size:13.5px;font-weight:700}
+.pecas{display:grid;list-style:none}
+.pecas li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 0;border-top:1px solid var(--l1);font-size:14.5px;align-items:baseline}
+.tag{font-family:var(--mono);font-size:11.5px;padding:0 6px;border:1px solid var(--t5);color:var(--t2);white-space:nowrap}
+.tag.novo{border:2px solid var(--fg);color:var(--fg);font-weight:700}
+.fluxos{display:grid;gap:6px;font-size:14.5px;color:var(--t2);list-style:none}
+.fluxos li{padding-left:22px;position:relative}
+.fluxos li::before{content:"\2192";position:absolute;left:0;color:var(--fg)}
+.op-cab{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+.op-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--t2)}
+.premissa{display:grid;grid-template-columns:3rem minmax(0,1fr) auto;gap:8px 14px;padding:12px 14px;border-top:1px solid var(--l1);align-items:start}
+.premissa:first-child{border-top:0}
+@media (max-width:700px){.premissa{grid-template-columns:2.6rem minmax(0,1fr)}.premissa .seg{grid-column:2}}
+.premissa .ajuste{grid-column:2/-1}
+.pm-id{font-family:var(--mono);font-size:12.5px;color:var(--t3);padding-top:2px}
+.pm-txt{font-size:15px;color:var(--t1)}
+
+/* fechar */
+.chat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;list-style:none}
+.chat li{background:var(--panel);border:1.5px solid var(--fg);padding:12px 14px;font-size:14.5px;display:grid;gap:4px;align-content:start}
+.chat .r{font-size:13.5px;color:var(--t2)}
+.chat .resp{font-size:14px;font-weight:700}
+.chat .resp.vazia{font-weight:400;color:var(--t3)}
+.resumo{display:grid;border:1px solid var(--l2);background:var(--panel);list-style:none}
+.resumo li{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:4px 14px;padding:10px 14px;border-top:1px solid var(--l1);font-size:14.5px;align-items:baseline}
+.resumo li:first-child{border-top:0}
+.resumo li.vazio{display:block;color:var(--t2)}
+@media (max-width:480px){.resumo li{grid-template-columns:minmax(0,1fr)}}
+.fim{display:grid;gap:12px;background:var(--panel);border:2px solid var(--fg);padding:18px}
+.confirma{display:grid;gap:10px;border:2px dashed var(--fg);padding:14px;background:var(--hov)}
+.confirma ul{list-style:disc;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
+.aviso{font-size:14px;padding:10px 12px;border:1.5px dashed var(--support-text);color:var(--fg)}
+.fontes{display:grid;gap:6px;font-size:13.5px;color:var(--t2);list-style:none}
+.fontes li{overflow-wrap:anywhere}
+footer.rodape{max-width:1040px;margin:40px auto 0;padding:32px 20px 48px;display:grid;gap:12px;border-top:1px solid var(--l2)}
+@media (max-width:480px){footer.rodape{padding-inline:16px}}
+.dica{position:fixed;z-index:40;max-width:300px;padding:8px 11px;background:var(--fg);color:var(--panel);font-size:13.5px;line-height:1.4;pointer-events:none}
+
+/* alto contraste do sistema: o estado marcado vive no preenchimento, que o SO descarta */
+@media (forced-colors:active){
+ .seg input:checked+label{forced-color-adjust:none;background:Highlight;color:HighlightText}
+ .g-s1,.g-s2{forced-color-adjust:none}
+ .cartao-aprov[data-a="aprovada"]{border-width:4px}
+}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+ <div class="topo-in">
+  <div class="topo-l1">
+   <div class="topo-nome"><span class="tarja" id="tarja" hidden></span><span id="topo-titulo"></span></div>
+   <div class="topo-dir">
+    <span class="cont" id="contadores"></span>
+    <span class="pilula" id="salvo" data-s="conectando" role="status" aria-live="polite">Conectando ao armazenamento…</span>
+    <span class="pilula" id="aprov-pilula" data-a="pendente">Aguardando aprovação</span>
+   </div>
+  </div>
+  <nav class="nav" id="nav" aria-label="Seções da prancheta"></nav>
+ </div>
+</header>
+<main class="wrap" id="conteudo" tabindex="-1">
+<noscript><p class="aviso">Esta prancheta precisa de JavaScript para mostrar o plano e guardar as marcas. O conteúdo está no conteudo.json ao lado deste arquivo.</p></noscript>
+</main>
+<footer class="rodape" id="rodape"></footer>
+<div class="dica" id="dica" role="tooltip" hidden></div>
+<script type="application/json" id="prancheta-dados">{{DADOS}}</script>
+<script>
+(function () {
+'use strict';
+
+var D;
+try { D = JSON.parse(document.getElementById('prancheta-dados').textContent); }
+catch (e) { document.getElementById('conteudo').textContent = 'Os dados desta prancheta não abriram. Gere de novo com o prancheta.py.'; return; }
+var C = D.conteudo, MODO = D.modo;
+var VALORES = {passo: ['manter', 'ajustar', 'cortar'], opcao: ['incluir', 'fora'], premissa: ['ok', 'vetar']};
+var ROT = {manter: 'Manter', ajustar: 'Ajustar', cortar: 'Cortar', incluir: 'Incluir', fora: 'Fora', ok: 'Ok', vetar: 'Vetar'};
+var STATUS = {documentado: 'Documentado', alegado: 'Alegado', nao_confirmado: 'Não confirmado', misto: 'Misto'};
+var SEV = {alto: 'Alto', medio: 'Médio', baixo: 'Baixo'};
+var ESF = {baixo: 'baixo', medio: 'médio', alto: 'alto'};
+var QUEM = {claude: 'Claude executa', voce: 'Sua vez'};
+var LIMITE_MARCO = 30, MAX_NOTA = 2000, MAX_GERAL = 4000, DIA = 86400000;
+var SEM = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+/* ------------------------------------------------------------------ utilidades */
+function $(id) { return document.getElementById(id); }
+function el(tag, attrs, kids) {
+  var e = document.createElement(tag);
+  if (attrs) {
+    Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) { return; }
+      if (k === 'class') { e.className = v; }
+      else if (k === 'text') { e.textContent = v; }
+      else { e.setAttribute(k, v === true ? '' : v); }
+    });
+  }
+  (kids || []).forEach(function (c) {
+    if (c === null || c === undefined || c === false) { return; }
+    e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+var NS = 'http://www.w3.org/2000/svg';
+function sv(tag, attrs, txt) {
+  var e = document.createElementNS(NS, tag);
+  Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+  if (txt !== undefined) { e.textContent = txt; }
+  return e;
+}
+/* Crase vira code e asterisco duplo vira negrito, sempre por nó de texto: o conteúdo nunca vira marcação. */
+function rico(s) {
+  var f = document.createDocumentFragment();
+  String(s === null || s === undefined ? '' : s).split(/(`[^`]+`|\*\*[^*]+\*\*)/).forEach(function (p) {
+    if (!p) { return; }
+    if (p.length > 2 && p.charAt(0) === '`' && p.charAt(p.length - 1) === '`') { f.appendChild(el('code', {text: p.slice(1, -1)})); }
+    else if (p.length > 4 && p.slice(0, 2) === '**' && p.slice(-2) === '**') { f.appendChild(el('strong', {text: p.slice(2, -2)})); }
+    else { f.appendChild(document.createTextNode(p)); }
+  });
+  return f;
+}
+function p2(n) { return (n < 10 ? '0' : '') + n; }
+function quandoTxt(iso) {
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) { return ''; }
+  return p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear() + ' às ' + p2(d.getHours()) + 'h' + p2(d.getMinutes());
+}
+function resumir(t, n) { t = String(t); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+$/, '') + '…'; }
+function dias(n) { var a = Math.abs(n); return a + (a === 1 ? ' dia' : ' dias'); }
+function sinal(n) { return n > 0 ? '+' + dias(n) : (n < 0 ? '−' + dias(n) : '0'); }
+function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+/* ------------------------------------------------------------------ cronograma */
+function diaUTC(iso) { var p = iso.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
+// <cronograma> (a mesma conta do prancheta.py: os testes comparam as duas)
+function cronograma(linhas, marcos) {
+  var out = {};
+  linhas.forEach(function (ln) {
+    var proprio = Math.trunc(marcos[ln.id] || 0), herdado = 0, causa = null;
+    ln.deps.forEach(function (dep) {
+      if (out[dep] && (causa === null || out[dep].efetivo > herdado)) { herdado = out[dep].efetivo; causa = dep; }
+    });
+    if (causa !== null && herdado === 0) { causa = null; }
+    var efetivo = proprio + herdado;
+    out[ln.id] = {proprio: proprio, efetivo: efetivo, ini: ln.ini + efetivo, fim: ln.ini + efetivo + ln.dur, causa: causa};
+  });
+  return out;
+}
+// </cronograma>
+var COM_AGENDA = C.fases.filter(function (f) { return f.agenda; });
+var ORIGEM = null, LINHAS = [], FIXAS = [], FASES = {};
+C.fases.forEach(function (f) { FASES[f.id] = f; });
+if (COM_AGENDA.length) {
+  ORIGEM = Math.min.apply(null, COM_AGENDA.map(function (f) { return diaUTC(f.agenda.inicio); }));
+  var anterior = null;
+  COM_AGENDA.forEach(function (f) {
+    var ag = f.agenda;
+    LINHAS.push({id: f.id, ini: (diaUTC(ag.inicio) - ORIGEM) / DIA, deps: ag.depois_de ? ag.depois_de : (anterior ? [anterior] : []),
+      dur: ag.segmentos.reduce(function (a, s) { return a + s.dias; }, 0), segs: ag.segmentos});
+    anterior = f.id;
+  });
+  ((C.linha_do_tempo || {}).datas_fixas || []).forEach(function (df) {
+    FIXAS.push({id: df.id, rotulo: df.rotulo, pos: (diaUTC(df.data) - ORIGEM) / DIA});
+  });
+}
+function diaData(pos) { return new Date(ORIGEM + Math.floor(pos + 1e-9) * DIA); }
+function ddmm(d) { return p2(d.getUTCDate()) + '/' + p2(d.getUTCMonth() + 1); }
+function periodoTxt(ini, fim) {
+  var a = Math.floor(ini + 1e-9), b = Math.max(Math.ceil(fim - 1e-9) - 1, a);
+  var da = diaData(a), db_ = diaData(b);
+  if (a === b) { return ddmm(da); }
+  if (da.getUTCMonth() === db_.getUTCMonth() && da.getUTCFullYear() === db_.getUTCFullYear()) { return p2(da.getUTCDate()) + ' a ' + ddmm(db_); }
+  return ddmm(da) + ' a ' + ddmm(db_);
+}
+function fixa(id) { for (var i = 0; i < FIXAS.length; i++) { if (FIXAS[i].id === id) { return FIXAS[i]; } } return null; }
+function quemTxt(segs) {
+  var q = [];
+  segs.forEach(function (s) { var t = s.quem === 'claude' ? 'Claude' : 'você'; if (q[q.length - 1] !== t) { q.push(t); } });
+  return q.length === 1 ? (q[0] === 'você' ? 'Sua vez' : 'Claude executa') : q.join(', depois ');
+}
+
+/* ------------------------------------------------------------------ registro do que se marca */
+var REG = {}, ORDEM = [], S = {};
+function reg(id, tipo, padrao, rotulo) {
+  REG[id] = {tipo: tipo, padrao: padrao, rotulo: rotulo};
+  ORDEM.push(id);
+  S[id] = {valor: padrao, atalhos: [], nota: '', em: null};
+}
+C.fases.forEach(function (f) { f.passos.forEach(function (p) { reg(p.id, 'passo', 'manter', p.id.toUpperCase() + ' · ' + p.titulo); }); });
+COM_AGENDA.forEach(function (f) { reg('m-' + f.id, 'marco', 0, f.rotulo + ' · ' + f.titulo); });
+(C.opcoes || []).forEach(function (o) { reg(o.id, 'opcao', o.recomendada ? 'incluir' : 'fora', 'Opção · ' + o.titulo); });
+(C.premissas || []).forEach(function (p) { reg(p.id, 'premissa', 'ok', p.id.toUpperCase() + ' · ' + resumir(p.texto, 90)); });
+function permitidos(id, valor) { return REG[id].tipo === 'passo' ? (C.atalhos[valor] || []) : []; }
+function marcosAtuais() {
+  var m = {};
+  COM_AGENDA.forEach(function (f) { m[f.id] = S['m-' + f.id].valor; });
+  return m;
+}
+
+var APROV = null, GERAL = {nota: '', em: null}, CHAT = {};
+var db = null, podeEscrever = MODO !== 'aprovado', meuId = null, pronto = false;
+var emVoo = {}, pendente = {}, timers = {};
+
+/* ------------------------------------------------------------------ montagem da página */
+var SECOES = [];
+function secao(id, titulo, curto, sub, kids) {
+  SECOES.push([id, curto]);
+  var h = 'h-' + id;
+  return el('section', {class: 'bloco', id: id, 'aria-labelledby': h}, [
+    el('div', {class: 'cab'}, [el('h2', {id: h, text: titulo}), sub ? el('p', {class: 'sub'}, [rico(sub)]) : null])
+  ].concat(kids));
+}
+function seg(id, opcoes, rotulo) {
+  var g = el('div', {class: 'seg', role: 'radiogroup', 'aria-label': rotulo});
+  opcoes.forEach(function (v) {
+    var rid = 'r-' + id + '-' + v;
+    g.appendChild(el('input', {type: 'radio', name: 'v-' + id, id: rid, value: v, 'data-id': id}));
+    g.appendChild(el('label', {for: rid, text: ROT[v]}));
+  });
+  return g;
+}
+function chips(id, grupo, tags, rotulo) {
+  var rid = 'cr-' + id + '-' + grupo;
+  var box = el('div', {class: 'aj-' + grupo}, [el('span', {class: 'ajuste-rot', id: rid, text: rotulo})]);
+  var g = el('div', {class: 'chips', role: 'group', 'aria-labelledby': rid});
+  tags.forEach(function (t, i) {
+    var cid = 't-' + id + '-' + grupo + '-' + i;
+    g.appendChild(el('label', {class: 'chip', for: cid}, [el('input', {type: 'checkbox', id: cid, 'data-id': id, 'data-tag': t}), el('span', {text: t})]));
+  });
+  box.appendChild(g);
+  return box;
+}
+function painel(id, comChips, rotuloNota) {
+  var p = el('div', {class: 'ajuste', id: 'aj-' + id, hidden: true});
+  if (comChips) {
+    p.appendChild(chips(id, 'ajustar', C.atalhos.ajustar, 'O que ajustar'));
+    p.appendChild(chips(id, 'cortar', C.atalhos.cortar, 'Por que cortar'));
+  }
+  p.appendChild(el('label', {class: 'ajuste-rot', for: 'n-' + id, text: rotuloNota || 'Nota curta (opcional)'}));
+  p.appendChild(el('textarea', {id: 'n-' + id, 'data-id': id, maxlength: String(MAX_NOTA), placeholder: 'Se quiser, diga em poucas palavras'}));
+  return p;
+}
+function meta(pares) {
+  var dl = el('dl', {class: 'meta'});
+  pares.forEach(function (p) { if (p[1]) { dl.appendChild(el('div', null, [el('dt', {text: p[0]}), el('dd', null, [rico(p[1])])])); } });
+  return dl;
+}
+
+function montaCapa(main) {
+  var uso3 = [];
+  if ((C.opcoes || []).length) { uso3.push('Nas opções, **Incluir** ou **Fora**.'); }
+  if ((C.premissas || []).length) { uso3.push('Nas premissas, **Ok** ou **Vetar**.'); }
+  if (COM_AGENDA.length) { uso3.push('Na linha do tempo, antecipe ou adie uma fase e veja as seguintes andarem junto.'); }
+  if (!uso3.length) { uso3.push('O que não couber nos controles vai no comentário geral, no fim.'); }
+  var gerado = quandoTxt(D.gerado_em);
+  main.appendChild(el('div', {class: 'capa'}, [
+    el('p', {class: 'eyebrow', text: C.eyebrow || (C.projeto + ' · prancheta de aprovação · gerada em ' + gerado.split(' ')[0])}),
+    el('h1', {text: C.titulo}),
+    el('p', {class: 'lede'}, [rico(C.lede)]),
+    el('ol', {class: 'uso', 'aria-label': 'Como usar esta prancheta'}, [
+      el('li', null, [rico('Leia de cima para baixo. O padrão é a recomendação: **marque só o que quer mudar**.')]),
+      el('li', null, [rico('Em cada passo, **Manter**, **Ajustar** ou **Cortar**. Ajustar e Cortar abrem atalhos e uma nota curta.')]),
+      el('li', null, [rico(uso3.join(' '))]),
+      el('li', null, [rico('No fim, toque em **Aprovar o plano** e confirme. A aprovação fica registrada aqui, com data e hora.')])
+    ]),
+    el('div', {class: 'cartao-aprov', id: 'aprov-capa', 'data-a': 'pendente'}, [el('p', {class: 'tit', id: 'aprov-capa-tit'}), el('p', {class: 'det', id: 'aprov-capa-det'}),
+      el('ul', {class: 'det', id: 'aprov-capa-lista', hidden: true, style: 'list-style:disc;padding-left:20px;display:grid;gap:2px'})])
+  ]));
+}
+
+function montaPedidos(main) {
+  if (!(C.pedidos || []).length) { return; }
+  var ol = el('ol', {class: 'linhas pedidos'});
+  C.pedidos.forEach(function (p, i) {
+    ol.appendChild(el('li', null, [el('span', {class: 'n', 'aria-hidden': 'true', text: String(i + 1)}), el('span', null, [rico(p.texto)]),
+      el('span', {class: 'q'}, [el('span', {class: 'sr', text: 'Onde entra: '}), rico(p.fases)])]));
+  });
+  main.appendChild(secao('pedidos', 'Seus pedidos e onde cada um entra', 'Pedidos', 'Na ordem em que você pediu. À direita, em que fase cada pedido é feito.', [ol]));
+}
+
+function montaFatos(main) {
+  if (!(C.fatos || []).length && !C.pistas) { return; }
+  var box = el('div', {class: 'cartoes'});
+  (C.fatos || []).forEach(function (f) {
+    box.appendChild(el('article', {class: 'cartao'}, [
+      el('span', {class: 'selo ' + f.status, text: f.selo || STATUS[f.status]}),
+      el('h3', {text: f.titulo}), el('p', null, [rico(f.texto)]),
+      f.falta ? el('p', {class: 'falta'}, [el('strong', {text: 'Falta: '}), rico(f.falta)]) : null,
+      el('p', {class: 'fonte'}, [el('span', {class: 'sr', text: 'Fonte: '}), rico(f.fonte)])
+    ]));
+  });
+  var kids = [box];
+  if (C.pistas) { kids.push(el('p', {class: 'pistas'}, [el('strong', {text: 'Pistas ainda sem status: '}), rico(C.pistas)])); }
+  main.appendChild(secao('fatos', 'O que foi verificado antes do plano', 'Fatos', 'A borda do selo repete o status em forma: sólida para documentado, tracejada para alegado, pontilhada para não confirmado, dupla para misto.', kids));
+}
+
+function montaTempo(main) {
+  if (!COM_AGENDA.length) { return; }
+  var nomeTempo = 'Linha do tempo das fases, em dias';
+  var box = el('div', {class: 'tempo-box', role: 'region', 'aria-label': nomeTempo + ', rolável na horizontal', tabindex: '0'});
+  var svg = sv('svg', {id: 'tempo-svg', viewBox: '0 0 1000 300', role: 'group', 'aria-labelledby': 'tempo-t tempo-d'});
+  box.appendChild(svg);
+  var lista = el('ul', {class: 'marcos', id: 'marcos', 'aria-label': 'Fases na linha do tempo, com os controles para antecipar ou adiar'});
+  COM_AGENDA.forEach(function (f) {
+    var id = 'm-' + f.id, nome = f.rotulo + ' · ' + f.titulo;
+    lista.appendChild(el('li', {class: 'marco', id: 'mc-' + f.id}, [
+      el('div', {class: 'mc-txt'}, [el('strong', {text: nome}), el('span', {class: 'mc-per', id: 'mc-per-' + f.id}),
+        el('span', {class: 'mc-causa', id: 'mc-causa-' + f.id}), el('span', {class: 'mc-conf', id: 'mc-conf-' + f.id, hidden: true})]),
+      el('div', {class: 'mover', role: 'group', 'aria-label': 'Mover ' + nome}, [
+        el('button', {type: 'button', class: 'btn sec peq mv', 'data-fase': f.id, 'data-mv': '-1', 'aria-label': 'Antecipar ' + f.rotulo + ' em um dia', text: 'Antecipar'}),
+        el('span', {class: 'mv-val', id: 'mv-val-' + f.id, 'aria-hidden': 'true', text: '0'}),
+        el('button', {type: 'button', class: 'btn sec peq mv', 'data-fase': f.id, 'data-mv': '1', 'aria-label': 'Adiar ' + f.rotulo + ' em um dia', text: 'Adiar'}),
+        el('button', {type: 'button', class: 'btn sec peq mv', 'data-fase': f.id, 'data-mv': '0', 'aria-label': 'Voltar ' + f.rotulo + ' à data recomendada', text: 'Recomendada'})
+      ]),
+      painel(id, false, 'Por que mudar a data (opcional)')
+    ]));
+  });
+  var nota = (C.linha_do_tempo || {}).nota;
+  main.appendChild(secao('tempo', 'Linha do tempo', 'Linha do tempo', 'Cada barra é uma fase na escala dos dias, e a cor diz quem faz o trecho. Linhas tracejadas são datas fixas. Antecipe ou adie uma fase na lista: as que dependem dela andam junto, e a posição recomendada fica tracejada.', [
+    el('div', {class: 'legenda', 'aria-hidden': 'true'}, [
+      el('span', null, [el('i', {class: 'lg-1'}), 'Claude executa']), el('span', null, [el('i', {class: 'lg-2'}), 'Sua vez: aprovar, revisar, escolher']),
+      el('span', null, [el('i', {class: 'lg-f'}), 'Data fixa']), el('span', null, [el('i', {class: 'lg-g'}), 'Posição recomendada'])]),
+    box, nota ? el('p', {class: 'nota-fina'}, [rico(nota)]) : null, lista,
+    el('p', {class: 'efeito', id: 'efeito', 'aria-live': 'polite'})
+  ]));
+}
+
+function montaFases(main) {
+  var lista = el('div', {class: 'fases'});
+  C.fases.forEach(function (f) {
+    var art = el('article', {class: 'fase', id: 'fase-' + f.id}, [el('div', {class: 'fase-cab'}, [
+      el('span', {class: 'fase-n', text: f.rotulo}),
+      el('div', null, [el('h3', {class: 'fase-t', text: f.titulo}), el('div', {class: 'fase-m', id: 'fase-m-' + f.id, text: f.agenda ? '' : [f.quando, f.quem].filter(Boolean).join(' · ')})]),
+      f.pausa ? el('p', {class: 'fase-pausa'}, [el('strong', {text: 'Pausa: '}), rico(f.pausa)]) : null])]);
+    f.passos.forEach(function (p) {
+      art.appendChild(el('div', {class: 'passo', id: 'p-' + p.id, 'data-v': 'manter'}, [
+        el('div', {class: 'passo-txt'}, [
+          el('div', {class: 'passo-tit'}, [el('span', {class: 'passo-id', text: p.id.toUpperCase()}), el('h3', {text: p.titulo}), el('span', {class: 'estado', id: 'e-' + p.id, hidden: true})]),
+          el('p', {class: 'passo-muda'}, [rico(p.muda)]),
+          meta([['Pronto quando', p.pronto], ['Onde mora', p.onde], ['Quem faz', p.quem], ['Skills', p.skills]])
+        ]),
+        seg(p.id, VALORES.passo, 'Decisão sobre ' + p.id.toUpperCase() + ', ' + p.titulo),
+        painel(p.id, true)
+      ]));
+    });
+    lista.appendChild(art);
+  });
+  main.appendChild(secao('fases', 'Fases e passos', 'Fases', 'Cada passo diz o que muda, quando está pronto, onde mora e quem faz.', [lista]));
+}
+
+function montaCasas(main) {
+  if (!(C.casas || []).length) { return; }
+  var box = el('div', {class: 'casas'});
+  C.casas.forEach(function (c) {
+    var pecas = el('ul', {class: 'pecas'});
+    (c.pecas || []).forEach(function (pc) {
+      pecas.appendChild(el('li', null, [el('span', null, [rico(pc.nome)]), pc.tag ? el('span', {class: 'tag' + (pc.tag === 'novo' ? ' novo' : ''), text: pc.tag}) : el('span')]));
+    });
+    box.appendChild(el('article', {class: 'cartao'}, [el('h3', {text: c.titulo}), c.caminho ? el('span', {class: 'cam', text: c.caminho}) : null,
+      c.papel ? el('p', {class: 'papel'}, [rico(c.papel)]) : null, (c.pecas || []).length ? pecas : null]));
+  });
+  var kids = [box];
+  if ((C.fluxos || []).length) {
+    kids.push(el('ul', {class: 'fluxos', 'aria-label': 'Como as casas se ligam'}, C.fluxos.map(function (x) { return el('li', null, [rico(x)]); })));
+  }
+  main.appendChild(secao('casas', 'Onde cada peça mora', 'Onde mora', null, kids));
+}
+
+function montaOpcoes(main) {
+  if (!(C.opcoes || []).length) { return; }
+  var box = el('div', {class: 'cartoes'});
+  C.opcoes.forEach(function (o) {
+    box.appendChild(el('article', {class: 'cartao opcao', id: 'p-' + o.id, 'data-v': o.recomendada ? 'incluir' : 'fora'}, [
+      el('div', {class: 'op-cab'}, [el('h3', {text: o.titulo}), o.recomendada ? el('span', {class: 'rec', text: 'Recomendada'}) : null, el('span', {class: 'estado', id: 'e-' + o.id, hidden: true})]),
+      el('p', null, [rico(o.texto)]),
+      el('div', {class: 'op-meta'}, [o.onde ? el('span', null, [el('strong', {text: 'Onde: '}), rico(o.onde)]) : null,
+        o.esforco ? el('span', null, [el('strong', {text: 'Esforço: '}), ESF[o.esforco]]) : null]),
+      o.porque_fora ? el('p', {class: 'falta'}, [el('strong', {text: 'Fica fora: '}), rico(o.porque_fora)]) : null,
+      seg(o.id, VALORES.opcao, 'Incluir ' + o.titulo), painel(o.id, false)
+    ]));
+  });
+  main.appendChild(secao('opcoes', 'Opções para somar ao plano', 'Opções', 'As recomendadas já vêm incluídas, e as que ficam fora dizem por quê. Troque à vontade.', [box]));
+}
+
+function montaPremissas(main) {
+  if (!(C.premissas || []).length) { return; }
+  var box = el('div', {class: 'linhas'});
+  C.premissas.forEach(function (p) {
+    box.appendChild(el('div', {class: 'premissa', id: 'p-' + p.id, 'data-v': 'ok'}, [
+      el('span', {class: 'pm-id', text: p.id.toUpperCase()}), el('p', {class: 'pm-txt'}, [rico(p.texto)]),
+      seg(p.id, VALORES.premissa, 'Premissa ' + p.id.toUpperCase()), painel(p.id, false, 'Por que vetar (opcional)')
+    ]));
+  });
+  main.appendChild(secao('premissas', 'Premissas que valem se você não vetar', 'Premissas', 'Dúvidas que um colega resolveria sozinho. Valem como estão, a menos que você toque em Vetar.', [box]));
+}
+
+function montaRiscos(main) {
+  if (!(C.riscos || []).length) { return; }
+  var ul = el('ul', {class: 'linhas riscos'});
+  C.riscos.forEach(function (r) {
+    ul.appendChild(el('li', null, [el('span', {class: 'sev ' + r.severidade, text: SEV[r.severidade]}), el('span', null, [rico(r.risco)]),
+      el('span', {class: 'mit'}, [el('strong', {text: 'Mitigação: '}), rico(r.mitigacao)])]));
+  });
+  main.appendChild(secao('riscos', 'Riscos e pausas', 'Riscos', 'A severidade aparece também na forma da borda: grossa para alto, tracejada para médio, pontilhada para baixo.', [ul]));
+}
+
+function montaAcessos(main) {
+  if (!(C.acessos || []).length) { return; }
+  var ul = el('ul', {class: 'linhas acessos'});
+  C.acessos.forEach(function (a) { ul.appendChild(el('li', null, [el('span', {class: 'k', text: a.tipo}), el('span', null, [rico(a.detalhe)])])); });
+  main.appendChild(secao('acessos', 'Acessos que o plano usa', 'Acessos', 'Tudo o que o plano toca, declarado de uma vez.', [ul]));
+}
+
+function montaFechar(main) {
+  var kids = [];
+  if ((C.perguntas || []).length) {
+    var ul = el('ul', {class: 'chat', id: 'chat', 'aria-label': 'As perguntas do chat'});
+    C.perguntas.forEach(function (p, i) {
+      ul.appendChild(el('li', null, [el('strong', {text: (i + 1) + ' · ' + p.titulo}), p.contexto ? el('span', {class: 'r'}, [rico(p.contexto)]) : null,
+        el('span', {class: 'r'}, [el('strong', {text: 'Recomendação: '}), rico(p.recomendacao)]), el('span', {class: 'resp vazia', id: 'chat-r-' + (i + 1)})]));
+    });
+    kids.push(el('h3', {text: 'As perguntas do chat'}));
+    kids.push(el('p', {class: 'sub', text: 'Elas completam a prancheta com o que não cabe nos controles. A resposta aparece aqui, com a hora, quando o Claude registrar.'}));
+    kids.push(ul);
+  }
+  kids.push(el('h3', {text: 'O que você mudou'}));
+  kids.push(el('ul', {class: 'resumo', id: 'resumo', 'aria-live': 'polite'}));
+  kids.push(el('div', {class: 'fim', id: 'fim'}, [
+    el('label', {for: 'nota-geral'}, [el('strong', {text: 'Comentário geral, se quiser'}), ' (opcional)']),
+    el('textarea', {id: 'nota-geral', maxlength: String(MAX_GERAL), placeholder: 'Algo que não coube nos cartões'}),
+    el('p', {id: 'aprov-estado', role: 'status', tabindex: '-1'}),
+    el('div', {class: 'btns'}, [el('button', {type: 'button', class: 'btn', id: 'btn-aprovar', text: 'Aprovar o plano'}),
+      el('button', {type: 'button', class: 'btn sec peq', id: 'btn-desfaz', hidden: true, text: 'Desfazer a aprovação'})]),
+    el('div', {class: 'confirma', id: 'confirma', hidden: true, role: 'group', 'aria-labelledby': 'confirma-t'}, [
+      el('p', {id: 'confirma-t'}, [el('strong', {text: 'Confirme a aprovação.'}), ' Você vai aprovar o plano com:']),
+      el('ul', {id: 'confirma-lista'}),
+      el('div', {class: 'btns'}, [el('button', {type: 'button', class: 'btn', id: 'btn-confirma', text: 'Confirmar aprovação'}),
+        el('button', {type: 'button', class: 'btn sec', id: 'btn-volta', text: 'Voltar e revisar'})])]),
+    el('p', {class: 'aviso', id: 'aviso-local', hidden: true})
+  ]));
+  main.appendChild(secao('fechar', 'Fechar e aprovar', 'Fechar e aprovar', 'O resumo mostra só o que mudou em relação à recomendação. A aprovação é aqui, com confirmação, e fica com data e hora.', kids));
+}
+
+function montaRodape() {
+  var r = $('rodape');
+  if ((C.fontes || []).length) {
+    r.appendChild(el('h2', {text: 'Fontes'}));
+    r.appendChild(el('ul', {class: 'fontes'}, C.fontes.map(function (f) {
+      return el('li', null, [f.url && /^https?:\/\//.test(f.url) ? el('a', {href: f.url, target: '_blank', rel: 'noopener noreferrer', text: f.rotulo}) : el('span', {text: f.rotulo})]);
+    })));
+  }
+  r.appendChild(el('p', {class: 'nota-fina', text: 'Prancheta gerada em ' + quandoTxt(D.gerado_em) + ' pelo detonado (prancheta-' + D.nome + '.html). As marcas vivem no armazenamento deste artefato e valem quando a aprovação aparece aqui, com data e hora.'}));
+}
+
+function montaNav() {
+  var nav = $('nav');
+  SECOES.forEach(function (s) { nav.appendChild(el('a', {href: '#' + s[0], text: s[1]})); });
+}
+
+/* ------------------------------------------------------------------ desenho da linha do tempo */
+function desenhaTempo() {
+  var svg = $('tempo-svg');
+  if (!svg) { return; }
+  var crono = cronograma(LINHAS, marcosAtuais()), rec = cronograma(LINHAS, {});
+  var ini = 0, fim = 0;
+  LINHAS.forEach(function (ln) { ini = Math.min(ini, Math.floor(crono[ln.id].ini), Math.floor(rec[ln.id].ini)); fim = Math.max(fim, Math.ceil(crono[ln.id].fim - 1e-9), Math.ceil(rec[ln.id].fim - 1e-9)); });
+  FIXAS.forEach(function (fx) { ini = Math.min(ini, Math.floor(fx.pos)); fim = Math.max(fim, Math.ceil(fx.pos) + 1); });
+  var n = Math.max(1, fim - ini), W = 1000, L = 160, R = 16, dw = (W - L - R) / n;
+  var top = FIXAS.length ? 76 : 44, rh = 40, H = top + LINHAS.length * rh + 12;
+  function x(pos) { return L + (pos - ini) * dw; }
+  while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  var desc = LINHAS.map(function (ln) { return FASES[ln.id].rotulo + ' ' + periodoTxt(crono[ln.id].ini, crono[ln.id].fim); }).join(', ');
+  if (FIXAS.length) { desc += '. Datas fixas: ' + FIXAS.map(function (fx) { return fx.rotulo + ' em ' + ddmm(diaData(fx.pos)); }).join(', '); }
+  svg.appendChild(sv('title', {id: 'tempo-t'}, 'Linha do tempo das fases'));
+  svg.appendChild(sv('desc', {id: 'tempo-d'}, desc + '.'));
+  // Grade, dias, datas fixas e "hoje" são decoração: o mesmo dado está na desc e na lista abaixo.
+  var decor = sv('g', {'aria-hidden': 'true'}), rows = sv('g', {role: 'list', 'aria-label': 'Fases'});
+  svg.appendChild(decor);
+  svg.appendChild(rows);
+  var passo = n <= 16 ? 1 : (n <= 32 ? 2 : 7);
+  for (var d = 0; d <= n; d++) {
+    decor.appendChild(sv('line', {x1: x(ini + d), y1: 28, x2: x(ini + d), y2: H - 6, class: 'g-grade'}));
+    if (d < n && d % passo === 0) {
+      var dt = diaData(ini + d);
+      decor.appendChild(sv('text', {x: x(ini + d) + (passo === 1 ? dw / 2 : 2), y: 20, 'text-anchor': passo === 1 ? 'middle' : 'start', class: 'g-dia'}, passo === 1 && dw >= 44 ? SEM[dt.getUTCDay()] + ' ' + dt.getUTCDate() : ddmm(dt)));
+    }
+  }
+  FIXAS.forEach(function (fx, i) {
+    var xf = x(fx.pos), yt = i % 2 ? 62 : 44;
+    decor.appendChild(sv('line', {x1: xf, y1: yt + 5, x2: xf, y2: H - 6, class: 'g-fixa'}));
+    decor.appendChild(sv('text', {x: xf, y: yt, 'text-anchor': xf > W - 140 ? 'end' : (xf < L + 70 ? 'start' : 'middle'), class: 'g-fixat'}, fx.rotulo));
+  });
+  if (MODO !== 'aprovado') {
+    var agora = new Date(), hoje = (Date.UTC(agora.getFullYear(), agora.getMonth(), agora.getDate()) - ORIGEM) / DIA + (agora.getHours() + agora.getMinutes() / 60) / 24;
+    if (hoje >= ini && hoje <= fim) {
+      decor.appendChild(sv('line', {x1: x(hoje), y1: 28, x2: x(hoje), y2: H - 6, class: 'g-hoje'}));
+      decor.appendChild(sv('text', {x: x(hoje) + 4, y: 36, class: 'g-hojet'}, 'hoje'));
+    }
+  }
+  LINHAS.forEach(function (ln, i) {
+    var f = FASES[ln.id], c = crono[ln.id], r = rec[ln.id], y0 = top + i * rh;
+    var conf = conflito(ln.id, c);
+    var dica = f.rotulo + ' · ' + f.titulo + '. ' + periodoTxt(c.ini, c.fim) + (c.efetivo ? ' (era ' + periodoTxt(r.ini, r.fim) + ')' : '') + '. ' + quemTxt(ln.segs) + '.' + (f.agenda.resumo ? ' ' + f.agenda.resumo + '.' : '') + (conf ? ' Termina depois da data fixa ' + conf.rotulo + '.' : '');
+    var g = sv('g', {class: 'g-linha', tabindex: '0', role: 'listitem', 'aria-label': dica, 'data-tip': dica, 'data-fase': ln.id});
+    rows.appendChild(g);
+    g.appendChild(sv('rect', {x: 2, y: y0 + 1, width: W - 4, height: rh - 2, class: 'g-alvo'}));
+    g.appendChild(sv('text', {x: 12, y: y0 + 26, class: 'g-fase'}, f.rotulo));
+    g.appendChild(sv('text', {x: 52, y: y0 + 25, class: 'g-fnome'}, resumir(f.titulo, 15)));
+    if (c.efetivo) { g.appendChild(sv('rect', {x: x(r.ini), y: y0 + 21, width: Math.max(4, (r.fim - r.ini) * dw - 2), height: 12, class: 'g-fantasma'})); }
+    var pos = c.ini;
+    ln.segs.forEach(function (s, k) {
+      var xa = x(pos), xb = x(pos + s.dias), ultimo = k === ln.segs.length - 1;
+      g.appendChild(sv('rect', {x: xa, y: y0 + 21, width: Math.max(3, xb - xa - (ultimo ? 0 : 2)), height: 12, rx: 2, class: s.quem === 'claude' ? 'g-s1' : 'g-s2'}));
+      pos += s.dias;
+    });
+    var rot = f.agenda.resumo || '';
+    if (rot) {
+      var est = rot.length * 6.4, xl = x(c.ini), anc = 'start';
+      if (xl + est > W - R) { xl = x(c.fim); anc = 'end'; }
+      g.appendChild(sv('text', {x: xl, y: y0 + 15, 'text-anchor': anc, class: 'g-rot'}, rot));
+    }
+    var etiqueta = (c.efetivo ? sinal(c.efetivo) : '') + (conf ? (c.efetivo ? ' · ' : '') + 'passa do prazo' : '');
+    if (etiqueta) {
+      var xe = x(c.fim) + 6, ae = 'start';
+      if (xe + etiqueta.length * 7 > W - R) { xe = x(Math.min(c.ini, r.ini)) - 6; ae = 'end'; }
+      g.appendChild(sv('text', {x: xe, y: y0 + 32, 'text-anchor': ae, class: conf ? 'g-conf' : 'g-delta'}, etiqueta));
+    }
+  });
+}
+function conflito(id, c) {
+  var pz = FASES[id].agenda.prazo, fx = pz ? fixa(pz) : null;
+  return fx && c.fim > fx.pos + 1e-9 ? fx : null;
+}
+
+/* ------------------------------------------------------------------ interface do estado */
+function mudou(id) {
+  var s = S[id], r = REG[id];
+  if (r.tipo === 'marco') { return s.valor !== 0; }
+  return s.valor !== r.padrao || s.atalhos.length > 0 || !!s.nota.trim();
+}
+function atualizaItem(id) {
+  var s = S[id], r = REG[id];
+  if (r.tipo === 'marco') { return; }
+  var radio = $('r-' + id + '-' + s.valor);
+  if (radio) { radio.checked = true; }
+  var box = $('p-' + id);
+  if (box) { box.setAttribute('data-v', s.valor); }
+  var aj = $('aj-' + id);
+  if (aj) {
+    aj.hidden = s.valor === r.padrao && !s.nota.trim();
+    var a = aj.querySelector('.aj-ajustar'), c = aj.querySelector('.aj-cortar');
+    if (a) { a.hidden = s.valor !== 'ajustar'; }
+    if (c) { c.hidden = s.valor !== 'cortar'; }
+    Array.prototype.forEach.call(aj.querySelectorAll('input[type=checkbox]'), function (cb) {
+      cb.checked = s.atalhos.indexOf(cb.getAttribute('data-tag')) >= 0 && cb.closest('.aj-' + s.valor) !== null;
+    });
+    var ta = $('n-' + id);
+    if (ta && document.activeElement !== ta) { ta.value = s.nota; }
+  }
+  var e = $('e-' + id);
+  if (e) {
+    var diff = s.valor !== r.padrao;
+    e.hidden = !diff;
+    if (diff) { e.textContent = ROT[s.valor]; e.className = 'estado e-' + s.valor; }
+  }
+}
+function atualizaTempo() {
+  if (!COM_AGENDA.length) { return; }
+  var crono = cronograma(LINHAS, marcosAtuais()), rec = cronograma(LINHAS, {});
+  var frases = [], conflitos = [];
+  COM_AGENDA.forEach(function (f) {
+    var c = crono[f.id], r = rec[f.id], s = S['m-' + f.id];
+    $('mc-per-' + f.id).textContent = periodoTxt(c.ini, c.fim) + (c.efetivo ? ' (era ' + periodoTxt(r.ini, r.fim) + ')' : '');
+    var causa = '';
+    if (c.proprio && c.causa) { causa = 'Marca sua (' + sinal(c.proprio) + ') e cascata de ' + FASES[c.causa].rotulo + '.'; }
+    else if (c.proprio) { causa = 'Marca sua: ' + (c.proprio > 0 ? 'adiada ' : 'antecipada ') + dias(c.proprio) + '.'; }
+    else if (c.causa) { causa = 'Anda ' + sinal(c.efetivo) + ' por cascata de ' + FASES[c.causa].rotulo + '.'; }
+    $('mc-causa-' + f.id).textContent = causa;
+    var conf = conflito(f.id, c), mc = $('mc-conf-' + f.id);
+    mc.hidden = !conf;
+    if (conf) { mc.textContent = 'Termina depois da data fixa ' + conf.rotulo + ' (' + ddmm(diaData(conf.pos)) + ').'; conflitos.push(f.rotulo + ' termina depois de ' + conf.rotulo); }
+    $('mv-val-' + f.id).textContent = sinal(s.valor);
+    var fm = $('fase-m-' + f.id);
+    if (fm) { fm.textContent = periodoTxt(c.ini, c.fim) + (c.efetivo ? ' (era ' + periodoTxt(r.ini, r.fim) + ')' : '') + ' · ' + (f.quem || quemTxt(LINHAS.filter(function (l) { return l.id === f.id; })[0].segs)); }
+    if (c.proprio) { frases.push(f.rotulo + ' ' + (c.proprio > 0 ? 'adiada ' : 'antecipada ') + dias(c.proprio) + ' (marca sua)'); }
+    var aj = $('aj-m-' + f.id);
+    if (aj) { aj.hidden = !s.valor && !s.nota.trim(); var ta = $('n-m-' + f.id); if (ta && document.activeElement !== ta) { ta.value = s.nota; } }
+    Array.prototype.forEach.call(document.querySelectorAll('.mv[data-fase="' + f.id + '"]'), function (b) {
+      var mv = +b.getAttribute('data-mv');
+      b.disabled = !podeEscrever || !pronto || (mv === 0 ? s.valor === 0 : Math.abs(s.valor + mv) > LIMITE_MARCO);
+    });
+  });
+  var cascata = COM_AGENDA.filter(function (f) { return !crono[f.id].proprio && crono[f.id].efetivo; }).map(function (f) { return f.rotulo; });
+  var txt = frases.length ? 'Efeito das suas datas: ' + frases.join(', ') + '.' : 'Datas como recomendado.';
+  if (cascata.length) { txt += ' Por cascata, ' + cascata.join(', ') + (cascata.length > 1 ? ' andam' : ' anda') + ' junto.'; }
+  if (conflitos.length) { txt += ' Conflito: ' + conflitos.join(', ') + '.'; }
+  $('efeito').textContent = txt;
+  desenhaTempo();
+}
+function contagens() {
+  var k = {ajustes: 0, cortes: 0, vetos: 0, opcoes_incluidas: 0, opcoes_total: (C.opcoes || []).length, datas_movidas: 0, conflitos: 0};
+  ORDEM.forEach(function (id) {
+    var s = S[id], t = REG[id].tipo;
+    if (t === 'passo' && s.valor === 'ajustar') { k.ajustes++; }
+    if (t === 'passo' && s.valor === 'cortar') { k.cortes++; }
+    if (t === 'premissa' && s.valor === 'vetar') { k.vetos++; }
+    if (t === 'opcao' && s.valor === 'incluir') { k.opcoes_incluidas++; }
+    if (t === 'marco' && s.valor) { k.datas_movidas++; }
+  });
+  if (COM_AGENDA.length) {
+    var crono = cronograma(LINHAS, marcosAtuais());
+    COM_AGENDA.forEach(function (f) { if (conflito(f.id, crono[f.id])) { k.conflitos++; } });
+  }
+  return k;
+}
+function contagensTxt(k) {
+  var p = ['Ajustes ' + k.ajustes, 'Cortes ' + k.cortes];
+  if ((C.premissas || []).length) { p.push('Vetos ' + k.vetos); }
+  if (k.opcoes_total) { p.push('Opções ' + k.opcoes_incluidas + ' de ' + k.opcoes_total); }
+  if (COM_AGENDA.length) { p.push('Datas movidas ' + k.datas_movidas); }
+  if (k.conflitos) { p.push('Conflitos ' + k.conflitos); }
+  return p.join(' · ');
+}
+function mudancas() {
+  var out = [];
+  ORDEM.forEach(function (id) {
+    if (!mudou(id)) { return; }
+    var s = S[id], r = REG[id], nota = s.nota.trim() ? ' · "' + s.nota.trim() + '"' : '';
+    if (r.tipo === 'marco') { out.push({rot: 'Data', cls: 'e-data', txt: r.rotulo + ' ' + (s.valor > 0 ? 'adiada ' : 'antecipada ') + dias(s.valor) + nota}); return; }
+    var rot = ROT[s.valor] + (s.valor === r.padrao ? ' (como recomendado)' : '');
+    out.push({rot: rot, cls: 'e-' + s.valor, txt: r.rotulo + (s.atalhos.length ? ' · ' + s.atalhos.join(', ') : '') + nota});
+  });
+  return out;
+}
+function atualizaResumo() {
+  var ul = $('resumo');
+  while (ul.firstChild) { ul.removeChild(ul.firstChild); }
+  var m = mudancas();
+  if (!m.length) { ul.appendChild(el('li', {class: 'vazio', text: 'Nada mudado: tudo segue como recomendado.'})); }
+  m.forEach(function (x) { ul.appendChild(el('li', null, [el('span', {class: 'estado ' + x.cls, text: x.rot}), el('span', {class: 'sr', text: ': '}), el('span', {text: x.txt})])); });
+  $('contadores').textContent = contagensTxt(contagens());
+}
+
+/* aprovação: o estado aparece na barra, na capa e no fim, com data e hora e com o que foi escolhido */
+function situacao() {
+  if (!APROV) { return {s: 'pendente'}; }
+  if (!APROV.aprovado) { return {s: 'desfeita', em: APROV.em}; }
+  var em = Date.parse(APROV.em), depois = ORDEM.filter(function (id) { return timers[id] || emVoo[id] || (S[id].em && Date.parse(S[id].em) > em); });
+  return depois.length && MODO !== 'aprovado' ? {s: 'desatualizada', em: APROV.em, depois: depois} : {s: 'aprovada', em: APROV.em};
+}
+function atualizaAprovacao() {
+  var st = situacao(), k = contagens(), pil = $('aprov-pilula'), capa = $('aprov-capa');
+  var porVoce = APROV && APROV.por && meuId && APROV.por === meuId ? ', por você' : '';
+  var tit, det = contagensTxt(k) + '.', lista = $('aprov-capa-lista');
+  while (lista.firstChild) { lista.removeChild(lista.firstChild); }
+  lista.hidden = true;
+  if (st.s === 'aprovada') {
+    tit = 'Aprovada em ' + quandoTxt(st.em) + porVoce + (MODO === 'aprovado' ? '. Registro só leitura: mudança agora é rodada nova.' : '.');
+    pil.textContent = 'Aprovada em ' + quandoTxt(st.em);
+    var m = mudancas();
+    det += m.length ? ' O que foi escolhido:' : ' Tudo como recomendado.';
+    m.forEach(function (x) { lista.appendChild(el('li', {text: x.rot + ' · ' + x.txt})); });
+    lista.hidden = !m.length;
+  } else if (st.s === 'desatualizada') {
+    tit = 'Mudou depois da aprovação de ' + quandoTxt(st.em) + ': aprove de novo para valer.';
+    pil.textContent = 'Mudou depois da aprovação';
+  } else if (st.s === 'desfeita') {
+    tit = 'Aprovação desfeita em ' + quandoTxt(st.em) + '. O plano está de novo aguardando você.';
+    pil.textContent = 'Aprovação desfeita';
+  } else {
+    tit = 'Ainda não aprovada. O padrão é a recomendação: marque só o que quer mudar e aprove no fim.';
+    pil.textContent = 'Aguardando aprovação';
+  }
+  pil.setAttribute('data-a', st.s);
+  capa.setAttribute('data-a', st.s);
+  $('aprov-capa-tit').textContent = tit;
+  $('aprov-capa-det').textContent = det;
+  $('aprov-estado').textContent = tit + (MOTIVO_LEITURA ? ' ' + MOTIVO_LEITURA : '');
+  var ba = $('btn-aprovar'), bd = $('btn-desfaz');
+  ba.hidden = st.s === 'aprovada';
+  ba.textContent = st.s === 'desatualizada' ? 'Aprovar de novo' : 'Aprovar o plano';
+  bd.hidden = st.s !== 'aprovada' || MODO === 'aprovado';
+  ba.disabled = bd.disabled = !podeEscrever || !pronto;
+}
+function atualizaChat() {
+  (C.perguntas || []).forEach(function (p, i) {
+    var r = CHAT['p' + (i + 1)], e = $('chat-r-' + (i + 1));
+    if (!e) { return; }
+    if (r && typeof r.resposta === 'string' && r.resposta.trim()) {
+      e.className = 'resp';
+      e.textContent = 'Resposta no chat: ' + r.resposta + (r.em ? ' (' + quandoTxt(r.em) + ')' : '');
+    } else {
+      e.className = 'resp vazia';
+      e.textContent = 'Resposta no chat: ainda não registrada.';
+    }
+  });
+}
+function atualizaTudo() {
+  ORDEM.forEach(atualizaItem);
+  atualizaTempo();
+  atualizaResumo();
+  atualizaAprovacao();
+  atualizaChat();
+  var ng = $('nota-geral');
+  if (document.activeElement !== ng) { ng.value = GERAL.nota || ''; }
+}
+
+/* ------------------------------------------------------------------ armazenamento */
+function setSalvo(s, txt) {
+  var e = $('salvo');
+  e.setAttribute('data-s', s);
+  var mapa = {conectando: 'Conectando ao armazenamento…', pronto: 'Marca salva sozinha neste artefato', salvando: 'Salvando…',
+    erro: 'Não salvou. Tente de novo ou diga no chat.', local: 'Só neste navegador', leitura: 'Só leitura', aprovado: 'Registro aprovado'};
+  if (s === 'salvo') { var d = new Date(); e.textContent = 'Salvo às ' + p2(d.getHours()) + 'h' + p2(d.getMinutes()); }
+  else { e.textContent = txt || mapa[s] || ''; }
+}
+function salvaLocal() {
+  try {
+    var o = {marcas: {}, geral: GERAL, aprovacao_local: db ? null : APROV};
+    ORDEM.forEach(function (id) { if (mudou(id) || S[id].em) { o.marcas[id] = S[id]; } });
+    localStorage.setItem(D.chave_local, JSON.stringify(o));
+    return true;
+  } catch (e) { return false; }
+}
+function carregaLocal() {
+  try {
+    var o = JSON.parse(localStorage.getItem(D.chave_local) || '{}') || {};
+    Object.keys(o.marcas || {}).forEach(function (id) { aplica(id, o.marcas[id], true); });
+    if (o.geral && typeof o.geral.nota === 'string') { GERAL = {nota: o.geral.nota.slice(0, MAX_GERAL), em: o.geral.em || null}; }
+    if (o.aprovacao_local && typeof o.aprovacao_local.aprovado === 'boolean') { APROV = o.aprovacao_local; }
+    return true;
+  } catch (e) { return false; }
+}
+/* Valida o que chega do db ou do navegador antes de aplicar: dado compartilhado não é confiável. */
+function aplica(id, d, local) {
+  var r = REG[id];
+  if (!r || !d || (!local && d.tipo !== r.tipo)) { return; }
+  if (timers[id] || emVoo[id]) { return; }  // mudança local ainda não confirmada vence
+  var v = d.valor;
+  if (r.tipo === 'marco') { if (typeof v !== 'number' || v % 1 !== 0 || Math.abs(v) > LIMITE_MARCO) { return; } }
+  else if (VALORES[r.tipo].indexOf(v) < 0) { return; }
+  var s = S[id];
+  s.valor = v;
+  var ok = permitidos(id, v);
+  s.atalhos = Array.isArray(d.atalhos) ? d.atalhos.filter(function (x) { return ok.indexOf(x) >= 0; }) : [];
+  var ta = $('n-' + id);
+  if (typeof d.nota === 'string' && !(ta && document.activeElement === ta)) { s.nota = d.nota.slice(0, MAX_NOTA); }
+  s.em = typeof d.em === 'string' ? d.em : null;
+}
+function refDe(chave) {
+  if (chave === 'geral') { return db.doc('estado/geral'); }
+  if (chave === 'aprovacao') { return db.doc('estado/aprovacao'); }
+  return db.collection('marcas').doc(chave);
+}
+var CORPO_APROV = null;
+function corpoDe(chave) {
+  var agora = new Date().toISOString();
+  if (chave === 'geral') { return {nota: GERAL.nota || '', em: agora}; }
+  if (chave === 'aprovacao') { return CORPO_APROV; }
+  var s = S[chave];
+  s.em = agora;
+  return {tipo: REG[chave].tipo, valor: s.valor, atalhos: s.atalhos.slice(), nota: s.nota, em: agora};
+}
+function trataErro(err) {
+  var code = err && err.code;
+  if (code === 'invalid_argument') { podeEscrever = false; soLeitura('O armazenamento recusou a escrita: esta visualização é só leitura.'); return; }
+  if (code === 'quota_exceeded') { setSalvo('erro', 'Armazenamento cheio. Diga no chat.'); return; }
+  if (code === 'revoked') { podeEscrever = false; soLeitura('Acesso encerrado nesta visualização.'); return; }
+  setSalvo('erro');
+}
+function setComRetry(ref, corpo) {
+  return ref.set(corpo).catch(function (err) {
+    if (err && err.code === 'unavailable') { return espera(300 + Math.random() * 600).then(function () { return ref.set(corpo); }); }
+    throw err;
+  });
+}
+/* Uma escrita por vez por documento: a que chegar no meio espera e sai com o estado mais novo. */
+function grava(chave) {
+  if (!db || !podeEscrever) { return Promise.resolve(false); }
+  if (emVoo[chave]) { pendente[chave] = true; return emVoo[chave]; }
+  var corpo = corpoDe(chave);
+  setSalvo('salvando');
+  var p = setComRetry(refDe(chave), corpo).then(function () { setSalvo('salvo'); return true; }, function (err) { trataErro(err); return false; })
+    .then(function (ok) {
+      emVoo[chave] = null;
+      if (pendente[chave]) { pendente[chave] = false; return grava(chave); }
+      return ok;
+    });
+  emVoo[chave] = p;
+  return p;
+}
+function agenda(chave, ms) {
+  if (db && podeEscrever) {
+    clearTimeout(timers[chave]);
+    timers[chave] = setTimeout(function () { timers[chave] = null; grava(chave).then(atualizaAprovacao); }, ms || 0);
+  } else if (S[chave]) {
+    S[chave].em = new Date().toISOString();  // sem db, a hora da marca é a do navegador
+  }
+  salvaLocal();
+  atualizaResumo();
+  atualizaAprovacao();
+}
+/* Antes de aprovar, toda marca pendente sai: senão ela chega depois e a aprovação nasce velha. */
+function drenar() {
+  Object.keys(timers).forEach(function (k) { if (timers[k]) { clearTimeout(timers[k]); timers[k] = null; grava(k); } });
+  var voando = Object.keys(emVoo).filter(function (k) { return emVoo[k]; }).map(function (k) { return emVoo[k]; });
+  return voando.length ? Promise.all(voando).then(drenar) : Promise.resolve();
+}
+var MOTIVO_LEITURA = '';
+function soLeitura(motivo) {
+  Array.prototype.forEach.call(document.querySelectorAll('main input, main button'), function (i) { i.disabled = true; });
+  // Nota em só leitura, não desabilitada: o texto continua legível com o contraste normal.
+  Array.prototype.forEach.call(document.querySelectorAll('main textarea'), function (t) { t.disabled = false; t.readOnly = true; });
+  setSalvo(MODO === 'aprovado' ? 'aprovado' : 'leitura', motivo);
+  if (MODO !== 'aprovado') { MOTIVO_LEITURA = (motivo ? motivo + ' ' : '') + 'Quem aprova é quem tem acesso de escrita a este artefato.'; }
+  atualizaAprovacao();
+}
+function habilita() {
+  pronto = true;
+  if (!podeEscrever) { return; }
+  Array.prototype.forEach.call(document.querySelectorAll('main input, main button, main textarea'), function (i) { i.disabled = false; });
+  atualizaTempo();
+  atualizaAprovacao();
+}
+function modoLocal(motivo) {
+  db = null;
+  var temLocal = carregaLocal() && salvaLocal();
+  setSalvo('local', temLocal ? 'Só neste navegador' : 'Sem armazenamento');
+  var av = $('aviso-local');
+  av.hidden = false;
+  av.textContent = (motivo || 'Esta visualização não fala com o armazenamento do artefato.') + ' ' + (temLocal
+    ? 'Suas marcas ficam só neste navegador e o Claude não consegue lê-las: diga no chat o que mudou e que aprovou.'
+    : 'Nem este navegador guarda as marcas: elas somem ao recarregar. Diga no chat o que mudou.');
+  habilita();
+  atualizaTudo();
+}
+
+/* ------------------------------------------------------------------ eventos */
+function ligaControles() {
+  document.addEventListener('change', function (e) {
+    var t = e.target, id = t.getAttribute && t.getAttribute('data-id');
+    if (!id || !S[id] || !podeEscrever) { return; }
+    var s = S[id];
+    if (t.type === 'radio') {
+      s.valor = t.value;
+      var ok = permitidos(id, s.valor);
+      s.atalhos = s.atalhos.filter(function (x) { return ok.indexOf(x) >= 0; });
+      atualizaItem(id);
+      agenda(id, 0);
+    } else if (t.type === 'checkbox') {
+      var tag = t.getAttribute('data-tag'), i = s.atalhos.indexOf(tag);
+      if (t.checked && i < 0) { s.atalhos.push(tag); }
+      if (!t.checked && i >= 0) { s.atalhos.splice(i, 1); }
+      agenda(id, 250);
+    }
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'nota-geral') {
+      GERAL.nota = t.value.slice(0, MAX_GERAL);
+      salvaLocal();
+      if (db && podeEscrever) { clearTimeout(timers.geral); timers.geral = setTimeout(function () { timers.geral = null; grava('geral'); }, 800); }
+      return;
+    }
+    var id = t.getAttribute && t.getAttribute('data-id');
+    if (t.tagName === 'TEXTAREA' && id && S[id]) { S[id].nota = t.value.slice(0, MAX_NOTA); agenda(id, 800); }
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.mv') : null;
+    if (!b || b.disabled || !podeEscrever) { return; }
+    var id = 'm-' + b.getAttribute('data-fase'), mv = +b.getAttribute('data-mv'), s = S[id];
+    var novo = mv === 0 ? 0 : s.valor + mv;
+    if (Math.abs(novo) > LIMITE_MARCO || novo === s.valor) { return; }
+    s.valor = novo;
+    atualizaTempo();
+    agenda(id, 400);
+  });
+  $('btn-aprovar').addEventListener('click', function () {
+    var lista = $('confirma-lista');
+    while (lista.firstChild) { lista.removeChild(lista.firstChild); }
+    lista.appendChild(el('li', {text: contagensTxt(contagens()) + '.'}));
+    var m = mudancas();
+    if (!m.length) { lista.appendChild(el('li', {text: 'Nada mudado: tudo segue como recomendado.'})); }
+    m.forEach(function (x) { lista.appendChild(el('li', {text: x.rot + ' · ' + x.txt})); });
+    if (contagens().conflitos) { lista.appendChild(el('li', {text: 'Atenção: há fase terminando depois de uma data fixa.'})); }
+    $('confirma').hidden = false;
+    $('btn-confirma').focus();
+  });
+  $('btn-volta').addEventListener('click', function () { $('confirma').hidden = true; $('btn-aprovar').focus(); });
+  $('btn-confirma').addEventListener('click', function () {
+    var bc = $('btn-confirma');
+    bc.disabled = true;
+    drenar().then(function () {
+      var ems = ORDEM.map(function (id) { return S[id].em; }).filter(Boolean).sort();
+      CORPO_APROV = {aprovado: true, em: new Date().toISOString(), por: meuId, marcas_ate: ems.length ? ems[ems.length - 1] : null, resumo: contagens()};
+      if (!db) { APROV = CORPO_APROV; salvaLocal(); return true; }
+      return grava('aprovacao').then(function (ok) { if (ok) { APROV = CORPO_APROV; } return ok; });
+    }).then(function (ok) {
+      bc.disabled = false;
+      $('confirma').hidden = !!ok;
+      atualizaAprovacao();
+      if (ok && !db) { $('aprov-estado').textContent += ' Aprovada só neste navegador: o Claude não consegue ler. Diga no chat que aprovou e o que mudou.'; }
+      $('aprov-estado').focus();
+    });
+  });
+  $('btn-desfaz').addEventListener('click', function () {
+    CORPO_APROV = {aprovado: false, em: new Date().toISOString(), por: meuId, desfeita_de: APROV ? APROV.em : null};
+    var feito = db ? grava('aprovacao') : Promise.resolve(true);
+    feito.then(function (ok) { if (ok) { APROV = CORPO_APROV; salvaLocal(); } atualizaAprovacao(); $('aprov-estado').focus(); });
+  });
+}
+var DICA = null;
+function ligaDicas() {
+  DICA = $('dica');
+  var svg = $('tempo-svg');
+  if (!svg) { return; }
+  function alvo(e) { return e.target.closest ? e.target.closest('[data-tip]') : null; }
+  function mostra(g) {
+    DICA.textContent = g.getAttribute('data-tip');
+    DICA.hidden = false;
+    var r = g.getBoundingClientRect(), tw = Math.min(300, window.innerWidth - 24);
+    var left = Math.min(Math.max(12, r.left + 20), window.innerWidth - tw - 12), topo = r.bottom + 8;
+    if (topo + 90 > window.innerHeight) { topo = Math.max(12, r.top - 90); }
+    DICA.style.left = left + 'px'; DICA.style.top = topo + 'px'; DICA.style.maxWidth = tw + 'px';
+  }
+  function esconde() { DICA.hidden = true; }
+  svg.addEventListener('mouseover', function (e) { var g = alvo(e); if (g) { mostra(g); } });
+  svg.addEventListener('mouseleave', esconde);
+  svg.addEventListener('focusin', function (e) { var g = alvo(e); if (g) { mostra(g); } });
+  svg.addEventListener('focusout', esconde);
+  svg.addEventListener('click', function (e) { var g = alvo(e); if (g) { mostra(g); } });
+  svg.addEventListener('keydown', function (e) {
+    var g = alvo(e);
+    if (e.key === 'Escape') { esconde(); }
+    if (e.key === 'Enter' && g) { var a = $('fase-' + g.getAttribute('data-fase')); if (a) { a.scrollIntoView(); } }
+  });
+  window.addEventListener('scroll', esconde, {passive: true});
+}
+
+/* ------------------------------------------------------------------ início */
+function conecta() {
+  var c = window.claude;
+  if (!c || typeof c.use !== 'function') { modoLocal('Aberta fora do artefato.'); return; }
+  c.use('db').then(function (d) {
+    if (!d) { modoLocal(); return; }
+    db = d;
+    setSalvo('pronto');
+    c.use('user').then(function (u) {
+      if (!u) { return null; }
+      return Promise.all([typeof u.id === 'function' ? u.id() : null, typeof u.can === 'function' ? u.can('data.write') : null]).then(function (r) {
+        meuId = r[0] || null;
+        if (r[1] === false) { podeEscrever = false; soLeitura('Só leitura para você neste artefato.'); }
+        atualizaAprovacao();
+      });
+    }).catch(function () {});
+    try {
+      // Assinatura uma vez só por consulta. Nada se grava ao abrir.
+      db.collection('marcas').onSnapshot(function (snap) {
+        snap.docs.forEach(function (doc) { if (doc.exists) { aplica(doc.id, doc.data()); } });
+        ORDEM.forEach(atualizaItem); atualizaTempo(); atualizaResumo(); atualizaAprovacao();
+      }, function () { setSalvo('erro', 'Sem sincronia. Recarregue a página.'); });
+      db.doc('estado/aprovacao').onSnapshot(function (s) {
+        var a = s.exists ? s.data() : null;
+        APROV = a && typeof a.aprovado === 'boolean' && typeof a.em === 'string' ? a : null;
+        atualizaAprovacao();
+      }, function () {});
+      db.doc('estado/geral').onSnapshot(function (s) {
+        var g = s.exists ? s.data() : null;
+        if (g && typeof g.nota === 'string' && !timers.geral && !emVoo.geral) {
+          GERAL = {nota: g.nota.slice(0, MAX_GERAL), em: g.em || null};
+          if (document.activeElement !== $('nota-geral')) { $('nota-geral').value = GERAL.nota; }
+        }
+      }, function () {});
+      if ((C.perguntas || []).length) {
+        db.collection('chat').onSnapshot(function (snap) {
+          CHAT = {};
+          snap.docs.forEach(function (doc) { if (doc.exists) { CHAT[doc.id] = doc.data(); } });
+          atualizaChat();
+        }, function () {});
+      }
+    } catch (err) { setSalvo('erro'); }
+    habilita();
+  }, function () { modoLocal(); });
+}
+function modoAprovado() {
+  var e = D.estado || {};
+  Object.keys(e.marcas || {}).forEach(function (id) { aplica(id, e.marcas[id]); });
+  APROV = e.aprovacao || null;
+  CHAT = e.chat || {};
+  GERAL = e.geral || {nota: '', em: null};
+  podeEscrever = false;
+  pronto = true;
+  atualizaTudo();
+  soLeitura(e.lido_em ? 'Registro aprovado, lido de volta em ' + quandoTxt(e.lido_em) + '.' : 'Registro aprovado.');
+  $('confirma').hidden = true;
+}
+function inicia() {
+  document.title = C.titulo_curto || C.titulo;
+  $('topo-titulo').textContent = C.titulo;
+  if (C.tarja) { $('tarja').hidden = false; $('tarja').textContent = C.tarja; }
+  var main = $('conteudo');
+  montaCapa(main); montaPedidos(main); montaFatos(main); montaTempo(main); montaFases(main);
+  montaCasas(main); montaOpcoes(main); montaPremissas(main); montaRiscos(main); montaAcessos(main); montaFechar(main);
+  montaRodape(); montaNav();
+  // Até o armazenamento responder, nada se marca: marca feita antes se perderia ou seria sobrescrita.
+  Array.prototype.forEach.call(document.querySelectorAll('main input, main button, main textarea'), function (i) { i.disabled = true; });
+  ligaControles(); ligaDicas();
+  atualizaTudo();
+  if (MODO === 'aprovado') { modoAprovado(); } else { conecta(); }
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', inicia); } else { inicia(); }
+})();
+</script>
+</body>
+</html>

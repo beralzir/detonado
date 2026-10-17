@@ -1,0 +1,126 @@
+{
+  "titulo": "Plano da fase 2 do rádio pirata",
+  "titulo_curto": "Prancheta do rádio pirata",
+  "projeto": "radio-pirata",
+  "tarja": "EXEMPLO",
+  "eyebrow": "Exemplo fictício · rádio pirata · prancheta de aprovação",
+  "lede": "Exemplo do detonado com o projeto fictício das fixtures: três fases para subir o servidor de música por Quadlet e provar que ele toca no iPhone pelo tailnet. Marque só o que quiser mudar e aprove no fim.",
+  "pedidos": [
+    {"texto": "Backup da biblioteca antes de mexer em qualquer coisa", "fases": "F0"},
+    {"texto": "Subir o servidor de música por Quadlet, sem container avulso", "fases": "F1"},
+    {"texto": "Ouvir no iPhone fora de casa, só pelo tailnet", "fases": "F2"}
+  ],
+  "fatos": [
+    {"status": "documentado", "titulo": "A fase 1 fechou com prova",
+     "texto": "O guia vivo marca as seis etapas da fase 1, cada uma com a prova citada.",
+     "fonte": "guia-radio-pirata.html, `progresso.py --listar` (exemplo)"},
+    {"status": "alegado", "titulo": "A porta 4533 está livre",
+     "texto": "Dito no chat, sem a saída do comando que mostraria quem escuta nela.",
+     "falta": "a saída de `ss -ltnp` no servidor.",
+     "fonte": "declaração no chat (exemplo)"},
+    {"status": "nao_confirmado", "titulo": "O app do iPhone lê a biblioteca pelo tailnet",
+     "texto": "Nunca foi testado neste servidor, e é a prova que fecha a fase 2.",
+     "fonte": "nenhuma prova ainda (exemplo)"},
+    {"status": "misto", "titulo": "O disco tem espaço para a biblioteca",
+     "texto": "O espaço livre foi medido. O tamanho da biblioteca é estimativa.",
+     "fonte": "`df -h` medido, tamanho estimado (exemplo)"}
+  ],
+  "pistas": "uma discussão sobre lentidão com bibliotecas grandes, ainda não lida. Entra só se lida na fonte.",
+  "linha_do_tempo": {
+    "datas_fixas": [{"id": "viagem", "data": "2026-10-24", "rotulo": "Viagem"}],
+    "nota": "As datas são de exemplo. A fase 2 precisa terminar antes da viagem."
+  },
+  "fases": [
+    {"id": "f0", "titulo": "Plano e backup",
+     "agenda": {"inicio": "2026-10-17", "segmentos": [{"quem": "claude", "dias": 0.5}, {"quem": "voce", "dias": 0.5}],
+                "resumo": "Plano e backup · sua aprovação"},
+     "passos": [
+       {"id": "f0-1", "titulo": "Prancheta aprovada",
+        "muda": "Você marca aqui o que quer mudar e aprova no fim.",
+        "pronto": "aprovação registrada nesta prancheta, com data e hora, e lida de volta pelo Claude.",
+        "onde": "`docs/prancheta-fase-2/`", "quem": "você"},
+       {"id": "f0-2", "titulo": "Backup da biblioteca",
+        "muda": "Cópia da pasta de música para o disco externo, com a contagem de arquivos antes e depois.",
+        "pronto": "as duas contagens iguais, citadas no SESSION.md.",
+        "onde": "disco externo", "quem": "Claude, com o seu ok para montar o disco"}
+     ]},
+    {"id": "f1", "titulo": "Quadlet do Navidrome",
+     "agenda": {"inicio": "2026-10-18", "segmentos": [{"quem": "claude", "dias": 2}], "resumo": "Quadlet, subir e provar"},
+     "passos": [
+       {"id": "f1-1", "titulo": "Escrever o quadlet",
+        "muda": "Unidade `navidrome.container` com a biblioteca montada só para leitura.",
+        "pronto": "`systemctl --user cat navidrome` mostra a unidade gerada.",
+        "onde": "`~/.config/containers/systemd/`", "quem": "Claude", "skills": "portas-em-automatico"},
+       {"id": "f1-2", "titulo": "Subir e provar",
+        "muda": "Iniciar pelo systemd e conferir a porta e o processo.",
+        "pronto": "`curl -i` na porta 4533 devolve HTTP 200 e `podman ps` mostra o container Up.",
+        "onde": "servidor de casa", "quem": "Claude"},
+       {"id": "f1-3", "titulo": "Guia vivo da fase 2",
+        "muda": "Fase nova no guia, com as etapas acima e a prova de cada uma.",
+        "pronto": "`progresso.py --listar` sai limpo com a fase 2.",
+        "onde": "`docs/guia-radio-pirata/`", "quem": "Claude"}
+     ]},
+    {"id": "f2", "titulo": "Prova no iPhone",
+     "pausa": "é a sua vez de testar fora de casa, com o passo a passo na mão.",
+     "agenda": {"inicio": "2026-10-20", "segmentos": [{"quem": "claude", "dias": 0.5}, {"quem": "voce", "dias": 1}],
+                "prazo": "viagem", "resumo": "Teste fora de casa · sua vez"},
+     "passos": [
+       {"id": "f2-1", "titulo": "Acesso pelo tailnet",
+        "muda": "Endereço do servidor no tailnet, sem porta aberta para a internet.",
+        "pronto": "o app conecta com o Wi-Fi desligado, só no 4G.",
+        "onde": "app do iPhone", "quem": "você, com o passo a passo"},
+       {"id": "f2-2", "titulo": "Registro",
+        "muda": "HANDOFF e SESSION com a prova e a data.",
+        "pronto": "commit com o HANDOFF atualizado.",
+        "onde": "raiz do projeto", "quem": "Claude"}
+     ]}
+  ],
+  "casas": [
+    {"titulo": "Projeto rádio pirata", "caminho": "~/projetos/radio-pirata", "papel": "Escrita · recebe tudo o que é novo",
+     "pecas": [{"nome": "Quadlet do Navidrome, versionado", "tag": "novo"}, {"nome": "Guia vivo, fase 2", "tag": "atualiza"},
+               {"nome": "HANDOFF e SESSION", "tag": "atualiza"}]},
+    {"titulo": "Servidor de casa", "caminho": "~/.config/containers/systemd/", "papel": "Escrita só no quadlet",
+     "pecas": [{"nome": "navidrome.container", "tag": "novo"}, {"nome": "Pasta de música", "tag": "lê"}]},
+    {"titulo": "Disco externo", "papel": "Só a cópia do backup", "pecas": [{"nome": "Cópia da biblioteca", "tag": "novo"}]}
+  ],
+  "fluxos": [
+    "Do projeto para o servidor: o quadlet, escrito e versionado no repo.",
+    "Do servidor para o projeto: a prova de cada etapa, citada no guia vivo."
+  ],
+  "opcoes": [
+    {"id": "op-1", "titulo": "Formato mais leve no 4G",
+     "texto": "Converter a música para um formato menor quando o iPhone estiver fora do Wi-Fi.",
+     "onde": "F1", "esforco": "medio", "recomendada": true},
+    {"id": "op-2", "titulo": "Aviso quando o servidor cair",
+     "texto": "Um alerta no iPhone se o serviço parar.",
+     "onde": "F2", "esforco": "alto", "recomendada": false,
+     "porque_fora": "é um agente que vigia o servidor, não etapa deste projeto. Vira projeto próprio pela triagem."}
+  ],
+  "premissas": [
+    {"id": "pr-1", "texto": "A biblioteca entra só para leitura no container: o Navidrome nunca escreve na pasta de música."},
+    {"id": "pr-2", "texto": "Nenhuma porta aberta para a internet: o acesso de fora é só pelo tailnet."},
+    {"id": "pr-3", "texto": "O backup acontece antes de qualquer mudança no servidor."}
+  ],
+  "riscos": [
+    {"severidade": "alto", "risco": "A porta 4533 já está ocupada por outro processo.",
+     "mitigacao": "conferir com `ss -ltnp` antes de subir e trocar a porta no quadlet se preciso."},
+    {"severidade": "medio", "risco": "Biblioteca grande deixa a primeira varredura lenta.",
+     "mitigacao": "rodar a varredura de madrugada e medir o tempo."},
+    {"severidade": "baixo", "risco": "O app do iPhone muda de versão no meio do teste.",
+     "mitigacao": "anotar a versão do app junto da prova."}
+  ],
+  "acessos": [
+    {"tipo": "Escrita", "detalhe": "o projeto e `~/.config/containers/systemd/` no servidor."},
+    {"tipo": "Só leitura", "detalhe": "a pasta de música."},
+    {"tipo": "Pede o seu ok", "detalhe": "montar o disco externo e reiniciar o serviço."},
+    {"tipo": "Fora", "detalhe": "abrir porta no roteador e qualquer publicação."}
+  ],
+  "perguntas": [
+    {"titulo": "Formato do backup", "recomendacao": "cópia simples da pasta, sem compressão."},
+    {"titulo": "Nome do serviço", "recomendacao": "navidrome, o mesmo do container."}
+  ],
+  "fontes": [
+    {"rotulo": "Guia vivo do rádio pirata, fase 1 (exemplo)"},
+    {"rotulo": "SESSION.md do rádio pirata (exemplo)"}
+  ]
+}

@@ -1,0 +1,25 @@
+/* Tokens neutros, tema claro, sem marca. Fontes do sistema, sem import.
+   Mesmo contrato do neutro.css, que e o tema escuro do mesmo conjunto. Nasceu para a prancheta
+   (prancheta.py), que precisa dos dois temas: o claro entra em :root e o escuro do neutro.css
+   entra no prefers-color-scheme:dark. Guia vivo, mapa e documento nao usam este arquivo.
+   Contraste WCAG medido em 17/10/2026, pior caso entre --bg, --panel, --hov e --pre:
+     texto --t5 5,34:1, --accent 5,54:1, --support-text 6,10:1, --good 5,02:1, --bad 5,66:1 (AA)
+     texto --panel sobre preenchimento de estado: --good 5,84:1, --bad 6,57:1, --support-text 7,08:1
+   --l1 e --l2 sao fio decorativo, nao borda de controle: a prancheta usa --t5 para isso.
+   --serie-1 e --serie-2 sao as duas series categoricas (Claude executa, sua vez), validadas pelo
+   validate_palette.js da dataviz sobre #FFFFFF e #F3F4F6: todas as checagens passam, CVD 23,5. */
+:root{
+ color-scheme:light;
+ --bg:#F3F4F6; --panel:#FFFFFF; --hov:#ECEEF2; --l1:#DFE3E8; --l2:#C8CED5; --pre:#EEF0F3;
+ --fg:#111418; --t1:#1F242A; --t2:#2E343B; --t3:#3D444C; --t4:#4B535C; --t5:#59626C;
+ --accent:#1F5FA8; --accent-tint:rgba(31,95,168,.07); --accent-line:rgba(31,95,168,.35); --accent-sel:rgba(31,95,168,.22);
+ --support:#8F5A0A; --support-text:#7D4E08; --support-tint:rgba(143,90,10,.08); --support-line:rgba(143,90,10,.4);
+ --good:#1D7348; --good-tint:rgba(29,115,72,.07); --good-line:rgba(29,115,72,.38);
+ --bad:#B42318; --bad-tint:rgba(180,35,24,.06); --bad-line:rgba(180,35,24,.42);
+ --serie-1:#2F68B0; --serie-2:#B07414;
+ --grid-svg:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><path d='M64 0H0V64' fill='none' stroke='%23111418' stroke-opacity='0.035'/></svg>");
+ --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --display:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --radius:0px;
+}

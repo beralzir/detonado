@@ -1,0 +1,19 @@
+{
+  "lido_em": "2026-10-17T18:30:00Z",
+  "marcas": {
+    "f1-2": {"tipo": "passo", "valor": "ajustar", "atalhos": ["Mais enxuto"], "nota": "provar só com curl, sem o app", "em": "2026-10-17T18:00:00.000Z"},
+    "f0-2": {"tipo": "passo", "valor": "manter", "atalhos": [], "nota": "", "em": "2026-10-17T18:01:00.000Z"},
+    "m-f1": {"tipo": "marco", "valor": 1, "atalhos": [], "nota": "uma peça chega só na segunda", "em": "2026-10-17T18:02:00.000Z"},
+    "op-2": {"tipo": "opcao", "valor": "incluir", "atalhos": [], "nota": "", "em": "2026-10-17T18:03:00.000Z"},
+    "pr-3": {"tipo": "premissa", "valor": "vetar", "atalhos": [], "nota": "o backup já existe", "em": "2026-10-17T18:04:00.000Z"}
+  },
+  "estado": {
+    "aprovacao": {"aprovado": true, "em": "2026-10-17T18:10:00.000Z", "por": "u_exemplo",
+                  "marcas_ate": "2026-10-17T18:04:00.000Z",
+                  "resumo": {"ajustes": 1, "cortes": 0, "vetos": 1, "opcoes_incluidas": 2, "opcoes_total": 2, "datas_movidas": 1, "conflitos": 0}},
+    "geral": {"nota": "Tudo certo, só a data da F1.", "em": "2026-10-17T18:05:00.000Z"}
+  },
+  "chat": {
+    "p1": {"pergunta": 1, "resposta": "cópia simples da pasta", "em": "2026-10-17T18:12:00.000Z", "registrado_por": "claude"}
+  }
+}
