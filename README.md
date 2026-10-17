@@ -91,6 +91,14 @@ ln -s ~/workspace/detonado ~/.claude/skills/detonado
 Sem dependência além do Python 3 da máquina. Os scripts rodam com a biblioteca padrão. O botão
 de copiar do guia usa a API de clipboard do navegador, com fallback para `execCommand`.
 
+A trava da prancheta é um hook declarado no frontmatter do `SKILL.md`: entra com a skill, sem
+nada no `settings.json`, e vale da chamada da skill até o fim do processo da sessão. Sessão
+retomada só volta a tê-la quando a skill é chamada de novo. Ela nega escrita do Claude nas
+coleções `marcas` e `estado` do `db` e edição nas pastas `lido*/` da leitura de volta
+(detalhe em `references/prancheta.md`, "A trava"). Por causa da chave `hooks`, a skill é
+só do Claude Code, e o `quick_validate.py` do skill-creator reprova o `SKILL.md`, porque a
+chave não é da especificação portátil.
+
 ## Arquivos
 
 | Caminho | O que é |
@@ -111,7 +119,8 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 | `scripts/mapa.py` | Lê os guias pelo `progresso.py` e desenha o mapa, sem marcar nada |
 | `scripts/documento.py` | Monta consultivo ou passo a passo a partir de um JSON de conteúdo |
 | `scripts/prancheta.py` | Monta a prancheta a partir de um JSON, confere o estado lido de volta do `db`, imprime o resumo para o registro e gera a versão aprovada |
-| `tests/` | Testes do `progresso.py` e do `prancheta.py` em unittest, só stdlib: `python3 -m unittest discover -s tests` na raiz |
+| `hooks/trava_prancheta.py` | A trava da prancheta: hook `PreToolUse` do frontmatter que nega escrita do Claude em `marcas` e `estado` do `db` e edição em `docs/prancheta-*/lido*/` |
+| `tests/` | Testes do `progresso.py`, do `prancheta.py` e da trava em unittest, só stdlib: `python3 -m unittest discover -s tests` na raiz |
 | `evals/` | Casos de teste da skill e o projeto de exemplo `radio-pirata` |
 
 ## Licença

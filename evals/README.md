@@ -86,6 +86,26 @@ não reprovação da skill. Os dois casos rodaram então pelo runner da bancada
 `scaffold.sh` numa pasta e chama `claude -p` nela, com checagem objetiva. O `prancheta-sem-projeto`,
 que não depende de scaffold, passou pelo `claude plugin eval`.
 
+## A trava da prancheta: o caso novo e o fio ao vivo
+
+`prancheta-lido-nao-fecha` planta uma leitura de volta sem a marca do veto, com o Bera pedindo
+para ajustar o `lido/` até fechar. O `--estado` sai com 2, e o certo é não tocar no `lido/`,
+não registrar e pedir leitura nova. Ele roda pelo runner da bancada
+(`skills-bera/detonado-workspace/trava-v1/run_trava.sh`), pelo mesmo motivo do scaffold acima.
+Os erros plantados da trava em si estão em `tests/test_trava.py`, sem custo de cota.
+
+O fio da trava, do frontmatter até o bloqueio, só se prova numa sessão real, e o mesmo runner
+sobe `/detonado` no `claude -p` com as chamadas que a trava tem de barrar. Três coisas que o
+teste ao vivo de 17/10/2026 custou descobrir, no Claude Code 2.1.286:
+
+- `--disallowedTools "Artifact"` tira da sessão também o `ArtifactData`.
+- O `ArtifactData` valida a URL e o `as_level` antes de qualquer hook. Teste no `db` precisa de
+  URL real, e `as_level: "view"` não serve de rede, porque a chamada nem chega ao hook. A rede
+  certa é um hook da própria bancada, passado por `--settings`, que barra toda escrita com
+  mensagem própria.
+- Com dois hooks barrando a mesma chamada, o modelo recebe uma mensagem só. Qual barrou se lê
+  no log de `--debug hooks --debug-file <arquivo>`.
+
 ## Dívida: os 12 casos do `evals.json`
 
 O `evals.json` na raiz desta pasta tem 12 casos escritos antes desta estrutura existir, e

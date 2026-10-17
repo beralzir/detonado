@@ -39,7 +39,7 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
 | Saída | Quer dizer |
 |---|---|
 | 0 | gerou, ou validou no `--dry-run` |
-| 2 | conteúdo ou estado reprovado, ou leitura que não fecha com a aprovação, nada escrito |
+| 2 | conteúdo ou estado reprovado, leitura que não fecha com a aprovação, ou `--estado` fora de `docs/prancheta-<nome>/lido*/`, nada escrito |
 | 3 | estado válido sem aprovação em dia (pendente, desfeita ou com marca posterior), resumo impresso, nada escrito |
 
 ## O ciclo
@@ -67,7 +67,8 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
 
    As duas listas saem vazias: nada se grava ao abrir. O Claude só escreve no `db` em `chat` e
    em `sonda`. Marca, aprovação e comentário são do Bera, e o `db` não distingue quem escreveu,
-   então a regra é esta, sem exceção.
+   então a regra é esta, sem exceção. A trava nega a escrita em `marcas` e `estado` (seção
+   "A trava").
 5. **Perguntas do chat.** As até quatro perguntas espelhadas na prancheta vão por
    `AskUserQuestion`, com a mesma redação e a recomendação marcada. A aprovação não é uma delas:
    ela é ato da prancheta. Cada resposta entra no `db`, para aparecer na prancheta com a hora:
@@ -96,7 +97,10 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
      aprovação, aprovação desfeita, aprovação de outra versão do plano, ou quais marcas
      mudaram depois dela.
    - **Saída 2** mostra o erro ao Bera e para. Não edite `lido/`, o `db` nem o conteúdo para
-     passar. Se a leitura não fecha com a aprovação, leia de novo, para uma pasta nova.
+     passar, por nenhuma ferramenta: a trava nega Edit e Write ali, mas não pega o Bash, que
+     fica só nesta regra. Se a leitura não fecha com a aprovação, leia de novo para uma pasta
+     nova cujo nome comece com `lido` (`lido-2/`, `lido-3/`), que a trava também protege. O
+     `--estado` não aceita leitura em outro lugar.
    - **Aprovação dita só no chat** é declaração: registre como declarada pelo Bera, sem gerar
      a versão aprovada, e peça a confirmação na prancheta.
 
@@ -165,6 +169,57 @@ novo uma vez, e toda marca pendente sai antes da aprovação, para a aprovação
 escrita recusada decidir. Sem `db` (arquivo local, visualização sem a capability), as marcas
 ficam no `localStorage` com aviso de que o Claude não consegue lê-las. É o único papel do
 navegador aqui: o estado que vale é o do `db`.
+
+## A trava
+
+As duas regras que protegem a aprovação, não escrever no `db` em nome do Bera e não editar a
+leitura de volta, são também mecanismo: um hook `PreToolUse` declarado no frontmatter do
+SKILL.md, `hooks/trava_prancheta.py`, com os erros plantados em `tests/test_trava.py`. Bloquear
+é sair com 2 e explicar, e o Claude Code devolve a explicação ao modelo.
+
+| A trava nega | Por quê |
+|---|---|
+| Escrita do ArtifactData (`set`, `update`, `str_replace`, `delete`, `batch` e ação desconhecida) em `marcas` e `estado`, em qualquer caixa e em subcoleção | São as coleções que a página lê como atos do Bera, e o `db` grava a escrita do Claude como dele |
+| Escrita no `db` que ela não consegue conferir (sem coleção, `batch` sem lista, segmento `.` ou `..`) e chamada que ela nem consegue ler (JSON quebrado ou fundo demais) | A trava não aposta. Um JSON fundo demais estourava o leitor e passava |
+| Edit, Write, MultiEdit e NotebookEdit em `docs/prancheta-<nome>/lido*/`, também por `..`, por link simbólico e em outra caixa | `lido/` é o que o `db` devolveu. Editado, o `--estado` confere outra coisa |
+
+Passam:
+
+- a leitura (`get`, `list`, `query`, `profiles`), inclusive com `out_dir` para `lido/`, que é
+  como a pasta nasce
+- a escrita em `chat` e em `sonda`
+- a escrita em qualquer outra coleção, de qualquer artefato
+
+A lista das protegidas é conferida contra o template pelo teste: coleção nova na página
+reprova até alguém decidir de quem ela é. Do outro lado, o `--estado` do `prancheta.py` só
+aceita a pasta `docs/prancheta-<nome>/lido*/`: leitura montada à mão em outra pasta, ou num
+arquivo, sai com 2, porque passaria ao largo da trava.
+
+Bloqueio da trava é para parar e dizer ao Bera o que ela barrou, nunca para tentar por outra
+ferramenta. Ela vale da chamada da Skill até o fim do processo da sessão, para qualquer
+artefato: na mesma sessão, escrever em `marcas` ou `estado` de outro artefato também é negado,
+e o caminho para isso é uma sessão nova.
+
+O que fica de fora, e onde vale só a regra:
+
+- **Bash em `lido/`** (`sed -i`, redirecionamento, `python`). Decisão do Bera em 17/10/2026:
+  a trava não roda a cada Bash da sessão e não finge pegar o que uma heurística deixaria passar.
+- **Sessão retomada.** Medido em 17/10/2026 no Claude Code 2.1.286: depois de um `--resume`, o
+  hook de skill só volta quando a Skill é chamada de novo, e o SKILL.md já no contexto não
+  conta. Por isso a regra do SKILL.md é chamar a Skill a cada pedido de prancheta.
+- **O que o Claude escreve em `chat`.** A trava não sabe o que o Bera respondeu. O
+  `registrado_por: "claude"` marca a origem.
+
+O `${CLAUDE_PLUGIN_ROOT}` como pasta da skill é comportamento observado no Claude Code 2.1.286
+(pela portas-em-automatico e por esta rodada), e a documentação de hooks não o cita. Se o
+caminho quebrar, o `python3` sai com 2 por não achar o script, e o Claude Code barra toda
+chamada que o matcher pega, leitura do `db` inclusive, com a mensagem do Python ("can't open
+file"). A trava falha fechada e à vista. Esse erro também é para parar e avisar o Bera, nunca
+para passar ao Bash. O mesmo teste confere o bloco do frontmatter para isso não acontecer por
+descuido. A chave `hooks` faz o `quick_validate.py` do
+skill-creator reprovar o SKILL.md, porque ela não é da especificação das skills portáteis. A
+validação passa a rodar numa cópia sem o bloco, e o `compatibility` declara a skill só do
+Claude Code.
 
 ## As duas lições do uso real
 

@@ -11,12 +11,14 @@ Rodar: python3 -m unittest discover -s tests   (na raiz da skill, só stdlib, Py
 
 import copy
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -42,13 +44,25 @@ class Base(unittest.TestCase):
         c.write_text(json.dumps(EXEMPLO if conteudo is None else conteudo, ensure_ascii=False), encoding="utf-8")
         args = [sys.executable, str(SCRIPT), "--nome", nome, "--dir", str(self.tmp), "--conteudo", str(c), *extra]
         if estado is not None:
-            if isinstance(estado, Path):
-                args += ["--estado", str(estado)]
-            else:
-                e = self.tmp / "estado.json"
-                e.write_text(json.dumps(estado, ensure_ascii=False), encoding="utf-8")
-                args += ["--estado", str(e)]
+            pasta = estado if isinstance(estado, Path) else self.lido(estado, nome)
+            args += ["--estado", str(pasta)]
         return subprocess.run(args, capture_output=True, text=True)
+
+    def lido(self, estado, nome="fase-2", pasta="lido"):
+        """Grava o estado como o out_dir do ArtifactData grava, em
+        docs/prancheta-<nome>/<pasta>/<coleção>/<id>.json, com a hora da leitura (lido_em da
+        fixture) como hora dos arquivos: o --estado lê a hora da leitura pelos arquivos."""
+        base = self.tmp / "docs" / f"prancheta-{nome}" / pasta
+        shutil.rmtree(base, ignore_errors=True)
+        for col in ("marcas", "estado", "chat"):
+            (base / col).mkdir(parents=True)
+            for i, corpo in (estado.get(col) or {}).items():
+                (base / col / f"{i}.json").write_text(json.dumps(corpo, ensure_ascii=False), encoding="utf-8")
+        if estado.get("lido_em"):
+            t = datetime.fromisoformat(estado["lido_em"].replace("Z", "+00:00")).timestamp()
+            for arq in base.rglob("*.json"):
+                os.utime(str(arq), (t, t))
+        return base
 
     def reprova(self, conteudo, trecho, estado=None, rc=2):
         r = self.roda(conteudo, estado)
@@ -215,7 +229,7 @@ class TestEstado(Base):
         self.reprova(None, "inteiro de -30 a 30", estado=self.estado(lambda e: e["marcas"]["m-f1"].update(valor=99)))
 
     def test_le_pasta_do_out_dir_com_e_sem_envelope(self):
-        pasta = self.tmp / "lido"
+        pasta = self.tmp / "docs" / "prancheta-fase-2" / "lido"
         for col in ("marcas", "estado", "chat"):
             (pasta / col).mkdir(parents=True)
         for i, m in ESTADO["marcas"].items():
@@ -226,6 +240,28 @@ class TestEstado(Base):
         for k, v in ESTADO["chat"].items():
             (pasta / "chat" / f"{k}.json").write_text(json.dumps(v), encoding="utf-8")
         r = self.roda(estado=pasta)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("Aprovada em", r.stdout)
+
+    # Auditoria da rodada trava (17/10/2026): uma leitura montada à mão fora de lido*/ passava
+    # pela trava, que só protege lido*/, e pelo --estado, que aceitava qualquer pasta ou JSON.
+    def test_leitura_fora_de_lido_reprova(self):
+        boa = self.lido(self.estado())
+        outra = self.tmp / "docs" / "prancheta-fase-2" / "leitura"
+        fora = self.tmp / "lido"
+        de_outra = self.tmp / "docs" / "prancheta-rodada-1" / "lido"
+        for destino in (outra, fora, de_outra):
+            shutil.copytree(str(boa), str(destino))
+        arquivo = self.tmp / "estado.json"
+        arquivo.write_text(json.dumps(self.estado(), ensure_ascii=False), encoding="utf-8")
+        atalho = self.tmp / "docs" / "prancheta-fase-2" / "lido-3"
+        os.symlink(str(fora), str(atalho))
+        for pasta in (outra, fora, de_outra, arquivo, atalho):
+            with self.subTest(pasta=str(pasta.relative_to(self.tmp))):
+                self.reprova(None, "não é uma leitura de volta desta prancheta", estado=pasta)
+
+    def test_releitura_em_lido_2_vale(self):
+        r = self.roda(estado=self.lido(self.estado(), pasta="lido-2"))
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("Aprovada em", r.stdout)
 

@@ -16,9 +16,10 @@ Uso:
 
 Sem --conteudo, lê docs/prancheta-<nome>/conteudo.json do projeto. Sai em
 docs/prancheta-<nome>/prancheta-<nome>.html. Com --estado (a pasta que o ArtifactData gravou,
-com marcas/, estado/ e chat/, ou um JSON com essas três chaves), confere o estado contra o
+docs/prancheta-<nome>/lido*/, com marcas/, estado/ e chat/), confere o estado contra o
 conteúdo, imprime o resumo em markdown para o registro do projeto e, sem --dry-run, escreve a
-versão aprovada, que é só leitura.
+versão aprovada, que é só leitura. Leitura em outro lugar, ou num arquivo, reprova com 2: a
+pasta lido*/ é a que a trava da skill (hooks/trava_prancheta.py) protege de edição.
 
 Saída: 0 gerou ou validou; 2 conteúdo ou estado reprovado, nada escrito; 3 estado válido mas
 sem aprovação em dia (pendente, desfeita ou com marca posterior), resumo impresso, nada escrito.
@@ -495,28 +496,29 @@ def _corpo(obj):
     return obj
 
 
+def pasta_de_leitura(caminho, pasta):
+    """A leitura de volta só vale em docs/prancheta-<nome>/lido*/, a pasta que o out_dir do
+    ArtifactData grava e a trava da skill protege. Até 17/10/2026 o --estado aceitava qualquer
+    pasta ou um JSON, e uma leitura montada à mão fora de lido*/ passava pela trava e por aqui.
+    O teste é por arquivo (samefile), não por texto: caixa e link simbólico não enganam."""
+    try:
+        real = caminho.resolve()
+        return (caminho.is_dir() and real.name.lower().startswith("lido")
+                and real.parent.samefile(pasta))
+    except OSError:
+        return False
+
+
 def carrega_estado(caminho):
     est = {"marcas": {}, "estado": {}, "chat": {}}
-    if caminho.is_dir():
-        mtimes = []
-        for col in est:
-            pasta = caminho / col
-            if pasta.is_dir():
-                for arq in sorted(pasta.glob("*.json")):
-                    est[col][arq.stem] = _corpo(json.loads(arq.read_text(encoding="utf-8")))
-                    mtimes.append(arq.stat().st_mtime)
-        lido = datetime.fromtimestamp(max(mtimes), tz=timezone.utc) if mtimes else None
-    else:
-        obj = json.loads(caminho.read_text(encoding="utf-8"))
-        if not isinstance(obj, dict):
-            raise ValueError("o JSON de estado precisa ser um objeto com marcas, estado e chat")
-        for col in est:
-            v = obj.get(col) or {}
-            if not isinstance(v, dict):
-                raise ValueError(f"`{col}` precisa ser objeto de id para documento")
-            est[col] = {k: _corpo(x) for k, x in v.items()}
-        lido = _quando(obj.get("lido_em")) or datetime.fromtimestamp(caminho.stat().st_mtime,
-                                                                       tz=timezone.utc)
+    mtimes = []
+    for col in est:
+        pasta = caminho / col
+        if pasta.is_dir():
+            for arq in sorted(pasta.glob("*.json")):
+                est[col][arq.stem] = _corpo(json.loads(arq.read_text(encoding="utf-8")))
+                mtimes.append(arq.stat().st_mtime)
+    lido = datetime.fromtimestamp(max(mtimes), tz=timezone.utc) if mtimes else None
     est["lido_em"] = lido.isoformat() if lido else None
     return est
 
@@ -763,7 +765,7 @@ def main():
     ap.add_argument("--conteudo", type=Path,
                     help="JSON de conteúdo (padrão: docs/prancheta-<nome>/conteudo.json)")
     ap.add_argument("--estado", type=Path,
-                    help="pasta do out_dir do ArtifactData, ou JSON com marcas, estado e chat")
+                    help="pasta do out_dir do ArtifactData: docs/prancheta-<nome>/lido*/")
     ap.add_argument("--tokens", choices=["neutro"], default="neutro",
                     help="só neutro na v1: é o único par claro e escuro com séries validadas")
     ap.add_argument("--dry-run", action="store_true")
@@ -799,6 +801,12 @@ def main():
         est_path = a.estado.expanduser()
         if not est_path.is_absolute() and not est_path.exists():
             est_path = raiz / est_path
+        if not pasta_de_leitura(est_path, pasta):
+            print(f"ERRO: --estado {est_path} não é uma leitura de volta desta prancheta, nada foi "
+                  f"escrito. Ela é a pasta {pasta}/lido (ou lido-2, lido-3), gravada pelo out_dir "
+                  "do ArtifactData. Leitura montada à mão, em outra pasta ou num arquivo, não "
+                  "vale: leia o db de novo para uma pasta lido*/.", file=sys.stderr)
+            return 2
         try:
             est = carrega_estado(est_path)
         except (OSError, ValueError) as e:

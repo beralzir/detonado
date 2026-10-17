@@ -1,6 +1,19 @@
 ---
 name: detonado
 description: "Dá forma a um projeto de execução do Bera: fases com prova, HANDOFF.md para retomar do celular, SESSION.md como checkpoint, tasks/lessons.md, guia vivo em HTML e prancheta de aprovação de plano. Abre ou adota projeto, monta o guia, fecha a sessão, registra lição, responde 'onde paramos' e lê de volta a prancheta. MANUAL-ONLY. Acionar EXCLUSIVAMENTE com pedido nominal: /detonado ou frase como 'usa o detonado', 'chama o detonado', 'abre o detonado do homelab', 'detonado, fecha a sessão', 'detonado, desenha o mapa', 'detonado, faz um consultivo sobre X', 'detonado, escreve o passo a passo de X', 'detonado, abre a prancheta do plano', 'detonado, lê a prancheta'. Pedido genérico de guia, passo a passo, checklist, handoff, checkpoint, quadro de aprovação, 'onde paramos', 'fecha a sessão' ou 'documenta o projeto' NÃO é gatilho: responder normalmente e, no máximo, sugerir a skill em texto. Não ativar com 'detonado' fora de projeto ('tô detonado hoje', 'detonado do Chrono Trigger'). Em dúvida, NÃO invocar."
+compatibility: "Só Claude Code: os scripts rodam no terminal, e a trava da prancheta é hook de skill (hooks/trava_prancheta.py)."
+hooks:
+  # A trava da prancheta (references/prancheta.md, "A trava"). Hook de skill roda no diretório
+  # da sessão, então o script vem pelo ${CLAUDE_PLUGIN_ROOT}, que o Claude Code entrega como a
+  # pasta da skill (o ${CLAUDE_SKILL_DIR} só existe no corpo). Vale da invocação até o fim do
+  # processo: sessão retomada só volta a ter a trava quando o detonado for invocado de novo. Se o
+  # script não abrir, o python3 sai com 2 e a trava falha fechada, com a mensagem dele.
+  PreToolUse:
+    - matcher: "ArtifactData|Edit|Write|MultiEdit|NotebookEdit"
+      hooks:
+        - type: command
+          command: python3
+          args: ["-I", "${CLAUDE_PLUGIN_ROOT}/hooks/trava_prancheta.py"]
 ---
 
 # detonado
@@ -169,7 +182,11 @@ Ciclo, JSON, leitura de volta e as duas lições do uso real em `references/pran
 - **Publicar só com ok do Bera**, com `capabilities: {db: {}, user: {}}`, sempre numa URL nova
   por rodada, e logo depois sondar o `db` (gravar, ler e apagar um documento de sonda). Nada se
   grava em nome do Bera: o Claude só escreve no `db` em `chat` (as respostas que o Bera deu no
-  chat) e em `sonda`.
+  chat) e em `sonda`. A trava desta skill (`hooks/trava_prancheta.py`) nega escrita em `marcas`
+  e `estado` e edição em `docs/prancheta-*/lido*/`. Bloqueio dela é para parar e dizer ao Bera,
+  nunca para tentar por outra ferramenta. Quem liga a trava é a chamada da Skill, não este texto
+  no contexto: a cada pedido de prancheta, chame a Skill de novo, mesmo com ela já carregada,
+  porque sessão retomada não herda o hook.
 - **Aprovação vale com data e hora, lida de volta e amarrada ao plano que o Bera viu.** Ela
   acontece na prancheta, com confirmação, nunca por resposta rápida no chat: aprovação dita só
   no chat é declaração. `prancheta.py --estado` com saída 3 (pendente, desfeita, de outra versão
@@ -223,6 +240,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | `scripts/documento.py` | documento: monta consultivo ou passo a passo a partir de um JSON de conteúdo. `--dry-run` antes |
 | `references/prancheta.md` | prancheta: quando usar, ciclo de publicar a registrar, JSON, estado no `db`, leitura de volta pelo `ArtifactData`, sonda |
 | `scripts/prancheta.py` | prancheta: monta a partir do JSON, `--dry-run` antes, e `--estado` confere o que voltou do `db`, imprime o resumo para o registro e gera a versão aprovada |
+| `hooks/trava_prancheta.py` | prancheta: hook do frontmatter, vale da chamada da Skill até o fim do processo. Nega escrita do Claude em `marcas` e `estado` e edição em `lido*/`. O que fica de fora está em `references/prancheta.md`, "A trava" |
 | `assets/guia/mapa.template.html` | mapa: template, que injeta o CSS do `guia.template.html` para os dois não divergirem |
 | `scripts/progresso.py` | guia e fechar: lista, marca, substitui prova, desmarca, declara sem prova, fecha e reabre fase, insere fase, reescreve "Onde paramos" e o texto dos cartões, carimba data, valida consistência |
 | `scripts/build_artifact.py` | publicar: deriva o HTML, embute documento do repo e imprime o mapa `files` das imagens. O projeto recebe um invocador, não uma cópia |
