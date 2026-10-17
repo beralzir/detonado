@@ -32,12 +32,12 @@ import prancheta  # noqa: E402
 class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="prancheta-"))
-        self.saida = self.tmp / "docs" / "prancheta-teste" / "prancheta-teste.html"
+        self.saida = self.tmp / "docs" / "prancheta-fase-2" / "prancheta-fase-2.html"
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
-    def roda(self, conteudo=None, estado=None, extra=(), nome="teste"):
+    def roda(self, conteudo=None, estado=None, extra=(), nome="fase-2"):
         c = self.tmp / "conteudo.json"
         c.write_text(json.dumps(EXEMPLO if conteudo is None else conteudo, ensure_ascii=False), encoding="utf-8")
         args = [sys.executable, str(SCRIPT), "--nome", nome, "--dir", str(self.tmp), "--conteudo", str(c), *extra]
@@ -78,12 +78,17 @@ class TestConteudo(Base):
         self.assertNotIn("{{", html)
         self.assertEqual(d["modo"], "aberto")
         self.assertIsNone(d["estado"])
-        self.assertEqual(d["chave_local"], "detonado:prancheta:radio-pirata:teste")
+        self.assertEqual(d["chave_local"], "detonado:prancheta:radio-pirata:fase-2")
         self.assertEqual([f["rotulo"] for f in d["conteudo"]["fases"]], ["F0", "F1", "F2"])
         # os dois temas, como o Artifact pede, e as séries validadas nos dois
         self.assertIn('@media (prefers-color-scheme: dark){:root:not([data-theme="light"])', html)
         self.assertIn(':root[data-theme="dark"]', html)
         self.assertEqual(html.count("--serie-1"), 3 + html.count("var(--serie-1)"))
+
+    def test_fixture_de_estado_traz_a_versao_do_exemplo(self):
+        g, c = prancheta.valida_conteudo(copy.deepcopy(EXEMPLO))
+        self.assertEqual(ESTADO["estado"]["aprovacao"]["conteudo"], prancheta.versao_conteudo(c),
+                         "o exemplo mudou: grave a versão nova na fixture de estado")
 
     def test_dry_run_nao_escreve(self):
         r = self.roda(extra=("--dry-run",))
@@ -229,6 +234,28 @@ class TestEstado(Base):
         r = self.roda()
         self.assertEqual(r.returncode, 2)
         self.assertIn("já é a versão aprovada", r.stderr)
+
+    # Achados da auditoria de prompt de 17/10/2026: a aprovação tem de valer para o plano visto.
+    def test_conteudo_mudou_depois_da_aprovacao(self):
+        mudado = mexe(lambda c: c["fases"][1]["passos"][1].update(titulo="Subir, provar e medir"))
+        self.reprova(mudado, "APROVAÇÃO DE OUTRA VERSÃO", estado=self.estado(), rc=3)
+
+    def test_aprovacao_de_outra_prancheta(self):
+        self.reprova(None, "APROVAÇÃO DE OUTRA VERSÃO", rc=3,
+                     estado=self.estado(lambda e: e["estado"]["aprovacao"].update(nome="rodada-1")))
+
+    def test_leitura_sem_marcas_nao_fecha(self):
+        self.reprova(None, "a leitura não fecha com a aprovação", estado=self.estado(lambda e: e.update(marcas={})))
+
+    def test_resumo_que_nao_fecha(self):
+        self.reprova(None, "ajustes 3 na aprovação e 1 nas marcas lidas",
+                     estado=self.estado(lambda e: e["estado"]["aprovacao"]["resumo"].update(ajustes=3)))
+
+    def test_resposta_do_chat_depois_da_aprovacao_rotulada(self):
+        r = self.roda(estado=self.estado())
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("cópia simples da pasta (17/10/2026 às", r.stdout)
+        self.assertIn("registrada depois da aprovação", r.stdout)
 
 
 class TestCronograma(unittest.TestCase):

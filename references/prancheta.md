@@ -39,7 +39,7 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
 | Saída | Quer dizer |
 |---|---|
 | 0 | gerou, ou validou no `--dry-run` |
-| 2 | conteúdo ou estado reprovado, nada escrito |
+| 2 | conteúdo ou estado reprovado, ou leitura que não fecha com a aprovação, nada escrito |
 | 3 | estado válido sem aprovação em dia (pendente, desfeita ou com marca posterior), resumo impresso, nada escrito |
 
 ## O ciclo
@@ -48,20 +48,26 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
    A recomendação é o padrão de cada controle, então o JSON diz o que você recomenda.
 2. **Montar.** `prancheta.py --dry-run`, depois sem. Confira o tamanho em bytes.
 3. **Publicar, só com ok do Bera.** `python3 ~/.claude/skills/detonado/scripts/build_artifact.py
-   docs/prancheta-<nome>/prancheta-<nome>.html` gera o derivado, e ele sobe pela ferramenta
-   Artifact com `capabilities: {db: {}, user: {}}`. Registre a URL e o `sha256` onde o projeto
-   cita a prancheta (SESSION.md, e o HANDOFF se ela muda o ponto de retomada).
+   <projeto>/docs/prancheta-<nome>/prancheta-<nome>.html` gera o derivado, e ele sobe pela
+   ferramenta Artifact com `capabilities: {db: {}, user: {}}`, sem `url`: **rodada nova é URL
+   nova**, porque o `db` de um artefato guarda as marcas e a aprovação da rodada anterior.
+   Registre a URL e o `sha256` onde o projeto cita a prancheta (SESSION.md, e o HANDOFF se ela
+   muda o ponto de retomada).
 4. **Sondar o `db`** logo depois da primeira publicação, e dizer ao Bera numa linha o que foi
-   exercitado:
+   exercitado. Se `marcas` ou `estado` vierem com algum documento, a URL não é desta prancheta:
+   pare e publique de novo, sem `url`.
 
    ```
    ArtifactData action:"set"    url:<url> collection:"sonda" doc_id:"teste" data:{"em":"<agora>"}
    ArtifactData action:"get"    url:<url> collection:"sonda" doc_id:"teste"
    ArtifactData action:"delete" url:<url> collection:"sonda" doc_id:"teste" if_version:<a lida>
    ArtifactData action:"list"   url:<url> collection:"marcas"
+   ArtifactData action:"list"   url:<url> collection:"estado"
    ```
 
-   A lista de `marcas` sai vazia: nada se grava ao abrir, e o Claude nunca marca em nome do Bera.
+   As duas listas saem vazias: nada se grava ao abrir. O Claude só escreve no `db` em `chat` e
+   em `sonda`. Marca, aprovação e comentário são do Bera, e o `db` não distingue quem escreveu,
+   então a regra é esta, sem exceção.
 5. **Perguntas do chat.** As até quatro perguntas espelhadas na prancheta vão por
    `AskUserQuestion`, com a mesma redação e a recomendação marcada. A aprovação não é uma delas:
    ela é ato da prancheta. Cada resposta entra no `db`, para aparecer na prancheta com a hora:
@@ -84,13 +90,30 @@ projeto. Exemplo completo de conteúdo, com o projeto fictício das fixtures:
    ```
 
    O `out_dir` grava cada documento como o corpo puro, em `lido/<coleção>/<id>.json`
-   (conferido na sonda de 17/10/2026). Saída 3 não se registra como aprovado. Diga ao Bera o
-   que o resumo diz: ainda sem aprovação, aprovação desfeita, ou quais marcas mudaram depois dela.
+   (conferido na sonda de 17/10/2026).
+
+   - **Saída 3** não se registra como aprovado. Diga ao Bera o que o resumo diz: ainda sem
+     aprovação, aprovação desfeita, aprovação de outra versão do plano, ou quais marcas
+     mudaram depois dela.
+   - **Saída 2** mostra o erro ao Bera e para. Não edite `lido/`, o `db` nem o conteúdo para
+     passar. Se a leitura não fecha com a aprovação, leia de novo, para uma pasta nova.
+   - **Aprovação dita só no chat** é declaração: registre como declarada pelo Bera, sem gerar
+     a versão aprovada, e peça a confirmação na prancheta.
+
+   A página grava na aprovação a versão do conteúdo (impressão digital do JSON normalizado), o
+   nome da prancheta, a hora da última marca e o resumo das contagens. O `--estado` só diz
+   aprovada quando versão e nome batem com o conteúdo local, quando nenhuma marca é posterior e
+   quando o resumo e a última marca fecham com o que foi lido. Conteúdo mudado depois de
+   publicado pede aprovação nova.
 8. **Registrar.** O resumo em markdown que o script imprime vai para o SESSION.md (e para o
-   arquivo de decisões, se o projeto tiver um). Depois, sem `--dry-run`, o mesmo comando gera a
-   versão aprovada, só leitura. Ela passa pelo `build_artifact.py`, é republicada na mesma URL
-   (sem passar `capabilities`, que fica como estava) e a pasta `docs/prancheta-<nome>/` inteira
-   é commitada por caminho: conteúdo, página e `lido/`. Esse commit é o arquivo da aprovação.
+   arquivo de decisões, se o projeto tiver um). Projeto sem SESSION.md: adote-o antes (modo
+   adotar) ou pergunte ao Bera onde registrar. Logo antes de republicar, leia de novo para uma
+   pasta nova (`lido-2/`) e rode o `--estado --dry-run` nela: se o resumo mudou, pare e volte
+   ao passo 7. Depois, sem `--dry-run`, o mesmo comando gera a versão aprovada, só leitura. Ela
+   passa pelo `build_artifact.py`, é republicada na mesma URL (sem passar `capabilities`, que
+   fica como estava), a URL e o `sha256` registrados são atualizados, e a pasta
+   `docs/prancheta-<nome>/` inteira é commitada por caminho: conteúdo, página e `lido/`. Esse
+   commit é o arquivo da aprovação.
 
 O `read_db` das instruções antigas (`guia-vivo.md`) é o mesmo `ArtifactData` com outra grafia.
 
@@ -103,7 +126,9 @@ não aparece. Chave desconhecida reprova, com a parecida como dica. Ids em minú
 
 | Chave | O que é | Regra |
 |---|---|---|
+| `titulo_curto` | nome da aba e da galeria do Artifact | até quatro palavras, padrão é o `titulo` |
 | `tarja` | rótulo curto da barra (EXEMPLO, RESTRITO) | até 24 caracteres |
+| `eyebrow` | linha acima do título | padrão: projeto, "prancheta de aprovação" e a data |
 | `pedidos` | `texto` e `fases`: o pedido do Bera e onde ele entra | |
 | `fatos` | `status`, `titulo`, `texto`, `fonte`, `falta` e `selo` opcionais | `status` é documentado, alegado, nao_confirmado ou misto. **Sem `fonte` reprova** |
 | `pistas` | o que ainda não foi lido e não tem status | texto |

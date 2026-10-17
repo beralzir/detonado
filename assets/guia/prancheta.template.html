@@ -846,6 +846,7 @@ function atualizaResumo() {
 /* aprovação: o estado aparece na barra, na capa e no fim, com data e hora e com o que foi escolhido */
 function situacao() {
   if (!APROV) { return {s: 'pendente'}; }
+  if (APROV.conteudo !== D.versao_conteudo || APROV.nome !== D.nome) { return {s: 'outra', em: APROV.em}; }
   if (!APROV.aprovado) { return {s: 'desfeita', em: APROV.em}; }
   var em = Date.parse(APROV.em), depois = ORDEM.filter(function (id) { return timers[id] || emVoo[id] || (S[id].em && Date.parse(S[id].em) > em); });
   return depois.length && MODO !== 'aprovado' ? {s: 'desatualizada', em: APROV.em, depois: depois} : {s: 'aprovada', em: APROV.em};
@@ -869,6 +870,9 @@ function atualizaAprovacao() {
   } else if (st.s === 'desfeita') {
     tit = 'Aprovação desfeita em ' + quandoTxt(st.em) + '. O plano está de novo aguardando você.';
     pil.textContent = 'Aprovação desfeita';
+  } else if (st.s === 'outra') {
+    tit = 'Este artefato guarda a aprovação de outra versão do plano, de ' + quandoTxt(st.em) + ', e ela não vale para esta. Aprove esta versão aqui.';
+    pil.textContent = 'Aguardando aprovação';
   } else {
     tit = 'Ainda não aprovada. O padrão é a recomendação: marque só o que quer mudar e aprove no fim.';
     pil.textContent = 'Aguardando aprovação';
@@ -1030,9 +1034,10 @@ function modoLocal(motivo) {
   setSalvo('local', temLocal ? 'Só neste navegador' : 'Sem armazenamento');
   var av = $('aviso-local');
   av.hidden = false;
+  // Aprovação dita no chat é declaração, não aprovação: daqui o caminho é abrir o link publicado.
   av.textContent = (motivo || 'Esta visualização não fala com o armazenamento do artefato.') + ' ' + (temLocal
-    ? 'Suas marcas ficam só neste navegador e o Claude não consegue lê-las: diga no chat o que mudou e que aprovou.'
-    : 'Nem este navegador guarda as marcas: elas somem ao recarregar. Diga no chat o que mudou.');
+    ? 'Suas marcas ficam só neste navegador e o Claude não consegue lê-las. Para aprovar, abra o link publicado do artefato e marque lá.'
+    : 'Nem este navegador guarda as marcas: elas somem ao recarregar. Para aprovar, abra o link publicado do artefato.');
   habilita();
   atualizaTudo();
 }
@@ -1094,19 +1099,21 @@ function ligaControles() {
     bc.disabled = true;
     drenar().then(function () {
       var ems = ORDEM.map(function (id) { return S[id].em; }).filter(Boolean).sort();
-      CORPO_APROV = {aprovado: true, em: new Date().toISOString(), por: meuId, marcas_ate: ems.length ? ems[ems.length - 1] : null, resumo: contagens()};
+      // Versão do conteúdo e nome amarram a aprovação ao plano que o Bera viu: o --estado confere os dois.
+      CORPO_APROV = {aprovado: true, em: new Date().toISOString(), por: meuId, marcas_ate: ems.length ? ems[ems.length - 1] : null,
+        resumo: contagens(), conteudo: D.versao_conteudo, nome: D.nome};
       if (!db) { APROV = CORPO_APROV; salvaLocal(); return true; }
       return grava('aprovacao').then(function (ok) { if (ok) { APROV = CORPO_APROV; } return ok; });
     }).then(function (ok) {
       bc.disabled = false;
       $('confirma').hidden = !!ok;
       atualizaAprovacao();
-      if (ok && !db) { $('aprov-estado').textContent += ' Aprovada só neste navegador: o Claude não consegue ler. Diga no chat que aprovou e o que mudou.'; }
+      if (ok && !db) { $('aprov-estado').textContent += ' Aprovada só neste navegador: o Claude não consegue ler esta aprovação. Para valer, aprove no link publicado do artefato.'; }
       $('aprov-estado').focus();
     });
   });
   $('btn-desfaz').addEventListener('click', function () {
-    CORPO_APROV = {aprovado: false, em: new Date().toISOString(), por: meuId, desfeita_de: APROV ? APROV.em : null};
+    CORPO_APROV = {aprovado: false, em: new Date().toISOString(), por: meuId, desfeita_de: APROV ? APROV.em : null, conteudo: D.versao_conteudo, nome: D.nome};
     var feito = db ? grava('aprovacao') : Promise.resolve(true);
     feito.then(function (ok) { if (ok) { APROV = CORPO_APROV; salvaLocal(); } atualizaAprovacao(); $('aprov-estado').focus(); });
   });

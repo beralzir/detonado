@@ -166,12 +166,15 @@ Ciclo, JSON, leitura de volta e as duas lições do uso real em `references/pran
   do fatiamento de `references/metodo.md`. O padrão é a recomendação: o Bera marca só o que muda.
 - **Conteúdo em JSON, página pelo `prancheta.py`, `--dry-run` antes.** Passo sem "pronto quando",
   fato sem fonte, opção fora sem o porquê e mais de quatro perguntas reprovam com saída 2.
-- **Publicar só com ok do Bera**, com `capabilities: {db: {}, user: {}}`, e logo depois sondar o
-  `db` (gravar, ler e apagar um documento de sonda). Nada se grava em nome do Bera: o Claude só
-  escreve no `db` as respostas que o Bera deu no chat.
-- **Aprovação vale com data e hora, lida de volta.** Ela acontece na prancheta, com confirmação,
-  nunca por resposta rápida no chat. `prancheta.py --estado` com saída 3 (pendente, desfeita ou
-  com marca posterior) não se registra como aprovado: diga ao Bera o que falta.
+- **Publicar só com ok do Bera**, com `capabilities: {db: {}, user: {}}`, sempre numa URL nova
+  por rodada, e logo depois sondar o `db` (gravar, ler e apagar um documento de sonda). Nada se
+  grava em nome do Bera: o Claude só escreve no `db` em `chat` (as respostas que o Bera deu no
+  chat) e em `sonda`.
+- **Aprovação vale com data e hora, lida de volta e amarrada ao plano que o Bera viu.** Ela
+  acontece na prancheta, com confirmação, nunca por resposta rápida no chat: aprovação dita só
+  no chat é declaração. `prancheta.py --estado` com saída 3 (pendente, desfeita, de outra versão
+  do conteúdo ou com marca posterior) não se registra como aprovado, e com saída 2 mostra o erro
+  e para, sem editar `lido/` nem o `db`: diga ao Bera o que falta.
 - **Aprovada, ela vira registro.** O resumo vai para o SESSION.md, a versão só leitura sai do
   `--estado`, é republicada na mesma URL e commitada por caminho. Mudar depois é rodada nova.
 
@@ -210,7 +213,7 @@ o trabalho segue o ritmo da conversa e das skills de execução.
 | Arquivo | Quando |
 |---|---|
 | `references/metodo.md` | abrir ou adotar: fatiar em fases, "pronto quando", provas que valem e as que mentem, JSON das fases |
-| `references/artefatos.md` | qualquer modo: o que vai em cada artefato, os cinco do projeto e os três opcionais, quando atualizar, estado com dono |
+| `references/artefatos.md` | qualquer modo: o que vai em cada artefato, os cinco do projeto e os quatro opcionais, quando atualizar, estado com dono |
 | `references/guia-vivo.md` | guia: anatomia do HTML, ids, tokens, Artifact, acessibilidade, portões |
 | `references/retomada.md` | fechar e retomar: rituais, mensagem para colar no celular |
 | `scripts/novo_projeto.py` | abrir e adotar: cria a estrutura a partir dos templates, sem sobrescrever. `--dry-run` antes, `--sem-guia` para adotar sem fase aberta |

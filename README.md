@@ -97,7 +97,7 @@ de copiar do guia usa a API de clipboard do navegador, com fallback para `execCo
 |---|---|
 | `SKILL.md` | A instrução: modos, princípios, fluxo de abrir, regras default, fora de escopo |
 | `references/metodo.md` | Fases com prova: fatiamento, o que vale como prova, testes que mentem, JSON das fases |
-| `references/artefatos.md` | Os cinco artefatos do projeto e os três opcionais, quando atualizar cada um, estado com dono |
+| `references/artefatos.md` | Os cinco artefatos do projeto e os quatro opcionais, quando atualizar cada um, estado com dono |
 | `references/guia-vivo.md` | Anatomia do guia, contrato dos tokens, atualização, publicação, acessibilidade, portões |
 | `references/retomada.md` | Rituais de fechar e retomar, mensagem para colar no celular |
 | `references/mapa.md` | Anatomia do mapa, o que é foto e o que é vivo, honestidade das datas |

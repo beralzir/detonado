@@ -10,7 +10,8 @@
   "estado": {
     "aprovacao": {"aprovado": true, "em": "2026-10-17T18:10:00.000Z", "por": "u_exemplo",
                   "marcas_ate": "2026-10-17T18:04:00.000Z",
-                  "resumo": {"ajustes": 1, "cortes": 0, "vetos": 1, "opcoes_incluidas": 2, "opcoes_total": 2, "datas_movidas": 1, "conflitos": 0}},
+                  "resumo": {"ajustes": 1, "cortes": 0, "vetos": 1, "opcoes_incluidas": 2, "opcoes_total": 2, "datas_movidas": 1, "conflitos": 0},
+                  "conteudo": "449c566536f9d610", "nome": "fase-2"},
     "geral": {"nota": "Tudo certo, só a data da F1.", "em": "2026-10-17T18:05:00.000Z"}
   },
   "chat": {

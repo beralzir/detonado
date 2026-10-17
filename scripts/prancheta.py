@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import hashlib
 import json
 import math
 import re
@@ -415,6 +416,37 @@ def valida_conteudo(d):
     return g, c
 
 
+def versao_conteudo(c):
+    """Impressão digital do conteúdo normalizado. A página grava na aprovação, e o --estado só
+    diz aprovada se ela bater com o conteúdo local: a aprovação vale para o plano que o Bera viu,
+    não para o que o conteúdo virou depois. Achado da auditoria de prompt de 17/10/2026."""
+    bruto = json.dumps(c, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(bruto.encode("utf-8")).hexdigest()[:16]
+
+
+def contagens(c, marcas):
+    """O mesmo resumo que a página grava ao aprovar, recalculado das marcas lidas de volta."""
+    reg = marcaveis(c)
+    k = {"ajustes": 0, "cortes": 0, "vetos": 0, "opcoes_incluidas": 0,
+         "opcoes_total": len(c.get("opcoes", [])), "datas_movidas": 0, "conflitos": 0}
+    for i, r in reg.items():
+        v = marcas[i]["valor"] if i in marcas else r["padrao"]
+        k["ajustes"] += r["tipo"] == "passo" and v == "ajustar"
+        k["cortes"] += r["tipo"] == "passo" and v == "cortar"
+        k["vetos"] += r["tipo"] == "premissa" and v == "vetar"
+        k["opcoes_incluidas"] += r["tipo"] == "opcao" and v == "incluir"
+        k["datas_movidas"] += r["tipo"] == "marco" and v != 0
+    origem, lns = linhas_da_agenda(c["fases"])
+    if lns:
+        fixas = {df["id"]: _data(df["data"]) for df in (c.get("linha_do_tempo") or {}).get("datas_fixas", [])}
+        efe = cronograma(lns, {i[2:]: m["valor"] for i, m in marcas.items() if m["tipo"] == "marco"})
+        for f in c["fases"]:
+            pz = (f.get("agenda") or {}).get("prazo")
+            if pz and efe[f["id"]]["fim"] > (fixas[pz] - origem).days + 1e-9:
+                k["conflitos"] += 1
+    return k
+
+
 def marcaveis(c):
     """Tudo o que o Bera pode marcar, com tipo, padrão (a recomendação) e rótulo para o resumo."""
     reg = {}
@@ -489,7 +521,7 @@ def carrega_estado(caminho):
     return est
 
 
-def valida_estado(est, c):
+def valida_estado(est, c, nome, versao):
     """Devolve (erros, avisos, snapshot limpo, situação da aprovação, ids posteriores)."""
     erros, avisos = [], []
     reg = marcaveis(c)
@@ -549,10 +581,26 @@ def valida_estado(est, c):
             em_ap = _quando(aprov["em"])
             if not aprov["aprovado"]:
                 situacao = "desfeita"
+            elif aprov.get("conteudo") != versao or aprov.get("nome") != nome:
+                situacao = "outra_versao"
             else:
                 posteriores = sorted(i for i, m in marcas.items() if _quando(m["em"]) > em_ap)
                 situacao = "desatualizada" if posteriores else "aprovada"
-            aprov = {k: aprov.get(k) for k in ("aprovado", "em", "por", "marcas_ate", "resumo")}
+            if situacao == "aprovada":
+                # A leitura tem de fechar com o que a página gravou ao aprovar. Coleção que não
+                # veio, ou marca que sumiu, dava "aprovada" com "nada mudado" até 17/10/2026.
+                gravado = aprov.get("resumo") if isinstance(aprov.get("resumo"), dict) else {}
+                calc = contagens(c, marcas)
+                dif = [f"{k} {gravado[k]} na aprovação e {calc[k]} nas marcas lidas"
+                       for k in sorted(gravado) if k in calc and gravado[k] != calc[k]]
+                ems = [_quando(m["em"]) for m in marcas.values()]
+                ate = _quando(aprov.get("marcas_ate")) if aprov.get("marcas_ate") else None
+                if (max(ems) if ems else None) != ate:
+                    dif.append("a marca mais recente lida não é a que a aprovação registrou")
+                if dif:
+                    erros.append("a leitura não fecha com a aprovação (" + ", ".join(dif) + "). "
+                                 "Leia de novo as coleções com o ArtifactData, sem editar lido/")
+            aprov = {k: aprov.get(k) for k in ("aprovado", "em", "por", "marcas_ate", "resumo", "conteudo", "nome")}
     for k in sorted(set(estado) - {"geral", "aprovacao"}):
         avisos.append(f"estado/{k}: documento que a prancheta não conhece, ignorado")
     if geral and aprov and aprov.get("aprovado") and _quando(geral.get("em")) \
@@ -594,6 +642,11 @@ def resumo_md(c, snap, situacao, posteriores):
                       "Não registre como aprovada: peça ao Bera para aprovar de novo na prancheta.")
     elif situacao == "desfeita":
         linhas.append(f"Aprovação desfeita em {quando_txt(_quando(ap['em']))}. Não registre como aprovada.")
+    elif situacao == "outra_versao":
+        linhas.append(f"APROVAÇÃO DE OUTRA VERSÃO: a aprovação de {quando_txt(_quando(ap['em']))} foi "
+                      f"feita sobre outro conteúdo ou outra prancheta ({ap.get('nome')}, versão "
+                      f"{ap.get('conteudo')}), e não sobre esta ({versao_conteudo(c)}). Não registre como "
+                      "aprovada: o plano mudou depois da aprovação, ou a URL é de outra rodada.")
     else:
         linhas.append("SEM APROVAÇÃO: a prancheta ainda não foi aprovada. Estas são as marcas até agora.")
     if snap.get("lido_em"):
@@ -652,6 +705,8 @@ def resumo_md(c, snap, situacao, posteriores):
             r = snap["chat"].get(f"p{n}")
             if r:
                 em = f" ({quando_txt(_quando(r['em']))})" if r.get("em") else ""
+                if r.get("em") and ap and ap.get("aprovado") and _quando(r["em"]) > _quando(ap["em"]):
+                    em += ", registrada depois da aprovação"
                 linhas.append(f"- {n}. {p['titulo']}: {r['resposta']}{em}")
             else:
                 linhas.append(f"- {n}. {p['titulo']}: sem resposta registrada")
@@ -749,7 +804,7 @@ def main():
         except (OSError, ValueError) as e:
             print(f"ERRO: estado {est_path}: {e}", file=sys.stderr)
             return 2
-        erros, avisos, snap, situacao, posteriores = valida_estado(est, c)
+        erros, avisos, snap, situacao, posteriores = valida_estado(est, c, a.nome, versao_conteudo(c))
         for av in avisos:
             print(f"AVISO: {av}", file=sys.stderr)
         if erros:
@@ -776,7 +831,8 @@ def main():
         print(f"ERRO: {e}", file=sys.stderr)
         return 2
     agora = datetime.now().astimezone()
-    dados = {"versao": 1, "modo": modo, "nome": a.nome, "gerado_em": agora.isoformat(timespec="seconds"),
+    dados = {"versao": 1, "modo": modo, "nome": a.nome, "versao_conteudo": versao_conteudo(c),
+             "gerado_em": agora.isoformat(timespec="seconds"),
              "chave_local": f"detonado:prancheta:{c['projeto']}:{a.nome}", "conteudo": c, "estado": snap}
     saida = (tpl.replace("{{TITULO}}", esc(c.get("titulo_curto") or c["titulo"]))
              .replace("{{TOKENS_CSS}}", tokens)
